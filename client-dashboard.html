@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Dashboard — Sotiris Demertzidis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EFE8DF;
+    --bg-elevated: #E4DBCC;
+    --tan: #D8BA98;
+    --tan-light: #F0E2D1;
+    --maroon: #7F0303;
+    --maroon-soft: #9C1F1F;
+    --midnight: #0F414A;
+    --skyblue: #96C0CE;
+    --ink: #0F414A;
+    --ink-dim: #4A5A5C;
+    --ink-faint: #8A8378;
+    --glass-border: rgba(15, 65, 74, 0.14);
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --accent: var(--maroon);
+    --accent-soft: var(--midnight);
+    --accent-dim: rgba(127, 3, 3, 0.08);
+    --green: #2E6B4F;
+    --green-dim: rgba(46, 107, 79, 0.1);
+    --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 900px 600px at 15% -5%, rgba(216, 186, 152, 0.3), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 15%, rgba(150, 192, 206, 0.2), transparent 60%),
+      radial-gradient(ellipse 800px 800px at 50% 100%, rgba(127, 3, 3, 0.04), transparent 60%);
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.02;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+    width: 100%;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(16px);
+    background: rgba(239, 232, 223, 0.75);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .logo span { color: var(--accent-soft); }
+
+  .btn-logout {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-dim);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .btn-logout:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+
+  /* ---------- MAIN ---------- */
+  main {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    padding: 48px 0 64px;
+  }
+
+  .gate-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 20px;
+  }
+  .gate-screen p {
+    font-size: 14.5px;
+    color: var(--ink-dim);
+    max-width: 320px;
+  }
+
+  .page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .page-head h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.6rem, 3.2vw, 2rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .page-head p {
+    font-size: 14px;
+    color: var(--ink-dim);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 100px;
+  }
+  .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-badge.verified {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+  .status-badge.verified .dot { background: var(--green); }
+
+  .dashboard-columns {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .col-main {
+    flex: 1 1 560px;
+    min-width: 0;
+  }
+  .col-side {
+    flex: 0 0 320px;
+    min-width: 280px;
+    position: sticky;
+    top: 24px;
+  }
+  @media (max-width: 900px) {
+    .col-side { position: static; flex: 1 1 100%; }
+  }
+
+  /* ---------- TABS ---------- */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .tab-btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink-dim);
+    background: none;
+    border: none;
+    padding: 12px 6px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+  }
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 2px;
+    background: var(--maroon);
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+  }
+  .tab-btn.active { color: var(--ink); }
+  .tab-btn.active::after { transform: scaleX(1); }
+  .tab-btn + .tab-btn { margin-left: 22px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .overview-columns {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .overview-columns .frame-card { flex: 1 1 420px; }
+  .overview-columns .counter-card { flex: 0 0 280px; min-width: 240px; }
+
+  .tracker-grid-stacked {
+    grid-template-columns: 1fr;
+  }
+
+  .tracker-save-status {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    min-height: 16px;
+    text-align: right;
+    transition: opacity 0.3s ease;
+  }
+  .tracker-save-status.saving { color: var(--ink-dim); }
+  .tracker-save-status.saved { color: var(--green); }
+
+  /* ---------- FRAME.IO CARD ---------- */
+  .frame-card, .counter-card, .info-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 26px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14.5px;
+    margin-bottom: 4px;
+  }
+  .card-subtitle {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin-bottom: 18px;
+  }
+
+  .frame-link-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .frame-link-input {
+    flex: 1;
+    min-width: 200px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.55);
+    color: var(--ink);
+    outline: none;
+  }
+  .frame-link-input:focus {
+    border-color: var(--midnight);
+    background: rgba(255,255,255,0.85);
+  }
+
+  .btn-save {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    background: var(--midnight);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+  }
+  .btn-save:hover {
+    box-shadow: 0 6px 24px rgba(15,65,74,0.28);
+    transform: translateY(-1px);
+  }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .frame-current {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin-top: 10px;
+  }
+  .frame-current a { color: var(--midnight); text-decoration: underline; }
+
+  /* ---------- VIDEOS DONE CARD ---------- */
+  .counter-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .counter-value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 40px;
+    color: var(--maroon);
+  }
+
+  /* ---------- TRACKER ---------- */
+  .tracker-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 26px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+  }
+
+  .tracker-month-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .tracker-month-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .tracker-nav-group { display: flex; gap: 8px; }
+  .tracker-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .tracker-nav-btn:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+
+  .tracker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+  }
+
+  .tracker-field {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .tracker-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  .tracker-dollar-input {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+  }
+  .tracker-dollar-input span {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink-dim);
+    flex-shrink: 0;
+  }
+  .tracker-dollar-input input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    font-family: var(--font-body);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 4px 2px;
+    box-sizing: border-box;
+  }
+  .tracker-dollar-input input:focus { border-bottom-color: var(--midnight); }
+
+  .tracker-counter-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .tracker-counter-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.6);
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .tracker-counter-btn:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+  .tracker-counter-row input {
+    width: 60px;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 4px 2px;
+  }
+  .tracker-counter-row input:focus { border-bottom-color: var(--midnight); }
+
+  .tracker-save-row {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  /* ---------- BRAND IDENTITY SECTION ---------- */
+  .luxury-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 40px 0 18px;
+  }
+  .luxury-section-head h2 {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .luxury-section-head .section-note {
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+
+  .brand-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .brand-subcard {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    backdrop-filter: blur(16px);
+  }
+
+  .brand-subcard .sub-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .brand-current-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    padding: 9px 11px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--glass-border);
+    margin-bottom: 10px;
+  }
+  .brand-current-row svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    color: var(--midnight);
+  }
+  .brand-current-row a {
+    color: var(--midnight);
+    text-decoration: underline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .brand-empty-note {
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+
+  .brand-input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .brand-input-row input[type="text"] {
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.55);
+    color: var(--ink);
+    outline: none;
+  }
+  .brand-input-row input[type="text"]:focus {
+    border-color: var(--midnight);
+    background: rgba(255,255,255,0.85);
+  }
+  .brand-input-row input[type="file"] {
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  .brand-save-btn {
+    align-self: flex-start;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--midnight);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  .brand-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- INFO CARD ---------- */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 22px;
+  }
+  .info-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .info-field .value {
+    font-size: 14.5px;
+    color: var(--ink);
+    font-family: var(--font-mono);
+  }
+
+  .save-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--green);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+    z-index: 60;
+  }
+  .save-toast.show { opacity: 1; transform: translateY(0); }
+
+  footer {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 32px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--ink-faint);
+    width: 100%;
+  }
+  .footer-links { display: flex; gap: 22px; }
+  .footer-links a:hover { color: var(--ink); }
+  @media (max-width: 500px) {
+    footer { flex-direction: column; gap: 10px; text-align: center; }
+    .frame-card, .counter-card, .info-card, .brand-subcard { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="noise"></div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Sotiris <span>Demertzidis</span></div>
+    <button class="btn-logout" id="logout-btn" style="display:none;">Log out</button>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <div id="gate-screen" class="gate-screen">
+      <p id="gate-message">Checking your session…</p>
+    </div>
+
+    <div id="dashboard-content" style="display:none;">
+
+      <div class="page-head">
+        <div>
+          <h1>Welcome back, <span id="client-first-name">—</span></h1>
+          <p>Your content hub — submit your materials and track progress.</p>
+        </div>
+        <span class="status-badge verified"><span class="dot"></span>Verified</span>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tab-overview">Overview</button>
+        <button class="tab-btn" data-tab="tab-brand">Brand Identity</button>
+        <button class="tab-btn" data-tab="tab-tracker">Tracker</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-overview">
+        <div class="overview-columns">
+          <div class="frame-card">
+            <div class="card-title">Frame.io link</div>
+            <div class="card-subtitle">Paste the link to your Frame.io review project.</div>
+            <div class="frame-link-row">
+              <input type="text" class="frame-link-input" id="frame-link-input" placeholder="https://app.frame.io/...">
+              <button class="btn-save" id="frame-save-btn">Save link</button>
+            </div>
+            <div class="frame-current" id="frame-current"></div>
+          </div>
+
+          <div class="counter-card">
+            <div>
+              <div class="card-title">Videos done</div>
+              <div class="card-subtitle" style="margin-bottom:0;">Updated by Sotiris as work is completed.</div>
+            </div>
+            <div class="counter-value" id="counter-value">0</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-grid">
+            <div class="info-field">
+              <label>Email</label>
+              <div class="value" id="client-email">—</div>
+            </div>
+            <div class="info-field">
+              <label>Instagram</label>
+              <div class="value" id="client-ig">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-brand">
+        <div class="luxury-section-head">
+          <h2>Brand Identity</h2>
+          <span class="section-note">can also help</span>
+        </div>
+
+        <div class="brand-grid" id="brand-grid">
+          <!-- subcards injected here -->
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-tracker">
+        <div class="tracker-card">
+          <div class="tracker-month-row">
+            <div>
+              <div class="card-title">Tracker</div>
+              <div class="tracker-month-label" id="tracker-month-label">—</div>
+            </div>
+            <div class="tracker-nav-group">
+              <button class="tracker-nav-btn" id="tracker-prev">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button class="tracker-nav-btn" id="tracker-next">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="tracker-grid tracker-grid-stacked">
+            <div class="tracker-field">
+              <label>Monthly revenue</label>
+              <div class="tracker-dollar-input">
+                <span>$</span>
+                <input type="number" id="tracker-revenue" min="0" step="0.01" placeholder="0">
+              </div>
+            </div>
+            <div class="tracker-field">
+              <label>Monthly cash collected</label>
+              <div class="tracker-dollar-input">
+                <span>$</span>
+                <input type="number" id="tracker-cash" min="0" step="0.01" placeholder="0">
+              </div>
+            </div>
+            <div class="tracker-field">
+              <label>Leads from content</label>
+              <div class="tracker-counter-row">
+                <button class="tracker-counter-btn" id="tracker-leads-minus">−</button>
+                <input type="number" id="tracker-leads" min="0" step="1" placeholder="0">
+                <button class="tracker-counter-btn" id="tracker-leads-plus">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tracker-save-status" id="tracker-save-status"></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div>© 2026 Sotiris Demertzidis</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/sotiris.dmrtz/" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:demertzidisbusinessinfo@gmail.com">Email</a>
+  </div>
+</footer>
+
+<div class="save-toast" id="save-toast">Saved</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://ulhmvcagmlrfplwhdmid.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_wetKL2PMoCSDzBaAWIrtHQ_iz1Lkci2';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const gateScreen = document.getElementById('gate-screen');
+  const gateMessage = document.getElementById('gate-message');
+  const dashboardContent = document.getElementById('dashboard-content');
+  const logoutBtn = document.getElementById('logout-btn');
+  const saveToast = document.getElementById('save-toast');
+
+  let currentUserId = null;
+  let currentProfile = null;
+
+  const BRAND_SECTIONS = [
+    { key: 'icp', title: 'Dream Follower / ICP', linkField: 'icp_link', fileField: 'icp_file' },
+    { key: 'brand_identity', title: 'Brand Identity', linkField: 'brand_identity_link', fileField: 'brand_identity_file' },
+    { key: 'competitor_research', title: 'Competitor Research', linkField: 'competitor_research_link', fileField: 'competitor_research_file' },
+    { key: 'style_inspiration', title: 'Style / Inspiration', linkField: 'style_inspiration_link', fileField: 'style_inspiration_file' }
+  ];
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function showToast(message) {
+    saveToast.textContent = message;
+    saveToast.classList.add('show');
+    setTimeout(function () { saveToast.classList.remove('show'); }, 2200);
+  }
+
+  function renderProfile(profile) {
+    currentProfile = profile;
+
+    document.getElementById('client-first-name').textContent = (profile.full_name || '').split(' ')[0] || 'there';
+    document.getElementById('client-email').textContent = profile.email || '—';
+    document.getElementById('client-ig').textContent = profile.ig_name || '—';
+    document.getElementById('counter-value').textContent = profile.videos_done || 0;
+
+    document.getElementById('frame-link-input').value = profile.frame_link || '';
+    const frameCurrent = document.getElementById('frame-current');
+    if (profile.frame_link) {
+      frameCurrent.innerHTML = 'Current: <a href="' + escapeHtml(profile.frame_link) + '" target="_blank" rel="noopener">' + escapeHtml(profile.frame_link) + '</a>';
+    } else {
+      frameCurrent.textContent = 'No link saved yet.';
+    }
+
+    renderBrandGrid(profile);
+  }
+
+  function renderBrandGrid(profile) {
+    const grid = document.getElementById('brand-grid');
+    grid.innerHTML = '';
+
+    BRAND_SECTIONS.forEach(function (section) {
+      const link = profile[section.linkField];
+      const filePath = profile[section.fileField];
+
+      const card = document.createElement('div');
+      card.className = 'brand-subcard';
+
+      let currentHtml = '';
+      if (link) {
+        currentHtml +=
+          '<div class="brand-current-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+          '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a></div>';
+      }
+      if (filePath) {
+        currentHtml +=
+          '<div class="brand-current-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+          '<span>' + escapeHtml(filePath.split('/').pop()) + '</span></div>';
+      }
+      if (!link && !filePath) {
+        currentHtml = '<div class="brand-empty-note">Nothing submitted yet</div>';
+      }
+
+      card.innerHTML =
+        '<div class="sub-title">' + escapeHtml(section.title) + '</div>' +
+        currentHtml +
+        '<div class="brand-input-row">' +
+          '<input type="text" placeholder="Paste a link" class="brand-link-input" data-key="' + section.key + '" value="' + escapeHtml(link || '') + '">' +
+          '<input type="file" class="brand-file-input" data-key="' + section.key + '">' +
+          '<button class="brand-save-btn" data-key="' + section.key + '">Save</button>' +
+        '</div>';
+
+      grid.appendChild(card);
+    });
+
+    grid.querySelectorAll('.brand-save-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        saveBrandSection(this.dataset.key, btn);
+      });
+    });
+  }
+
+  async function saveBrandSection(key, btn) {
+    const section = BRAND_SECTIONS.find(function (s) { return s.key === key; });
+    if (!section) return;
+
+    const linkInput = document.querySelector('.brand-link-input[data-key="' + key + '"]');
+    const fileInput = document.querySelector('.brand-file-input[data-key="' + key + '"]');
+
+    const link = linkInput.value.trim();
+    const file = fileInput.files[0];
+
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const updates = {};
+    updates[section.linkField] = link || null;
+
+    if (file) {
+      const filePath = currentUserId + '/' + key + '-' + Date.now() + '-' + file.name;
+      const { error: uploadError } = await supabaseClient
+        .storage
+        .from('client-uploads')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        alert('Could not upload file: ' + uploadError.message);
+        btn.disabled = false;
+        btn.textContent = 'Save';
+        return;
+      }
+
+      updates[section.fileField] = filePath;
+    }
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update(updates)
+      .eq('id', currentUserId);
+
+    btn.disabled = false;
+    btn.textContent = 'Save';
+
+    if (error) {
+      alert('Could not save: ' + error.message);
+      return;
+    }
+
+    Object.assign(currentProfile, updates);
+    renderBrandGrid(currentProfile);
+    showToast('Saved');
+  }
+
+  document.getElementById('frame-save-btn').addEventListener('click', async function () {
+    const btn = this;
+    const link = document.getElementById('frame-link-input').value.trim();
+
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ frame_link: link || null })
+      .eq('id', currentUserId);
+
+    btn.disabled = false;
+    btn.textContent = 'Save link';
+
+    if (error) {
+      alert('Could not save: ' + error.message);
+      return;
+    }
+
+    currentProfile.frame_link = link;
+    renderProfile(currentProfile);
+    showToast('Frame.io link saved');
+  });
+
+  async function loadProfile() {
+    const { data, error } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', currentUserId)
+      .single();
+
+    if (error || !data) {
+      gateMessage.textContent = 'Could not load your profile. Please contact Sotiris.';
+      gateScreen.style.display = 'flex';
+      dashboardContent.style.display = 'none';
+      return;
+    }
+
+    if (data.account_type !== 'client') {
+      window.location.href = 'partner-dashboard.html';
+      return;
+    }
+
+    if (data.status !== 'verified') {
+      gateMessage.textContent = 'Your account is still waiting to be verified.';
+      gateScreen.style.display = 'flex';
+      dashboardContent.style.display = 'none';
+      return;
+    }
+
+    gateScreen.style.display = 'none';
+    dashboardContent.style.display = 'block';
+    logoutBtn.style.display = 'inline-block';
+
+    renderProfile(data);
+    loadTrackerMonth();
+  }
+
+  // ---------------- TRACKER ----------------
+
+  let trackerViewYear = new Date().getFullYear();
+  let trackerViewMonth = new Date().getMonth(); // 0-indexed
+  let trackerCurrentRowId = null; // existing row id if one exists for this month
+
+  function trackerMonthDateStr(year, month) {
+    return year + '-' + String(month + 1).padStart(2, '0') + '-01';
+  }
+
+  function renderTrackerMonthLabel() {
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('tracker-month-label').textContent = monthNames[trackerViewMonth] + ' ' + trackerViewYear;
+  }
+
+  async function loadTrackerMonth() {
+    renderTrackerMonthLabel();
+
+    const monthStr = trackerMonthDateStr(trackerViewYear, trackerViewMonth);
+
+    const { data, error } = await supabaseClient
+      .from('client_metrics')
+      .select('id, monthly_revenue, cash_collected, leads_from_content')
+      .eq('client_id', currentUserId)
+      .eq('month', monthStr)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Could not load tracker:', error.message);
+      return;
+    }
+
+    if (data) {
+      trackerCurrentRowId = data.id;
+      document.getElementById('tracker-revenue').value = data.monthly_revenue || 0;
+      document.getElementById('tracker-cash').value = data.cash_collected || 0;
+      document.getElementById('tracker-leads').value = data.leads_from_content || 0;
+    } else {
+      trackerCurrentRowId = null;
+      document.getElementById('tracker-revenue').value = '';
+      document.getElementById('tracker-cash').value = '';
+      document.getElementById('tracker-leads').value = 0;
+    }
+  }
+
+  document.getElementById('tracker-prev').addEventListener('click', function () {
+    trackerViewMonth--;
+    if (trackerViewMonth < 0) { trackerViewMonth = 11; trackerViewYear--; }
+    loadTrackerMonth();
+  });
+
+  document.getElementById('tracker-next').addEventListener('click', function () {
+    trackerViewMonth++;
+    if (trackerViewMonth > 11) { trackerViewMonth = 0; trackerViewYear++; }
+    loadTrackerMonth();
+  });
+
+  document.getElementById('tracker-leads-minus').addEventListener('click', function () {
+    const input = document.getElementById('tracker-leads');
+    const next = Math.max(0, (parseInt(input.value, 10) || 0) - 1);
+    input.value = next;
+    scheduleTrackerSave();
+  });
+
+  document.getElementById('tracker-leads-plus').addEventListener('click', function () {
+    const input = document.getElementById('tracker-leads');
+    const next = (parseInt(input.value, 10) || 0) + 1;
+    input.value = next;
+    scheduleTrackerSave();
+  });
+
+  const trackerSaveStatus = document.getElementById('tracker-save-status');
+  let trackerSaveTimeout = null;
+
+  function scheduleTrackerSave() {
+    trackerSaveStatus.textContent = 'Editing…';
+    trackerSaveStatus.className = 'tracker-save-status';
+
+    if (trackerSaveTimeout) clearTimeout(trackerSaveTimeout);
+    trackerSaveTimeout = setTimeout(saveTrackerNow, 700);
+  }
+
+  async function saveTrackerNow() {
+    trackerSaveStatus.textContent = 'Saving…';
+    trackerSaveStatus.className = 'tracker-save-status saving';
+
+    const payload = {
+      client_id: currentUserId,
+      month: trackerMonthDateStr(trackerViewYear, trackerViewMonth),
+      monthly_revenue: parseFloat(document.getElementById('tracker-revenue').value) || 0,
+      cash_collected: parseFloat(document.getElementById('tracker-cash').value) || 0,
+      leads_from_content: parseInt(document.getElementById('tracker-leads').value, 10) || 0
+    };
+
+    const { error } = await supabaseClient
+      .from('client_metrics')
+      .upsert(payload, { onConflict: 'client_id,month' });
+
+    if (error) {
+      trackerSaveStatus.textContent = 'Could not save';
+      trackerSaveStatus.className = 'tracker-save-status';
+      return;
+    }
+
+    trackerSaveStatus.textContent = 'Saved';
+    trackerSaveStatus.className = 'tracker-save-status saved';
+  }
+
+  ['tracker-revenue', 'tracker-cash', 'tracker-leads'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', scheduleTrackerSave);
+  });
+
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session || !session.user) {
+      gateMessage.textContent = 'You must be logged in to view this page.';
+      setTimeout(function () {
+        window.location.href = 'login.html';
+      }, 1800);
+      return;
+    }
+
+    currentUserId = session.user.id;
+    loadProfile();
+  }
+
+  logoutBtn.addEventListener('click', async function () {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html';
+  });
+
+  init();
+</script>
+
+</body>
+</html>

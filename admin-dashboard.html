@@ -1,0 +1,2575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Sotiris Demertzidis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EFE8DF;
+    --bg-elevated: #E4DBCC;
+    --tan: #D8BA98;
+    --tan-light: #F0E2D1;
+    --maroon: #7F0303;
+    --maroon-soft: #9C1F1F;
+    --midnight: #0F414A;
+    --skyblue: #96C0CE;
+    --ink: #0F414A;
+    --ink-dim: #4A5A5C;
+    --ink-faint: #8A8378;
+    --glass-border: rgba(15, 65, 74, 0.14);
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --accent: var(--maroon);
+    --accent-soft: var(--midnight);
+    --accent-dim: rgba(127, 3, 3, 0.08);
+    --green: #2E6B4F;
+    --green-dim: rgba(46, 107, 79, 0.1);
+    --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 900px 600px at 15% -5%, rgba(216, 186, 152, 0.3), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 15%, rgba(150, 192, 206, 0.2), transparent 60%),
+      radial-gradient(ellipse 800px 800px at 50% 100%, rgba(127, 3, 3, 0.04), transparent 60%);
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.02;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+    width: 100%;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(16px);
+    background: rgba(239, 232, 223, 0.75);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .logo span { color: var(--accent-soft); }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-eod-nav {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--maroon);
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+  }
+  .btn-eod-nav:hover {
+    box-shadow: 0 4px 20px rgba(127,3,3,0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn-logout {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-dim);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .btn-logout:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+
+  /* ---------- EOD MODAL ---------- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(15, 20, 20, 0.45);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-card {
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 32px;
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.8); }
+
+  .modal-card h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
+    margin-bottom: 6px;
+  }
+  .modal-card .modal-sub {
+    font-size: 13px;
+    color: var(--ink-dim);
+    margin-bottom: 24px;
+  }
+
+  .modal-field { margin-bottom: 18px; }
+  .modal-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-dim);
+    margin-bottom: 7px;
+  }
+  .modal-field input[type="date"],
+  .modal-field textarea {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink);
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 10px 13px;
+    outline: none;
+    resize: vertical;
+    min-height: 44px;
+  }
+  .modal-field input[type="date"]:focus,
+  .modal-field textarea:focus {
+    border-color: var(--midnight);
+    background: rgba(255,255,255,0.85);
+  }
+  .modal-field .value {
+    font-size: 13.5px;
+    color: var(--ink-dim);
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  .modal-submit {
+    width: 100%;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 13px 22px;
+    border-radius: 10px;
+    background: var(--maroon);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+  }
+  .modal-submit:hover {
+    box-shadow: 0 6px 24px rgba(127,3,3,0.32);
+    transform: translateY(-1px);
+  }
+  .modal-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .modal-success {
+    display: none;
+    text-align: center;
+    padding: 16px 4px 4px;
+  }
+  .modal-success .success-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--green-dim);
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .modal-success h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  .modal-success p {
+    font-size: 13px;
+    color: var(--ink-dim);
+  }
+
+  /* ---------- ASSIGNMENTS SECTION ---------- */
+  .assignments-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 28px;
+    backdrop-filter: blur(16px);
+  }
+  .assignments-select-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .assignments-select-row label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .assignments-select-row select {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink);
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    outline: none;
+  }
+  .assign-client-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .assign-client-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.35);
+    border: 1px solid transparent;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .assign-client-row:hover { background: rgba(255,255,255,0.6); }
+  .assign-client-row.checked {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+  .assign-client-row input[type="checkbox"] {
+    accent-color: var(--midnight);
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+  .assign-empty {
+    font-size: 13.5px;
+    color: var(--ink-faint);
+    padding: 12px 4px;
+  }
+  .assign-save-row {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .btn-save-assignments {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13.5px;
+    color: #fff;
+    background: var(--midnight);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+  }
+  .btn-save-assignments:hover {
+    box-shadow: 0 4px 20px rgba(15,65,74,0.3);
+    transform: translateY(-1px);
+  }
+  .btn-save-assignments:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .assign-save-status {
+    font-size: 12.5px;
+    color: var(--green);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .assign-save-status.show { opacity: 1; }
+
+  /* ---------- CLIENT DETAIL (inline, imported from client-detail.html) ---------- */
+  .profile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .avatar-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--maroon);
+    flex-shrink: 0;
+  }
+  .profile-identity h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 3vw, 1.9rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .profile-identity .ig-handle {
+    font-size: 13.5px;
+    color: var(--ink-dim);
+  }
+  .profile-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .btn-action {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+  }
+  .btn-action:hover { transform: translateY(-1px); }
+  .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-approve { background: var(--green); color: #fff; }
+  .btn-reject {
+    background: transparent;
+    color: var(--maroon);
+    border: 1px solid rgba(127,3,3,0.25);
+  }
+
+  .frame-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 26px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+  }
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14.5px;
+    margin-bottom: 4px;
+  }
+  .card-subtitle {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin-bottom: 18px;
+  }
+  .frame-link-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .frame-link-display {
+    flex: 1;
+    min-width: 200px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--midnight);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .frame-link-display a {
+    color: var(--midnight);
+    text-decoration: underline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .frame-link-display.empty {
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+  .frame-link-display svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--midnight);
+  }
+  .btn-frame-open {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    background: var(--midnight);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+  }
+  .btn-frame-open:hover {
+    box-shadow: 0 6px 24px rgba(15,65,74,0.28);
+    transform: translateY(-1px);
+  }
+  .btn-frame-open:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .counter-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 26px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .counter-control {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .counter-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+  }
+  .counter-btn:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+    transform: translateY(-1px);
+  }
+  .counter-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .counter-value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 34px;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .tracker-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 26px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+  }
+  .tracker-month-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .tracker-month-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .tracker-nav-group { display: flex; gap: 8px; }
+  .tracker-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .tracker-nav-btn:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+  .tracker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .tracker-grid-stacked { grid-template-columns: 1fr; }
+  .tracker-field {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .tracker-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .tracker-dollar-input {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+  }
+  .tracker-dollar-input span {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink-dim);
+    flex-shrink: 0;
+  }
+  .tracker-dollar-input input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    font-family: var(--font-body);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 4px 2px;
+    box-sizing: border-box;
+  }
+  .tracker-dollar-input input:focus { border-bottom-color: var(--midnight); }
+  .tracker-counter-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .tracker-counter-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.6);
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .tracker-counter-btn:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+  .tracker-counter-row input {
+    width: 60px;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 4px 2px;
+  }
+  .tracker-counter-row input:focus { border-bottom-color: var(--midnight); }
+  .tracker-save-status {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    min-height: 16px;
+    text-align: right;
+  }
+  .tracker-save-status.saving { color: var(--ink-dim); }
+  .tracker-save-status.saved { color: var(--green); }
+
+  .brand-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  .brand-subcard {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    backdrop-filter: blur(16px);
+  }
+  .brand-subcard .sub-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .brand-item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--glass-border);
+    margin-bottom: 8px;
+  }
+  .brand-item-row:last-child { margin-bottom: 0; }
+  .brand-item-row svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--midnight);
+  }
+  .brand-item-row a {
+    color: var(--midnight);
+    text-decoration: underline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .brand-empty {
+    font-size: 13px;
+    color: var(--ink-faint);
+    font-style: italic;
+    padding: 10px 2px;
+  }
+
+  .dashboard-columns {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .col-main { flex: 1 1 560px; min-width: 0; }
+  .col-side {
+    flex: 0 0 320px;
+    min-width: 280px;
+    position: sticky;
+    top: 24px;
+  }
+  @media (max-width: 900px) {
+    .col-side { position: static; flex: 1 1 100%; }
+  }
+
+  .info-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 22px;
+  }
+  .info-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .info-field .value {
+    font-size: 14.5px;
+    color: var(--ink);
+    font-family: var(--font-mono);
+  }
+
+  .save-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--green);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+    z-index: 60;
+  }
+  .save-toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ---------- MAIN ---------- */
+  main {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    padding: 48px 0 64px;
+  }
+
+  .page-head {
+    margin-bottom: 32px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--accent-soft);
+    background: var(--accent-dim);
+    border: 1px solid var(--glass-border);
+    padding: 6px 12px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+  }
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent-soft);
+    box-shadow: 0 0 8px var(--accent-soft);
+  }
+
+  .page-head h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.7rem, 3.2vw, 2.2rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .page-head p {
+    font-size: 14.5px;
+    color: var(--ink-dim);
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 14px;
+    margin: 24px 0 8px;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 7px 14px;
+    border-radius: 100px;
+  }
+  .stat-pill strong { color: var(--ink); }
+
+  /* ---------- TABLE ---------- */
+  .luxury-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 48px 0 18px;
+  }
+  .luxury-section-head h2 {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .editors-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+  }
+
+  .partner-select-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .partner-select-row label {
+    font-size: 12.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-dim);
+  }
+  .partner-select-row select {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink);
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 9px 14px;
+    outline: none;
+    min-width: 220px;
+  }
+
+  .editors-columns {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .cal-column { flex: 0 0 auto; }
+  .eod-list-column {
+    flex: 1;
+    min-width: 220px;
+  }
+  .eod-list-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .eod-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+  }
+  .eod-list-item:hover {
+    border-color: var(--midnight);
+    background: rgba(255,255,255,0.8);
+    transform: translateY(-1px);
+  }
+  .eod-list-item .eod-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .eod-list-item .eod-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--midnight);
+    background: rgba(15,65,74,0.08);
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .cal-header h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .cal-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .cal-nav-btn:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+  .cal-nav-group { display: flex; gap: 8px; }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    max-width: 320px;
+  }
+  .cal-dow {
+    text-align: center;
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--ink-faint);
+    padding-bottom: 4px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 7px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 10.5px;
+    color: var(--ink);
+    cursor: default;
+    position: relative;
+  }
+  .cal-day.empty { visibility: hidden; }
+  .cal-day.future { opacity: 0.45; }
+  .cal-day .check-icon {
+    width: 10px;
+    height: 10px;
+  }
+  .cal-day.done {
+    background: var(--green-dim);
+    border-color: rgba(46,107,79,0.3);
+  }
+  .cal-day.done .check-icon { color: var(--green); }
+  .cal-day.missed .check-icon { color: rgba(127,3,3,0.35); }
+  .cal-day.clickable { cursor: pointer; }
+  .cal-day.clickable:hover { border-color: var(--midnight); }
+
+  .eod-log-table th, .eod-log-table td { font-size: 13px; }
+  .eod-log-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 13.5px;
+  }
+
+  .eod-detail-cell {
+    max-width: 260px;
+    white-space: pre-wrap;
+    color: var(--ink-dim);
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .section-head {
+    margin: 40px 0 12px;
+  }
+  .section-head:first-of-type { margin-top: 8px; }
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  /* ---------- TABS ---------- */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .tab-btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink-dim);
+    background: none;
+    border: none;
+    padding: 12px 6px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+  }
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 2px;
+    background: var(--maroon);
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+  }
+  .tab-btn.active { color: var(--ink); }
+  .tab-btn.active::after { transform: scaleX(1); }
+  .tab-btn + .tab-btn { margin-left: 22px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .cell-name-link {
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .cell-name-link:hover {
+    color: var(--maroon);
+    text-decoration: underline;
+  }
+
+  .table-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+    margin-top: 24px;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+  }
+
+  thead th {
+    text-align: left;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-faint);
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--glass-border);
+    transition: background 0.15s ease;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.35); }
+
+  tbody td {
+    padding: 16px 20px;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  .cell-name {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .cell-sub {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  .cell-email {
+    color: var(--ink-dim);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+  }
+
+  .type-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+  .type-badge.client {
+    background: var(--accent-dim);
+    color: var(--maroon);
+  }
+  .type-badge.partner {
+    background: rgba(15, 65, 74, 0.08);
+    color: var(--midnight);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 100px;
+  }
+  .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-badge.pending {
+    background: rgba(184, 134, 11, 0.1);
+    color: #8a6508;
+  }
+  .status-badge.pending .dot { background: #B8860B; }
+  .status-badge.verified {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+  .status-badge.verified .dot { background: var(--green); }
+
+  .row-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .btn-action {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn-action:hover { transform: translateY(-1px); }
+  .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-approve {
+    background: var(--green);
+    color: #fff;
+  }
+  .btn-reject {
+    background: transparent;
+    color: var(--maroon);
+    border: 1px solid rgba(127,3,3,0.25);
+  }
+
+  .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 14px;
+  }
+
+  /* ---------- GATE (shown until admin identity confirmed) ---------- */
+  .gate-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 20px;
+  }
+  .gate-screen p {
+    font-size: 14.5px;
+    color: var(--ink-dim);
+    max-width: 320px;
+  }
+
+  footer {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 32px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--ink-faint);
+    width: 100%;
+  }
+  .footer-links { display: flex; gap: 22px; }
+  .footer-links a:hover { color: var(--ink); }
+  @media (max-width: 500px) {
+    footer { flex-direction: column; gap: 10px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="noise"></div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Sotiris <span>Demertzidis</span></div>
+    <div class="nav-actions">
+      <button class="btn-eod-nav" id="my-eod-btn" style="display:none;">Submit my EOD</button>
+      <button class="btn-logout" id="logout-btn" style="display:none;">Log out</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <div id="gate-screen" class="gate-screen">
+      <p id="gate-message">Checking your session…</p>
+    </div>
+
+    <div id="dashboard-content" style="display:none;">
+      <div class="page-head">
+        <span class="eyebrow"><span class="dot"></span> Admin</span>
+        <h1>Account requests</h1>
+        <p>Review new sign-ups and manage access to the Client Terminal.</p>
+        <div class="stats-row">
+          <span class="stat-pill"><strong id="stat-total">0</strong> total</span>
+          <span class="stat-pill"><strong id="stat-pending">0</strong> pending</span>
+          <span class="stat-pill"><strong id="stat-verified">0</strong> verified</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tab-overview">Overview</button>
+        <button class="tab-btn" data-tab="tab-partners">Partners</button>
+        <button class="tab-btn" data-tab="tab-clients">Clients</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-overview">
+        <div class="section-head">
+          <h2>Clients</h2>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="clients-tbody">
+                <!-- rows injected here -->
+              </tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="clients-empty" style="display:none;">No clients yet.</div>
+        </div>
+
+        <div class="section-head">
+          <h2>Partners</h2>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="partners-tbody">
+                <!-- rows injected here -->
+              </tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="partners-empty" style="display:none;">No partners yet.</div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-partners">
+        <div class="assignments-select-row" style="margin-bottom: 24px;">
+          <label for="partner-focus-select">Viewing</label>
+          <select id="partner-focus-select">
+            <!-- options injected here -->
+          </select>
+        </div>
+
+        <div id="partner-focus-empty" class="assign-empty">No partners yet.</div>
+
+        <div id="partner-focus-layout" style="display:none;">
+          <div class="luxury-section-head">
+            <h2>EOD calendar</h2>
+          </div>
+
+          <div class="editors-card">
+            <div id="calendar-empty-state" class="eod-log-empty">No EODs submitted yet.</div>
+
+            <div id="editors-layout" style="display:none;">
+              <div class="editors-columns">
+                <div class="cal-column">
+                  <div class="cal-header">
+                    <h3 id="cal-month-label">—</h3>
+                    <div class="cal-nav-group">
+                      <button class="cal-nav-btn" id="cal-prev">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                      </button>
+                      <button class="cal-nav-btn" id="cal-next">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="cal-grid" id="cal-dow-row">
+                    <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div>
+                    <div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
+                  </div>
+                  <div class="cal-grid" id="cal-days"></div>
+                </div>
+
+                <div class="eod-list-column">
+                  <div class="eod-list-title">Completed EODs</div>
+                  <div id="eods-list"></div>
+                  <div class="eod-log-empty" id="eods-empty">No EODs submitted yet.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="luxury-section-head">
+            <h2>Assigned clients</h2>
+          </div>
+
+          <div class="assignments-card">
+            <div class="assign-client-list" id="assign-client-list"></div>
+            <div class="assign-save-row">
+              <button class="btn-save-assignments" id="assign-save-btn">Save assignments</button>
+              <span class="assign-save-status" id="assign-save-status">Saved</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-clients">
+        <div class="assignments-select-row" style="margin-bottom: 24px;">
+          <label for="client-focus-select">Viewing</label>
+          <select id="client-focus-select">
+            <!-- options injected here -->
+          </select>
+        </div>
+
+        <div id="client-focus-empty" class="assign-empty">No clients yet.</div>
+
+        <div id="client-focus-layout" style="display:none;">
+          <div class="profile-head">
+            <div class="profile-identity">
+              <div class="avatar-circle" id="cd-avatar-initial">?</div>
+              <div>
+                <h1 id="cd-client-name">—</h1>
+                <div class="ig-handle" id="cd-client-ig"></div>
+              </div>
+              <span class="status-badge" id="cd-client-status"><span class="dot"></span><span id="cd-client-status-text">—</span></span>
+            </div>
+            <div class="profile-actions">
+              <button class="btn-action btn-approve" id="cd-approve-btn">Approve</button>
+              <button class="btn-action btn-reject" id="cd-reject-btn">Reject</button>
+            </div>
+          </div>
+
+          <div class="dashboard-columns">
+            <div class="col-main">
+              <div class="frame-card">
+                <div class="card-title">Frame.io link</div>
+                <div class="card-subtitle">The client's editing review link. They can submit or update this from their side.</div>
+                <div class="frame-link-row">
+                  <div class="frame-link-display empty" id="cd-frame-link-display">No link submitted yet</div>
+                  <button class="btn-frame-open" id="cd-frame-open-btn" disabled>Open in Frame.io</button>
+                </div>
+              </div>
+
+              <div class="luxury-section-head">
+                <h2>Brand Identity</h2>
+                <span class="section-note">can also help</span>
+              </div>
+
+              <div class="brand-grid">
+                <div class="brand-subcard">
+                  <div class="sub-title">Dream Follower / ICP</div>
+                  <div id="cd-icp-items"></div>
+                </div>
+                <div class="brand-subcard">
+                  <div class="sub-title">Brand Identity</div>
+                  <div id="cd-brand_identity-items"></div>
+                </div>
+                <div class="brand-subcard">
+                  <div class="sub-title">Competitor Research</div>
+                  <div id="cd-competitor_research-items"></div>
+                </div>
+                <div class="brand-subcard">
+                  <div class="sub-title">Style / Inspiration</div>
+                  <div id="cd-style_inspiration-items"></div>
+                </div>
+              </div>
+
+              <div class="info-card">
+                <div class="info-grid">
+                  <div class="info-field">
+                    <label>Email</label>
+                    <div class="value" id="cd-client-email">—</div>
+                  </div>
+                  <div class="info-field">
+                    <label>Instagram</label>
+                    <div class="value" id="cd-client-ig-full">—</div>
+                  </div>
+                  <div class="info-field">
+                    <label>Signed up</label>
+                    <div class="value" id="cd-client-created">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-side">
+              <div class="counter-card">
+                <div>
+                  <div class="card-title">Videos done</div>
+                  <div class="card-subtitle" style="margin-bottom:0;">Visible to the client, editable only by you.</div>
+                </div>
+                <div class="counter-control">
+                  <button class="counter-btn" id="cd-counter-minus">−</button>
+                  <div class="counter-value" id="cd-counter-value">0</div>
+                  <button class="counter-btn" id="cd-counter-plus">+</button>
+                </div>
+              </div>
+
+              <div class="tracker-card">
+                <div class="tracker-month-row">
+                  <div>
+                    <div class="card-title">Tracker</div>
+                    <div class="tracker-month-label" id="cd-tracker-month-label">—</div>
+                  </div>
+                  <div class="tracker-nav-group">
+                    <button class="tracker-nav-btn" id="cd-tracker-prev">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <button class="tracker-nav-btn" id="cd-tracker-next">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="tracker-grid tracker-grid-stacked">
+                  <div class="tracker-field">
+                    <label>Monthly revenue</label>
+                    <div class="tracker-dollar-input">
+                      <span>$</span>
+                      <input type="number" id="cd-tracker-revenue" min="0" step="0.01" placeholder="0">
+                    </div>
+                  </div>
+                  <div class="tracker-field">
+                    <label>Monthly cash collected</label>
+                    <div class="tracker-dollar-input">
+                      <span>$</span>
+                      <input type="number" id="cd-tracker-cash" min="0" step="0.01" placeholder="0">
+                    </div>
+                  </div>
+                  <div class="tracker-field">
+                    <label>Leads from content</label>
+                    <div class="tracker-counter-row">
+                      <button class="tracker-counter-btn" id="cd-tracker-leads-minus">−</button>
+                      <input type="number" id="cd-tracker-leads" min="0" step="1" placeholder="0">
+                      <button class="tracker-counter-btn" id="cd-tracker-leads-plus">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tracker-save-status" id="cd-tracker-save-status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</main>
+
+<footer>
+  <div>© 2026 Sotiris Demertzidis</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/sotiris.dmrtz/" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:demertzidisbusinessinfo@gmail.com">Email</a>
+  </div>
+</footer>
+
+<div class="save-toast" id="save-toast">Saved</div>
+
+<div class="modal-overlay" id="eod-modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" id="eod-modal-close">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div id="eod-form-panel">
+      <h2>Submit your EOD</h2>
+      <p class="modal-sub">End-of-day report for your own account.</p>
+
+      <form id="my-eod-form">
+        <div class="modal-field">
+          <label for="eod-date">Date</label>
+          <input type="date" id="eod-date" required>
+        </div>
+        <div class="modal-field">
+          <label for="eod-count">Videos completed today (number)</label>
+          <input type="number" id="eod-count" min="0" step="1" required style="width:100%; font-family: var(--font-body); font-size: 14px; color: var(--ink); background: rgba(255,255,255,0.55); border: 1px solid var(--glass-border); border-radius: 10px; padding: 10px 13px; outline: none;">
+        </div>
+        <div class="modal-field">
+          <label for="eod-videos">Videos completed today (links if possible)</label>
+          <textarea id="eod-videos" rows="3" placeholder="e.g. https://..."></textarea>
+        </div>
+        <div class="modal-field">
+          <label for="eod-progress">Anything in progress or delayed and why?</label>
+          <textarea id="eod-progress" rows="3"></textarea>
+        </div>
+        <div class="modal-field">
+          <label for="eod-bottlenecks">Any editing bottlenecks?</label>
+          <textarea id="eod-bottlenecks" rows="3"></textarea>
+        </div>
+        <button type="submit" class="modal-submit" id="eod-submit-btn">Submit EOD</button>
+      </form>
+    </div>
+
+    <div class="modal-success" id="eod-success-panel">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>EOD submitted</h3>
+      <p>Your report for that day has been saved.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="eod-detail-overlay">
+  <div class="modal-card">
+    <button class="modal-close" id="eod-detail-close">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h2 id="eod-detail-date">—</h2>
+    <p class="modal-sub">Full EOD report.</p>
+
+    <div class="modal-field">
+      <label>Videos completed today (number)</label>
+      <div class="value" id="eod-detail-count">—</div>
+    </div>
+    <div class="modal-field">
+      <label>Videos completed today (links if possible)</label>
+      <div class="value" id="eod-detail-videos">—</div>
+    </div>
+    <div class="modal-field">
+      <label>In progress or delayed</label>
+      <div class="value" id="eod-detail-progress">—</div>
+    </div>
+    <div class="modal-field">
+      <label>Bottlenecks</label>
+      <div class="value" id="eod-detail-bottlenecks">—</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://ulhmvcagmlrfplwhdmid.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_wetKL2PMoCSDzBaAWIrtHQ_iz1Lkci2';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const ADMIN_EMAIL = 'demertzidisbusinessinfo@gmail.com';
+
+  const gateScreen = document.getElementById('gate-screen');
+  const gateMessage = document.getElementById('gate-message');
+  const dashboardContent = document.getElementById('dashboard-content');
+  const logoutBtn = document.getElementById('logout-btn');
+  const clientsTbody = document.getElementById('clients-tbody');
+  const clientsEmpty = document.getElementById('clients-empty');
+  const partnersTbody = document.getElementById('partners-tbody');
+  const partnersEmpty = document.getElementById('partners-empty');
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function formatDateISO(y, m, d) {
+    return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  }
+
+  function formatDateNice(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function formatDateLong(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  // ---------------- TABS ----------------
+
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ---------------- ROW BUILDERS (Overview tab) ----------------
+
+  function buildRow(acc) {
+    const tr = document.createElement('tr');
+
+    const igLine = acc.ig_name
+      ? '<div class="cell-sub">' + escapeHtml(acc.ig_name) + '</div>'
+      : '';
+
+    tr.innerHTML =
+      '<td><div class="cell-name">' + escapeHtml(acc.full_name) + '</div>' + igLine + '</td>' +
+      '<td><span class="cell-email">' + escapeHtml(acc.email) + '</span></td>' +
+      '<td><span class="status-badge ' + acc.status + '"><span class="dot"></span>' + acc.status + '</span></td>' +
+      '<td><div class="row-actions"></div></td>';
+
+    const actionsCell = tr.querySelector('.row-actions');
+
+    if (acc.status !== 'verified') {
+      const approveBtn = document.createElement('button');
+      approveBtn.className = 'btn-action btn-approve';
+      approveBtn.textContent = 'Approve';
+      approveBtn.addEventListener('click', function () {
+        approveAccount(acc.id, approveBtn);
+      });
+      actionsCell.appendChild(approveBtn);
+    }
+
+    const rejectBtn = document.createElement('button');
+    rejectBtn.className = 'btn-action btn-reject';
+    rejectBtn.textContent = 'Reject';
+    rejectBtn.addEventListener('click', function () {
+      rejectAccount(acc.id, acc.full_name, rejectBtn);
+    });
+    actionsCell.appendChild(rejectBtn);
+
+    return tr;
+  }
+
+  let latestClients = [];
+  let latestPartners = [];
+
+  function renderAccounts(accounts) {
+    clientsTbody.innerHTML = '';
+    partnersTbody.innerHTML = '';
+
+    const clients = accounts.filter(function (a) { return a.account_type === 'client'; });
+    const partners = accounts.filter(function (a) { return a.account_type === 'partner'; });
+
+    latestClients = clients;
+    latestPartners = partners;
+
+    clientsEmpty.style.display = clients.length ? 'none' : 'block';
+    partnersEmpty.style.display = partners.length ? 'none' : 'block';
+
+    clients.forEach(function (acc) { clientsTbody.appendChild(buildRow(acc)); });
+    partners.forEach(function (acc) { partnersTbody.appendChild(buildRow(acc)); });
+
+    populatePartnerFocusSelect(partners);
+    populateClientFocusSelect(clients);
+
+    let pendingCount = 0;
+    let verifiedCount = 0;
+    accounts.forEach(function (acc) {
+      if (acc.status === 'verified') verifiedCount++;
+      else pendingCount++;
+    });
+
+    document.getElementById('stat-total').textContent = accounts.length;
+    document.getElementById('stat-pending').textContent = pendingCount;
+    document.getElementById('stat-verified').textContent = verifiedCount;
+  }
+
+  async function loadAccounts() {
+    const { data, error } = await supabaseClient
+      .from('profiles')
+      .select('id, full_name, email, ig_name, account_type, status, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      clientsTbody.innerHTML = '';
+      partnersTbody.innerHTML = '';
+      clientsEmpty.style.display = 'block';
+      clientsEmpty.textContent = 'Could not load accounts: ' + error.message;
+      partnersEmpty.style.display = 'block';
+      partnersEmpty.textContent = 'Could not load accounts: ' + error.message;
+      return;
+    }
+
+    renderAccounts(data || []);
+  }
+
+  async function approveAccount(id, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Approving…';
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ status: 'verified' })
+      .eq('id', id);
+
+    if (error) {
+      alert('Could not approve: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Approve';
+      return;
+    }
+
+    loadAccounts();
+  }
+
+  async function rejectAccount(id, name, btn) {
+    const confirmed = confirm('Remove ' + name + '\'s account? This cannot be undone.');
+    if (!confirmed) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Removing…';
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      alert('Could not reject: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Reject';
+      return;
+    }
+
+    loadAccounts();
+  }
+
+  // ---------------- PARTNERS TAB (select + EOD calendar + assignments, merged) ----------------
+
+  const partnerFocusSelect = document.getElementById('partner-focus-select');
+  const partnerFocusEmpty = document.getElementById('partner-focus-empty');
+  const partnerFocusLayout = document.getElementById('partner-focus-layout');
+  const calendarEmptyState = document.getElementById('calendar-empty-state');
+  const editorsLayout = document.getElementById('editors-layout');
+  const calMonthLabel = document.getElementById('cal-month-label');
+  const calDaysGrid = document.getElementById('cal-days');
+  const eodsList = document.getElementById('eods-list');
+  const eodsEmpty = document.getElementById('eods-empty');
+  const assignClientList = document.getElementById('assign-client-list');
+  const assignSaveBtn = document.getElementById('assign-save-btn');
+  const assignSaveStatus = document.getElementById('assign-save-status');
+
+  let currentPartnerId = '';
+  let currentPartnerEods = [];
+  let calViewYear = new Date().getFullYear();
+  let calViewMonth = new Date().getMonth();
+  let assignedClientIdsForCurrentPartner = new Set();
+
+  function populatePartnerFocusSelect(partners) {
+    const previouslySelected = partnerFocusSelect.value;
+    partnerFocusSelect.innerHTML = '';
+
+    if (!partners.length) {
+      partnerFocusEmpty.style.display = 'block';
+      partnerFocusEmpty.textContent = 'No partners yet.';
+      partnerFocusLayout.style.display = 'none';
+      return;
+    }
+
+    partners.forEach(function (p) {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.full_name + ' (' + p.email + ')';
+      partnerFocusSelect.appendChild(opt);
+    });
+
+    // Default to the previously selected partner if they still exist,
+    // otherwise default to the first partner in the list (never leave it empty).
+    const stillExists = partners.some(function (p) { return p.id === previouslySelected; });
+    partnerFocusSelect.value = stillExists ? previouslySelected : partners[0].id;
+
+    partnerFocusEmpty.style.display = 'none';
+    partnerFocusLayout.style.display = 'block';
+
+    onPartnerFocusChange();
+  }
+
+  function onPartnerFocusChange() {
+    currentPartnerId = partnerFocusSelect.value;
+    if (!currentPartnerId) return;
+
+    loadPartnerEods(currentPartnerId);
+    loadAssignmentsForPartner(currentPartnerId);
+  }
+
+  partnerFocusSelect.addEventListener('change', onPartnerFocusChange);
+
+  function renderCalendar() {
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    calMonthLabel.textContent = monthNames[calViewMonth] + ' ' + calViewYear;
+
+    calDaysGrid.innerHTML = '';
+
+    const firstDay = new Date(calViewYear, calViewMonth, 1).getDay();
+    const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+    const today = new Date();
+    const todayISO = formatDateISO(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const eodByDate = {};
+    currentPartnerEods.forEach(function (e) { eodByDate[e.report_date] = e; });
+
+    for (let i = 0; i < firstDay; i++) {
+      const filler = document.createElement('div');
+      filler.className = 'cal-day empty';
+      calDaysGrid.appendChild(filler);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const iso = formatDateISO(calViewYear, calViewMonth, d);
+      const cell = document.createElement('div');
+      cell.className = 'cal-day';
+      if (iso === todayISO) cell.classList.add('today');
+
+      const eod = eodByDate[iso];
+      if (eod) {
+        cell.classList.add('has-eod');
+        cell.addEventListener('click', function () { openEodDetail(eod); });
+      }
+      cell.innerHTML = '<span>' + d + '</span>';
+      calDaysGrid.appendChild(cell);
+    }
+  }
+
+  function renderEodsLog() {
+    eodsList.innerHTML = '';
+
+    if (!currentPartnerEods.length) {
+      eodsEmpty.style.display = 'block';
+      eodsEmpty.textContent = 'No EODs submitted yet.';
+      calendarEmptyState.style.display = 'none';
+      editorsLayout.style.display = 'block';
+      return;
+    }
+    eodsEmpty.style.display = 'none';
+    calendarEmptyState.style.display = 'none';
+    editorsLayout.style.display = 'block';
+
+    const sorted = currentPartnerEods.slice().sort(function (a, b) {
+      return b.report_date.localeCompare(a.report_date);
+    });
+
+    sorted.forEach(function (e) {
+      const item = document.createElement('div');
+      item.className = 'eod-list-item';
+      const countLabel = (e.videos_completed_count === null || e.videos_completed_count === undefined)
+        ? '—' : e.videos_completed_count;
+      item.innerHTML =
+        '<span class="eod-date">' + formatDateNice(e.report_date) + '</span>' +
+        '<span class="eod-count">' + countLabel + ' videos</span>';
+      item.addEventListener('click', function () { openEodDetail(e); });
+      eodsList.appendChild(item);
+    });
+  }
+
+  async function loadPartnerEods(partnerId) {
+    const { data, error } = await supabaseClient
+      .from('eods')
+      .select('report_date, videos_completed_count, videos_completed, in_progress_or_delayed, bottlenecks')
+      .eq('partner_id', partnerId)
+      .order('report_date', { ascending: false });
+
+    if (error) {
+      currentPartnerEods = [];
+      eodsEmpty.style.display = 'block';
+      eodsEmpty.textContent = 'Could not load EODs: ' + error.message;
+      renderCalendar();
+      return;
+    }
+
+    currentPartnerEods = data || [];
+    renderCalendar();
+    renderEodsLog();
+  }
+
+  document.getElementById('cal-prev').addEventListener('click', function () {
+    calViewMonth--;
+    if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+    renderCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', function () {
+    calViewMonth++;
+    if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+    renderCalendar();
+  });
+
+  // ---------------- ASSIGNMENTS (now nested inside the Partners tab) ----------------
+
+  function renderAssignClientList() {
+    assignClientList.innerHTML = '';
+
+    if (!latestClients.length) {
+      assignClientList.innerHTML = '<div class="assign-empty">No clients yet.</div>';
+      return;
+    }
+
+    latestClients.forEach(function (client) {
+      const row = document.createElement('label');
+      row.className = 'assign-client-row';
+      if (assignedClientIdsForCurrentPartner.has(client.id)) row.classList.add('checked');
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = client.id;
+      checkbox.checked = assignedClientIdsForCurrentPartner.has(client.id);
+
+      checkbox.addEventListener('change', function () {
+        if (checkbox.checked) {
+          assignedClientIdsForCurrentPartner.add(client.id);
+          row.classList.add('checked');
+        } else {
+          assignedClientIdsForCurrentPartner.delete(client.id);
+          row.classList.remove('checked');
+        }
+      });
+
+      const span = document.createElement('span');
+      span.textContent = client.full_name + (client.ig_name ? ' (' + client.ig_name + ')' : '');
+
+      row.appendChild(checkbox);
+      row.appendChild(span);
+      assignClientList.appendChild(row);
+    });
+  }
+
+  async function loadAssignmentsForPartner(partnerId) {
+    const { data, error } = await supabaseClient
+      .from('partner_client_assignments')
+      .select('client_id')
+      .eq('partner_id', partnerId);
+
+    if (error) {
+      assignClientList.innerHTML = '<div class="assign-empty">Could not load assignments: ' + escapeHtml(error.message) + '</div>';
+      return;
+    }
+
+    assignedClientIdsForCurrentPartner = new Set((data || []).map(function (row) { return row.client_id; }));
+    renderAssignClientList();
+  }
+
+  assignSaveBtn.addEventListener('click', async function () {
+    if (!currentPartnerId) return;
+
+    assignSaveBtn.disabled = true;
+    assignSaveBtn.textContent = 'Saving…';
+    assignSaveStatus.classList.remove('show');
+
+    const { error: deleteError } = await supabaseClient
+      .from('partner_client_assignments')
+      .delete()
+      .eq('partner_id', currentPartnerId);
+
+    if (deleteError) {
+      alert('Could not save assignments: ' + deleteError.message);
+      assignSaveBtn.disabled = false;
+      assignSaveBtn.textContent = 'Save assignments';
+      return;
+    }
+
+    const rowsToInsert = Array.from(assignedClientIdsForCurrentPartner).map(function (clientId) {
+      return { partner_id: currentPartnerId, client_id: clientId };
+    });
+
+    if (rowsToInsert.length) {
+      const { error: insertError } = await supabaseClient
+        .from('partner_client_assignments')
+        .insert(rowsToInsert);
+
+      if (insertError) {
+        alert('Could not save assignments: ' + insertError.message);
+        assignSaveBtn.disabled = false;
+        assignSaveBtn.textContent = 'Save assignments';
+        return;
+      }
+    }
+
+    assignSaveBtn.disabled = false;
+    assignSaveBtn.textContent = 'Save assignments';
+    assignSaveStatus.classList.add('show');
+    setTimeout(function () { assignSaveStatus.classList.remove('show'); }, 2200);
+  });
+
+  // ---------------- EOD DETAIL MODAL (view full answers) ----------------
+
+  const eodDetailOverlay = document.getElementById('eod-detail-overlay');
+  const eodDetailClose = document.getElementById('eod-detail-close');
+
+  function openEodDetail(e) {
+    document.getElementById('eod-detail-date').textContent = formatDateNice(e.report_date);
+    document.getElementById('eod-detail-count').textContent =
+      (e.videos_completed_count === null || e.videos_completed_count === undefined) ? '—' : e.videos_completed_count;
+    document.getElementById('eod-detail-videos').textContent = e.videos_completed || '—';
+    document.getElementById('eod-detail-progress').textContent = e.in_progress_or_delayed || '—';
+    document.getElementById('eod-detail-bottlenecks').textContent = e.bottlenecks || '—';
+    eodDetailOverlay.classList.add('open');
+  }
+  function closeEodDetail() { eodDetailOverlay.classList.remove('open'); }
+
+  eodDetailClose.addEventListener('click', closeEodDetail);
+  eodDetailOverlay.addEventListener('click', function (e) {
+    if (e.target === eodDetailOverlay) closeEodDetail();
+  });
+
+  // ---------------- CLIENTS TAB (select + inline client detail, imported from client-detail.html) ----------------
+
+  const clientFocusSelect = document.getElementById('client-focus-select');
+  const clientFocusEmpty = document.getElementById('client-focus-empty');
+  const clientFocusLayout = document.getElementById('client-focus-layout');
+
+  let currentClient = null;
+
+  function populateClientFocusSelect(clients) {
+    const previouslySelected = clientFocusSelect.value;
+    clientFocusSelect.innerHTML = '';
+
+    if (!clients.length) {
+      clientFocusEmpty.style.display = 'block';
+      clientFocusEmpty.textContent = 'No clients yet.';
+      clientFocusLayout.style.display = 'none';
+      return;
+    }
+
+    clients.forEach(function (c) {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.full_name + ' (' + c.email + ')';
+      clientFocusSelect.appendChild(opt);
+    });
+
+    const stillExists = clients.some(function (c) { return c.id === previouslySelected; });
+    clientFocusSelect.value = stillExists ? previouslySelected : clients[0].id;
+
+    clientFocusEmpty.style.display = 'none';
+    clientFocusLayout.style.display = 'block';
+
+    loadClientDetail(clientFocusSelect.value);
+  }
+
+  clientFocusSelect.addEventListener('change', function () {
+    loadClientDetail(clientFocusSelect.value);
+  });
+
+  async function loadClientDetail(id) {
+    if (!id) return;
+
+    const { data, error } = await supabaseClient
+      .from('profiles')
+      .select('id, full_name, email, ig_name, account_type, status, created_at, frame_link, videos_done, icp_link, icp_file, brand_identity_link, brand_identity_file, competitor_research_link, competitor_research_file, style_inspiration_link, style_inspiration_file')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      clientFocusEmpty.style.display = 'block';
+      clientFocusEmpty.textContent = 'Could not load this client.';
+      clientFocusLayout.style.display = 'none';
+      return;
+    }
+
+    currentClient = data;
+    loadTrackerMonth();
+
+    document.getElementById('cd-client-name').textContent = data.full_name || '—';
+    document.getElementById('cd-avatar-initial').textContent = (data.full_name || '?').trim().charAt(0).toUpperCase();
+    document.getElementById('cd-client-ig').textContent = data.ig_name || '';
+    document.getElementById('cd-client-email').textContent = data.email || '—';
+    document.getElementById('cd-client-ig-full').textContent = data.ig_name || '—';
+    document.getElementById('cd-client-created').textContent = formatDateLong(data.created_at);
+
+    const frameDisplay = document.getElementById('cd-frame-link-display');
+    const frameOpenBtn = document.getElementById('cd-frame-open-btn');
+    if (data.frame_link && data.frame_link.trim() !== '') {
+      const safeLink = data.frame_link.trim();
+      frameDisplay.classList.remove('empty');
+      frameDisplay.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        '<a href="' + escapeHtml(safeLink) + '" target="_blank" rel="noopener">' + escapeHtml(safeLink) + '</a>';
+      frameOpenBtn.disabled = false;
+      frameOpenBtn.dataset.href = safeLink;
+    } else {
+      frameDisplay.classList.add('empty');
+      frameDisplay.textContent = 'No link submitted yet';
+      frameOpenBtn.disabled = true;
+      frameOpenBtn.dataset.href = '';
+    }
+
+    document.getElementById('cd-counter-value').textContent = data.videos_done || 0;
+
+    await renderBrandSection('cd-icp', data.icp_link, data.icp_file);
+    await renderBrandSection('cd-brand_identity', data.brand_identity_link, data.brand_identity_file);
+    await renderBrandSection('cd-competitor_research', data.competitor_research_link, data.competitor_research_file);
+    await renderBrandSection('cd-style_inspiration', data.style_inspiration_link, data.style_inspiration_file);
+
+    const statusBadge = document.getElementById('cd-client-status');
+    const statusText = document.getElementById('cd-client-status-text');
+    statusBadge.className = 'status-badge ' + data.status;
+    statusText.textContent = data.status;
+
+    const approveBtn = document.getElementById('cd-approve-btn');
+    approveBtn.style.display = data.status === 'verified' ? 'none' : 'inline-block';
+  }
+
+  async function renderBrandSection(prefix, link, filePath) {
+    const container = document.getElementById(prefix + '-items');
+    container.innerHTML = '';
+
+    if (!link && !filePath) {
+      container.innerHTML = '<div class="brand-empty">Nothing submitted yet</div>';
+      return;
+    }
+
+    if (link) {
+      const row = document.createElement('div');
+      row.className = 'brand-item-row';
+      row.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a>';
+      container.appendChild(row);
+    }
+
+    if (filePath) {
+      const row = document.createElement('div');
+      row.className = 'brand-item-row';
+      row.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<a href="#" data-filepath="' + escapeHtml(filePath) + '">' + escapeHtml(filePath.split('/').pop()) + '</a>';
+
+      const linkEl = row.querySelector('a');
+      linkEl.addEventListener('click', async function (e) {
+        e.preventDefault();
+        const { data: signedData, error: signedError } = await supabaseClient
+          .storage
+          .from('client-uploads')
+          .createSignedUrl(filePath, 60 * 10);
+
+        if (signedError || !signedData) {
+          alert('Could not open file: ' + (signedError ? signedError.message : 'unknown error'));
+          return;
+        }
+        window.open(signedData.signedUrl, '_blank');
+      });
+
+      container.appendChild(row);
+    }
+  }
+
+  document.getElementById('cd-counter-minus').addEventListener('click', function () {
+    updateVideoCount(-1);
+  });
+  document.getElementById('cd-counter-plus').addEventListener('click', function () {
+    updateVideoCount(1);
+  });
+
+  async function updateVideoCount(delta) {
+    if (!currentClient) return;
+
+    const current = currentClient.videos_done || 0;
+    const next = Math.max(0, current + delta);
+    if (next === current) return;
+
+    const valueEl = document.getElementById('cd-counter-value');
+    valueEl.textContent = next;
+    currentClient.videos_done = next;
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ videos_done: next })
+      .eq('id', currentClient.id);
+
+    if (error) {
+      alert('Could not update count: ' + error.message);
+      currentClient.videos_done = current;
+      valueEl.textContent = current;
+    }
+  }
+
+  document.getElementById('cd-frame-open-btn').addEventListener('click', function () {
+    const href = this.dataset.href;
+    if (href) window.open(href, '_blank', 'noopener');
+  });
+
+  document.getElementById('cd-approve-btn').addEventListener('click', async function () {
+    if (!currentClient) return;
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Approving…';
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ status: 'verified' })
+      .eq('id', currentClient.id);
+
+    if (error) {
+      alert('Could not approve: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Approve';
+      return;
+    }
+
+    loadClientDetail(currentClient.id);
+    loadAccounts();
+  });
+
+  document.getElementById('cd-reject-btn').addEventListener('click', async function () {
+    if (!currentClient) return;
+    const confirmed = confirm('Remove ' + currentClient.full_name + '\'s account? This cannot be undone.');
+    if (!confirmed) return;
+
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Removing…';
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .delete()
+      .eq('id', currentClient.id);
+
+    if (error) {
+      alert('Could not reject: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Reject';
+      return;
+    }
+
+    loadAccounts();
+  });
+
+  // ---------------- CLIENT TRACKER (inline, imported from client-detail.html) ----------------
+
+  const saveToast = document.getElementById('save-toast');
+
+  function showToast(message) {
+    saveToast.textContent = message;
+    saveToast.classList.add('show');
+    setTimeout(function () { saveToast.classList.remove('show'); }, 2200);
+  }
+
+  let trackerViewYear = new Date().getFullYear();
+  let trackerViewMonth = new Date().getMonth();
+
+  function trackerMonthDateStr(year, month) {
+    return year + '-' + String(month + 1).padStart(2, '0') + '-01';
+  }
+
+  function renderTrackerMonthLabel() {
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('cd-tracker-month-label').textContent = monthNames[trackerViewMonth] + ' ' + trackerViewYear;
+  }
+
+  async function loadTrackerMonth() {
+    if (!currentClient) return;
+    renderTrackerMonthLabel();
+
+    const monthStr = trackerMonthDateStr(trackerViewYear, trackerViewMonth);
+
+    const { data, error } = await supabaseClient
+      .from('client_metrics')
+      .select('monthly_revenue, cash_collected, leads_from_content')
+      .eq('client_id', currentClient.id)
+      .eq('month', monthStr)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Could not load tracker:', error.message);
+      return;
+    }
+
+    if (data) {
+      document.getElementById('cd-tracker-revenue').value = data.monthly_revenue || 0;
+      document.getElementById('cd-tracker-cash').value = data.cash_collected || 0;
+      document.getElementById('cd-tracker-leads').value = data.leads_from_content || 0;
+    } else {
+      document.getElementById('cd-tracker-revenue').value = '';
+      document.getElementById('cd-tracker-cash').value = '';
+      document.getElementById('cd-tracker-leads').value = 0;
+    }
+  }
+
+  document.getElementById('cd-tracker-prev').addEventListener('click', function () {
+    trackerViewMonth--;
+    if (trackerViewMonth < 0) { trackerViewMonth = 11; trackerViewYear--; }
+    loadTrackerMonth();
+  });
+  document.getElementById('cd-tracker-next').addEventListener('click', function () {
+    trackerViewMonth++;
+    if (trackerViewMonth > 11) { trackerViewMonth = 0; trackerViewYear++; }
+    loadTrackerMonth();
+  });
+
+  document.getElementById('cd-tracker-leads-minus').addEventListener('click', function () {
+    const input = document.getElementById('cd-tracker-leads');
+    const next = Math.max(0, (parseInt(input.value, 10) || 0) - 1);
+    input.value = next;
+    scheduleTrackerSave();
+  });
+  document.getElementById('cd-tracker-leads-plus').addEventListener('click', function () {
+    const input = document.getElementById('cd-tracker-leads');
+    const next = (parseInt(input.value, 10) || 0) + 1;
+    input.value = next;
+    scheduleTrackerSave();
+  });
+
+  const trackerSaveStatus = document.getElementById('cd-tracker-save-status');
+  let trackerSaveTimeout = null;
+
+  function scheduleTrackerSave() {
+    trackerSaveStatus.textContent = 'Editing…';
+    trackerSaveStatus.className = 'tracker-save-status';
+    if (trackerSaveTimeout) clearTimeout(trackerSaveTimeout);
+    trackerSaveTimeout = setTimeout(saveTrackerNow, 700);
+  }
+
+  async function saveTrackerNow() {
+    if (!currentClient) return;
+
+    trackerSaveStatus.textContent = 'Saving…';
+    trackerSaveStatus.className = 'tracker-save-status saving';
+
+    const payload = {
+      client_id: currentClient.id,
+      month: trackerMonthDateStr(trackerViewYear, trackerViewMonth),
+      monthly_revenue: parseFloat(document.getElementById('cd-tracker-revenue').value) || 0,
+      cash_collected: parseFloat(document.getElementById('cd-tracker-cash').value) || 0,
+      leads_from_content: parseInt(document.getElementById('cd-tracker-leads').value, 10) || 0
+    };
+
+    const { error } = await supabaseClient
+      .from('client_metrics')
+      .upsert(payload, { onConflict: 'client_id,month' });
+
+    if (error) {
+      trackerSaveStatus.textContent = 'Could not save';
+      trackerSaveStatus.className = 'tracker-save-status';
+      return;
+    }
+
+    trackerSaveStatus.textContent = 'Saved';
+    trackerSaveStatus.className = 'tracker-save-status saved';
+  }
+
+  ['cd-tracker-revenue', 'cd-tracker-cash', 'cd-tracker-leads'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', scheduleTrackerSave);
+  });
+
+  // ---------------- AUTH GATE ----------------
+
+  let currentAdminUserId = null;
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session || !session.user || session.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      gateMessage.textContent = 'You must be logged in as the admin to view this page.';
+      setTimeout(function () {
+        window.location.href = 'login.html';
+      }, 1800);
+      return;
+    }
+
+    currentAdminUserId = session.user.id;
+
+    gateScreen.style.display = 'none';
+    dashboardContent.style.display = 'block';
+    logoutBtn.style.display = 'inline-block';
+    myEodBtn.style.display = 'inline-block';
+
+    loadAccounts();
+  }
+
+  logoutBtn.addEventListener('click', async function () {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html';
+  });
+
+  // ---------------- MY EOD MODAL (admin submitting their own EOD) ----------------
+
+  const myEodBtn = document.getElementById('my-eod-btn');
+  const eodModalOverlay = document.getElementById('eod-modal-overlay');
+  const eodModalClose = document.getElementById('eod-modal-close');
+  const eodFormPanel = document.getElementById('eod-form-panel');
+  const eodSuccessPanel = document.getElementById('eod-success-panel');
+  const myEodForm = document.getElementById('my-eod-form');
+
+  function openEodModal() {
+    eodFormPanel.style.display = 'block';
+    eodSuccessPanel.style.display = 'none';
+    myEodForm.reset();
+    document.getElementById('eod-date').value = new Date().toISOString().slice(0, 10);
+    eodModalOverlay.classList.add('open');
+  }
+  function closeEodModal() { eodModalOverlay.classList.remove('open'); }
+
+  myEodBtn.addEventListener('click', openEodModal);
+  eodModalClose.addEventListener('click', closeEodModal);
+  eodModalOverlay.addEventListener('click', function (e) {
+    if (e.target === eodModalOverlay) closeEodModal();
+  });
+
+  myEodForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const submitBtn = document.getElementById('eod-submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+
+    const payload = {
+      partner_id: currentAdminUserId,
+      report_date: document.getElementById('eod-date').value,
+      videos_completed_count: parseInt(document.getElementById('eod-count').value, 10),
+      videos_completed: document.getElementById('eod-videos').value.trim(),
+      in_progress_or_delayed: document.getElementById('eod-progress').value.trim(),
+      bottlenecks: document.getElementById('eod-bottlenecks').value.trim()
+    };
+
+    const { error } = await supabaseClient
+      .from('eods')
+      .upsert(payload, { onConflict: 'partner_id,report_date' });
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit EOD';
+
+    if (error) {
+      alert('Could not submit EOD: ' + error.message);
+      return;
+    }
+
+    eodFormPanel.style.display = 'none';
+    eodSuccessPanel.style.display = 'block';
+
+    if (currentPartnerId === currentAdminUserId) {
+      loadPartnerEods(currentAdminUserId);
+    }
+
+    setTimeout(closeEodModal, 1400);
+  });
+
+  init();
+</script>
+
+</body>
+</html>

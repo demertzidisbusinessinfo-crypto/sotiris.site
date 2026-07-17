@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partner Dashboard — Sotiris Demertzidis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EFE8DF;
+    --bg-elevated: #E4DBCC;
+    --tan: #D8BA98;
+    --tan-light: #F0E2D1;
+    --maroon: #7F0303;
+    --maroon-soft: #9C1F1F;
+    --midnight: #0F414A;
+    --skyblue: #96C0CE;
+    --ink: #0F414A;
+    --ink-dim: #4A5A5C;
+    --ink-faint: #8A8378;
+    --glass-border: rgba(15, 65, 74, 0.14);
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --accent: var(--maroon);
+    --accent-soft: var(--midnight);
+    --accent-dim: rgba(127, 3, 3, 0.08);
+    --green: #2E6B4F;
+    --green-dim: rgba(46, 107, 79, 0.1);
+    --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 900px 600px at 15% -5%, rgba(216, 186, 152, 0.3), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 15%, rgba(150, 192, 206, 0.2), transparent 60%),
+      radial-gradient(ellipse 800px 800px at 50% 100%, rgba(127, 3, 3, 0.04), transparent 60%);
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.02;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+    width: 100%;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  nav {
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(16px);
+    background: rgba(239, 232, 223, 0.75);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .logo span { color: var(--accent-soft); }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-eod-nav {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--maroon);
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+  }
+  .btn-eod-nav:hover {
+    box-shadow: 0 4px 20px rgba(127,3,3,0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn-logout {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-dim);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .btn-logout:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+
+  main {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    padding: 48px 0 72px;
+  }
+
+  .gate-screen {
+    text-align: center;
+    padding: 120px 0;
+    font-size: 14px;
+    color: var(--ink-dim);
+  }
+
+  .page-head { margin-bottom: 36px; }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--accent-soft);
+    background: var(--accent-dim);
+    border: 1px solid var(--glass-border);
+    padding: 6px 12px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+  }
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent-soft);
+    box-shadow: 0 0 8px var(--accent-soft);
+  }
+  .page-head h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.8rem, 3.6vw, 2.3rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .page-head p { font-size: 14.5px; color: var(--ink-dim); }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .tab-btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink-dim);
+    background: none;
+    border: none;
+    padding: 12px 6px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+  }
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 2px;
+    background: var(--maroon);
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+  }
+  .tab-btn.active { color: var(--ink); }
+  .tab-btn.active::after { transform: scaleX(1); }
+  .tab-btn + .tab-btn { margin-left: 22px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .editors-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 28px;
+    backdrop-filter: blur(16px);
+  }
+
+  .editors-columns {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 28px;
+    margin-top: 20px;
+  }
+  @media (max-width: 800px) {
+    .editors-columns { grid-template-columns: 1fr; }
+  }
+
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .cal-header h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .cal-nav-group { display: flex; gap: 6px; }
+  .cal-nav-btn {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink-dim);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s ease;
+  }
+  .cal-nav-btn:hover { background: rgba(255,255,255,0.85); }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .cal-dow {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    padding-bottom: 6px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    background: rgba(255,255,255,0.3);
+    position: relative;
+  }
+  .cal-day.empty { background: none; }
+  .cal-day.has-eod {
+    background: var(--green-dim);
+    color: var(--green);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .cal-day.has-eod:hover { background: rgba(46,107,79,0.18); }
+  .cal-day.today { box-shadow: inset 0 0 0 1.5px var(--midnight); }
+
+  .eod-list-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+  .eod-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.35);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    font-size: 13px;
+  }
+  .eod-list-item:hover { background: rgba(255,255,255,0.65); }
+  .eod-date { font-weight: 600; }
+  .eod-count { color: var(--ink-dim); }
+  .eod-log-empty {
+    font-size: 13.5px;
+    color: var(--ink-faint);
+    padding: 20px 4px;
+  }
+
+  .clients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+  }
+  .client-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 22px;
+    backdrop-filter: blur(16px);
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .client-card:hover { border-color: var(--midnight); transform: translateY(-2px); }
+  .client-card h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .client-card .ig {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+  .client-card .expand-hint {
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .client-card .expand-hint svg { width: 13px; height: 13px; }
+
+  .clients-empty {
+    font-size: 14px;
+    color: var(--ink-faint);
+    padding: 32px 4px;
+    text-align: center;
+  }
+
+  .client-detail-panel {
+    display: none;
+    margin-top: 24px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 32px;
+    backdrop-filter: blur(16px);
+  }
+  .client-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 26px;
+  }
+  .client-detail-header h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
+    margin-bottom: 4px;
+  }
+  .client-detail-header .ig { font-size: 13px; color: var(--ink-faint); }
+  .btn-close-detail {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink-dim);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .btn-close-detail:hover { background: rgba(255,255,255,0.85); }
+
+  .frame-link-row {
+    margin-bottom: 26px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: rgba(150, 192, 206, 0.14);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+  }
+  .frame-link-row a { color: var(--midnight); font-weight: 600; word-break: break-all; }
+  .frame-link-row .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+
+  .brand-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 640px) { .brand-sections { grid-template-columns: 1fr; } }
+
+  .brand-section h4 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .brand-item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .brand-item-row:last-child { border-bottom: none; }
+  .brand-item-row svg { width: 15px; height: 15px; color: var(--ink-dim); flex-shrink: 0; }
+  .brand-item-row a { color: var(--midnight); word-break: break-all; }
+  .brand-item-row a:hover { text-decoration: underline; }
+  .brand-empty { font-size: 12.5px; color: var(--ink-faint); padding: 4px 0; }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(15, 20, 20, 0.45);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-card {
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 32px;
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.8); }
+
+  .modal-card h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 19px;
+    margin-bottom: 6px;
+  }
+  .modal-card .modal-sub {
+    font-size: 13px;
+    color: var(--ink-dim);
+    margin-bottom: 24px;
+  }
+
+  .modal-field { margin-bottom: 18px; }
+  .modal-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-dim);
+    margin-bottom: 7px;
+  }
+  .modal-field input[type="date"],
+  .modal-field input[type="number"],
+  .modal-field textarea {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink);
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 10px 13px;
+    outline: none;
+    resize: vertical;
+    min-height: 44px;
+  }
+  .modal-field input[type="date"]:focus,
+  .modal-field input[type="number"]:focus,
+  .modal-field textarea:focus {
+    border-color: var(--midnight);
+    background: rgba(255,255,255,0.85);
+  }
+  .modal-field .value {
+    font-size: 13.5px;
+    color: var(--ink-dim);
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  .modal-submit {
+    width: 100%;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 13px 22px;
+    border-radius: 10px;
+    background: var(--maroon);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+  }
+  .modal-submit:hover {
+    box-shadow: 0 6px 24px rgba(127,3,3,0.32);
+    transform: translateY(-1px);
+  }
+  .modal-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .modal-success {
+    display: none;
+    text-align: center;
+    padding: 16px 4px 4px;
+  }
+  .modal-success .success-icon {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--green-dim);
+    color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px;
+  }
+  .modal-success .success-icon svg { width: 22px; height: 22px; }
+  .modal-success h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  .modal-success p { font-size: 13px; color: var(--ink-dim); }
+
+  footer {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 32px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--ink-faint);
+    width: 100%;
+  }
+  .footer-links { display: flex; gap: 22px; }
+  .footer-links a:hover { color: var(--ink); }
+  @media (max-width: 500px) {
+    footer { flex-direction: column; gap: 10px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="noise"></div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Sotiris <span>Demertzidis</span></div>
+    <div class="nav-actions">
+      <button class="btn-eod-nav" id="my-eod-btn" style="display:none;">Submit my EOD</button>
+      <button class="btn-logout" id="logout-btn" style="display:none;">Log out</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <div id="gate-screen" class="gate-screen">
+      <p id="gate-message">Checking your session…</p>
+    </div>
+
+    <div id="dashboard-content" style="display:none;">
+      <div class="page-head">
+        <span class="eyebrow"><span class="dot"></span> Partner Terminal</span>
+        <h1 id="welcome-heading">Welcome back</h1>
+        <p>Submit your end-of-day reports and view the clients assigned to you.</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="eods-tab">My EODs</button>
+        <button class="tab-btn" data-tab="clients-tab">My Clients</button>
+      </div>
+
+      <div class="tab-panel active" id="eods-tab">
+        <div class="editors-card">
+          <div class="editors-columns">
+            <div class="cal-column">
+              <div class="cal-header">
+                <h3 id="cal-month-label">—</h3>
+                <div class="cal-nav-group">
+                  <button class="cal-nav-btn" id="cal-prev">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <button class="cal-nav-btn" id="cal-next">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="cal-grid" id="cal-dow-row">
+                <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div>
+                <div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
+              </div>
+              <div class="cal-grid" id="cal-days"></div>
+            </div>
+
+            <div class="eod-list-column">
+              <div class="eod-list-title">Completed EODs</div>
+              <div id="eods-list"></div>
+              <div class="eod-log-empty" id="eods-empty">No EODs submitted yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="clients-tab">
+        <div class="clients-grid" id="clients-grid"></div>
+        <div class="clients-empty" id="clients-empty" style="display:none;">No clients have been assigned to you yet.</div>
+
+        <div class="client-detail-panel" id="client-detail-panel">
+          <div class="client-detail-header">
+            <div>
+              <h2 id="detail-client-name">—</h2>
+              <div class="ig" id="detail-client-ig"></div>
+            </div>
+            <button class="btn-close-detail" id="detail-close-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <div class="frame-link-row" id="detail-frame-row" style="display:none;">
+            <span class="label">Frame</span>
+            <a href="#" id="detail-frame-link" target="_blank" rel="noopener"></a>
+          </div>
+
+          <div class="brand-sections">
+            <div class="brand-section">
+              <h4>ICP</h4>
+              <div id="icp-items"></div>
+            </div>
+            <div class="brand-section">
+              <h4>Brand identity</h4>
+              <div id="brand_identity-items"></div>
+            </div>
+            <div class="brand-section">
+              <h4>Competitor research</h4>
+              <div id="competitor_research-items"></div>
+            </div>
+            <div class="brand-section">
+              <h4>Style inspiration</h4>
+              <div id="style_inspiration-items"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div>© 2026 Sotiris Demertzidis</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/sotiris.dmrtz/" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:demertzidisbusinessinfo@gmail.com">Email</a>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="eod-modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" id="eod-modal-close">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div id="eod-form-panel">
+      <h2>Submit your EOD</h2>
+      <p class="modal-sub">One report per day — resubmitting today will overwrite your earlier entry.</p>
+
+      <form id="my-eod-form">
+        <div class="modal-field">
+          <label for="eod-date">Date</label>
+          <input type="date" id="eod-date" required>
+        </div>
+        <div class="modal-field">
+          <label for="eod-count">Videos completed (count)</label>
+          <input type="number" id="eod-count" min="0" step="1" required>
+        </div>
+        <div class="modal-field">
+          <label for="eod-videos">Videos completed (list)</label>
+          <textarea id="eod-videos" rows="3" placeholder="e.g. Josh — hook variations x3"></textarea>
+        </div>
+        <div class="modal-field">
+          <label for="eod-progress">In progress or delayed</label>
+          <textarea id="eod-progress" rows="3"></textarea>
+        </div>
+        <div class="modal-field">
+          <label for="eod-bottlenecks">Bottlenecks</label>
+          <textarea id="eod-bottlenecks" rows="3"></textarea>
+        </div>
+        <button type="submit" class="modal-submit" id="eod-submit-btn">Submit EOD</button>
+      </form>
+    </div>
+
+    <div class="modal-success" id="eod-success-panel">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>EOD submitted</h3>
+      <p>Nice work today.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="eod-detail-overlay">
+  <div class="modal-card">
+    <button class="modal-close" id="eod-detail-close">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <h2 id="eod-detail-date">—</h2>
+    <p class="modal-sub">Your submitted end-of-day report.</p>
+
+    <div class="modal-field">
+      <label>Videos completed (count)</label>
+      <div class="value" id="eod-detail-count">—</div>
+    </div>
+    <div class="modal-field">
+      <label>Videos completed</label>
+      <div class="value" id="eod-detail-videos">—</div>
+    </div>
+    <div class="modal-field">
+      <label>In progress or delayed</label>
+      <div class="value" id="eod-detail-progress">—</div>
+    </div>
+    <div class="modal-field">
+      <label>Bottlenecks</label>
+      <div class="value" id="eod-detail-bottlenecks">—</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://ulhmvcagmlrfplwhdmid.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_wetKL2PMoCSDzBaAWIrtHQ_iz1Lkci2';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const ADMIN_EMAIL = 'demertzidisbusinessinfo@gmail.com';
+
+  const gateScreen = document.getElementById('gate-screen');
+  const gateMessage = document.getElementById('gate-message');
+  const dashboardContent = document.getElementById('dashboard-content');
+  const logoutBtn = document.getElementById('logout-btn');
+  const myEodBtn = document.getElementById('my-eod-btn');
+
+  let currentPartnerId = null;
+  let currentPartnerName = '';
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session || !session.user) {
+      gateMessage.textContent = 'You must be logged in to view this page.';
+      setTimeout(function () { window.location.href = 'login.html'; }, 1500);
+      return;
+    }
+
+    if (session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+      window.location.href = 'admin-dashboard.html';
+      return;
+    }
+
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('id, full_name, account_type, status')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profileError || !profile) {
+      gateMessage.textContent = 'We could not find your profile. Please contact Sotiris.';
+      return;
+    }
+
+    if (profile.account_type !== 'partner') {
+      window.location.href = 'client-dashboard.html';
+      return;
+    }
+
+    if (profile.status !== 'verified') {
+      gateMessage.textContent = 'Your account is still awaiting verification.';
+      return;
+    }
+
+    currentPartnerId = profile.id;
+    currentPartnerName = profile.full_name || '';
+
+    document.getElementById('welcome-heading').textContent =
+      currentPartnerName ? 'Welcome back, ' + currentPartnerName.split(' ')[0] : 'Welcome back';
+
+    gateScreen.style.display = 'none';
+    dashboardContent.style.display = 'block';
+    logoutBtn.style.display = 'inline-block';
+    myEodBtn.style.display = 'inline-block';
+
+    loadMyEods();
+    loadMyClients();
+  }
+
+  logoutBtn.addEventListener('click', async function () {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html';
+  });
+
+  const calendarMonthLabel = document.getElementById('cal-month-label');
+  const calDaysGrid = document.getElementById('cal-days');
+  const eodsList = document.getElementById('eods-list');
+  const eodsEmpty = document.getElementById('eods-empty');
+
+  let currentPartnerEods = [];
+  let calViewYear, calViewMonth;
+
+  function renderCalendar() {
+    const today = new Date();
+    if (calViewYear === undefined) {
+      calViewYear = today.getFullYear();
+      calViewMonth = today.getMonth();
+    }
+
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    calendarMonthLabel.textContent = monthNames[calViewMonth] + ' ' + calViewYear;
+
+    const firstDay = new Date(calViewYear, calViewMonth, 1).getDay();
+    const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+
+    const eodDatesInMonth = {};
+    currentPartnerEods.forEach(function (e) {
+      const d = new Date(e.report_date + 'T00:00:00');
+      if (d.getFullYear() === calViewYear && d.getMonth() === calViewMonth) {
+        eodDatesInMonth[d.getDate()] = e;
+      }
+    });
+
+    calDaysGrid.innerHTML = '';
+    for (let i = 0; i < firstDay; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-day empty';
+      calDaysGrid.appendChild(cell);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-day';
+      const isToday = today.getFullYear() === calViewYear && today.getMonth() === calViewMonth && today.getDate() === d;
+      if (isToday) cell.classList.add('today');
+
+      const eod = eodDatesInMonth[d];
+      if (eod) {
+        cell.classList.add('has-eod');
+        cell.addEventListener('click', function () { openEodDetail(eod); });
+      }
+      cell.innerHTML = '<span>' + d + '</span>';
+      calDaysGrid.appendChild(cell);
+    }
+  }
+
+  function formatDateNice(iso) {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function renderEodsLog() {
+    eodsList.innerHTML = '';
+
+    if (!currentPartnerEods.length) {
+      eodsEmpty.style.display = 'block';
+      eodsEmpty.textContent = 'No EODs submitted yet.';
+      return;
+    }
+    eodsEmpty.style.display = 'none';
+
+    const sorted = currentPartnerEods.slice().sort(function (a, b) {
+      return b.report_date.localeCompare(a.report_date);
+    });
+
+    sorted.forEach(function (e) {
+      const item = document.createElement('div');
+      item.className = 'eod-list-item';
+      const countLabel = (e.videos_completed_count === null || e.videos_completed_count === undefined)
+        ? '—'
+        : e.videos_completed_count;
+      item.innerHTML =
+        '<span class="eod-date">' + formatDateNice(e.report_date) + '</span>' +
+        '<span class="eod-count">' + countLabel + ' videos</span>';
+      item.addEventListener('click', function () { openEodDetail(e); });
+      eodsList.appendChild(item);
+    });
+  }
+
+  async function loadMyEods() {
+    const { data, error } = await supabaseClient
+      .from('eods')
+      .select('report_date, videos_completed_count, videos_completed, in_progress_or_delayed, bottlenecks')
+      .eq('partner_id', currentPartnerId)
+      .order('report_date', { ascending: false });
+
+    if (error) {
+      eodsEmpty.style.display = 'block';
+      eodsEmpty.textContent = 'Could not load EODs: ' + error.message;
+      currentPartnerEods = [];
+      renderCalendar();
+      return;
+    }
+
+    currentPartnerEods = data || [];
+    renderCalendar();
+    renderEodsLog();
+  }
+
+  document.getElementById('cal-prev').addEventListener('click', function () {
+    calViewMonth--;
+    if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+    renderCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', function () {
+    calViewMonth++;
+    if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+    renderCalendar();
+  });
+
+  const eodDetailOverlay = document.getElementById('eod-detail-overlay');
+  const eodDetailClose = document.getElementById('eod-detail-close');
+
+  function openEodDetail(e) {
+    document.getElementById('eod-detail-date').textContent = formatDateNice(e.report_date);
+    document.getElementById('eod-detail-count').textContent =
+      (e.videos_completed_count === null || e.videos_completed_count === undefined) ? '—' : e.videos_completed_count;
+    document.getElementById('eod-detail-videos').textContent = e.videos_completed || '—';
+    document.getElementById('eod-detail-progress').textContent = e.in_progress_or_delayed || '—';
+    document.getElementById('eod-detail-bottlenecks').textContent = e.bottlenecks || '—';
+    eodDetailOverlay.classList.add('open');
+  }
+  function closeEodDetail() { eodDetailOverlay.classList.remove('open'); }
+  eodDetailClose.addEventListener('click', closeEodDetail);
+  eodDetailOverlay.addEventListener('click', function (e) { if (e.target === eodDetailOverlay) closeEodDetail(); });
+
+  const eodModalOverlay = document.getElementById('eod-modal-overlay');
+  const eodModalClose = document.getElementById('eod-modal-close');
+  const eodFormPanel = document.getElementById('eod-form-panel');
+  const eodSuccessPanel = document.getElementById('eod-success-panel');
+  const myEodForm = document.getElementById('my-eod-form');
+
+  function openEodModal() {
+    eodFormPanel.style.display = 'block';
+    eodSuccessPanel.style.display = 'none';
+    myEodForm.reset();
+    document.getElementById('eod-date').value = new Date().toISOString().slice(0, 10);
+    eodModalOverlay.classList.add('open');
+  }
+  function closeEodModal() { eodModalOverlay.classList.remove('open'); }
+
+  myEodBtn.addEventListener('click', openEodModal);
+  eodModalClose.addEventListener('click', closeEodModal);
+  eodModalOverlay.addEventListener('click', function (e) { if (e.target === eodModalOverlay) closeEodModal(); });
+
+  myEodForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const submitBtn = document.getElementById('eod-submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+
+    const payload = {
+      partner_id: currentPartnerId,
+      report_date: document.getElementById('eod-date').value,
+      videos_completed_count: parseInt(document.getElementById('eod-count').value, 10),
+      videos_completed: document.getElementById('eod-videos').value.trim(),
+      in_progress_or_delayed: document.getElementById('eod-progress').value.trim(),
+      bottlenecks: document.getElementById('eod-bottlenecks').value.trim()
+    };
+
+    const { error } = await supabaseClient
+      .from('eods')
+      .upsert(payload, { onConflict: 'partner_id,report_date' });
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit EOD';
+
+    if (error) {
+      alert('Could not submit EOD: ' + error.message);
+      return;
+    }
+
+    eodFormPanel.style.display = 'none';
+    eodSuccessPanel.style.display = 'block';
+    loadMyEods();
+    setTimeout(closeEodModal, 1400);
+  });
+
+  const clientsGrid = document.getElementById('clients-grid');
+  const clientsEmpty = document.getElementById('clients-empty');
+  const clientDetailPanel = document.getElementById('client-detail-panel');
+
+  async function loadMyClients() {
+    const { data: assignments, error: aError } = await supabaseClient
+      .from('partner_client_assignments')
+      .select('client_id')
+      .eq('partner_id', currentPartnerId);
+
+    if (aError) {
+      clientsEmpty.style.display = 'block';
+      clientsEmpty.textContent = 'Could not load your clients: ' + aError.message;
+      return;
+    }
+
+    const clientIds = (assignments || []).map(function (a) { return a.client_id; });
+
+    if (!clientIds.length) {
+      clientsEmpty.style.display = 'block';
+      clientsGrid.innerHTML = '';
+      return;
+    }
+
+    const { data: clients, error: cError } = await supabaseClient
+      .from('profiles')
+      .select('id, full_name, ig_name, frame_link, icp_link, icp_file, brand_identity_link, brand_identity_file, competitor_research_link, competitor_research_file, style_inspiration_link, style_inspiration_file')
+      .in('id', clientIds);
+
+    if (cError) {
+      clientsEmpty.style.display = 'block';
+      clientsEmpty.textContent = 'Could not load your clients: ' + cError.message;
+      return;
+    }
+
+    renderClientsGrid(clients || []);
+  }
+
+  function renderClientsGrid(clients) {
+    clientsGrid.innerHTML = '';
+    clientsEmpty.style.display = clients.length ? 'none' : 'block';
+
+    clients.forEach(function (client) {
+      const card = document.createElement('div');
+      card.className = 'client-card';
+      card.innerHTML =
+        '<h3>' + escapeHtml(client.full_name) + '</h3>' +
+        (client.ig_name ? '<div class="ig">' + escapeHtml(client.ig_name) + '</div>' : '') +
+        '<div class="expand-hint">View brand assets ' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>';
+      card.addEventListener('click', function () { openClientDetail(client); });
+      clientsGrid.appendChild(card);
+    });
+  }
+
+  function openClientDetail(client) {
+    document.getElementById('detail-client-name').textContent = client.full_name || '';
+    document.getElementById('detail-client-ig').textContent = client.ig_name || '';
+
+    const frameRow = document.getElementById('detail-frame-row');
+    const frameLink = document.getElementById('detail-frame-link');
+    if (client.frame_link && client.frame_link.trim() !== '') {
+      const safeLink = client.frame_link.trim();
+      frameLink.href = safeLink;
+      frameLink.textContent = safeLink;
+      frameRow.style.display = 'flex';
+    } else {
+      frameRow.style.display = 'none';
+    }
+
+    renderBrandSection('icp', client.icp_link, client.icp_file);
+    renderBrandSection('brand_identity', client.brand_identity_link, client.brand_identity_file);
+    renderBrandSection('competitor_research', client.competitor_research_link, client.competitor_research_file);
+    renderBrandSection('style_inspiration', client.style_inspiration_link, client.style_inspiration_file);
+
+    clientDetailPanel.style.display = 'block';
+    clientDetailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('detail-close-btn').addEventListener('click', function () {
+    clientDetailPanel.style.display = 'none';
+  });
+
+  async function renderBrandSection(key, link, filePath) {
+    const container = document.getElementById(key + '-items');
+    container.innerHTML = '';
+
+    if (!link && !filePath) {
+      container.innerHTML = '<div class="brand-empty">Nothing submitted yet</div>';
+      return;
+    }
+
+    if (link) {
+      const row = document.createElement('div');
+      row.className = 'brand-item-row';
+      row.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a>';
+      container.appendChild(row);
+    }
+
+    if (filePath) {
+      const row = document.createElement('div');
+      row.className = 'brand-item-row';
+      row.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<a href="#" data-filepath="' + escapeHtml(filePath) + '">' + escapeHtml(filePath.split('/').pop()) + '</a>';
+
+      const linkEl = row.querySelector('a');
+      linkEl.addEventListener('click', async function (e) {
+        e.preventDefault();
+        const { data: signedData, error: signedError } = await supabaseClient
+          .storage
+          .from('client-uploads')
+          .createSignedUrl(filePath, 60 * 10);
+
+        if (signedError || !signedData) {
+          alert('Could not open file: ' + (signedError ? signedError.message : 'unknown error'));
+          return;
+        }
+        window.open(signedData.signedUrl, '_blank');
+      });
+
+      container.appendChild(row);
+    }
+  }
+
+  init();
+</script>
+
+</body>
+</html>

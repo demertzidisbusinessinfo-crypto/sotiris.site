@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Profile — Sotiris Demertzidis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EFE8DF;
+    --bg-elevated: #E4DBCC;
+    --tan: #D8BA98;
+    --tan-light: #F0E2D1;
+    --maroon: #7F0303;
+    --maroon-soft: #9C1F1F;
+    --midnight: #0F414A;
+    --skyblue: #96C0CE;
+    --ink: #0F414A;
+    --ink-dim: #4A5A5C;
+    --ink-faint: #8A8378;
+    --glass-border: rgba(15, 65, 74, 0.14);
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --accent: var(--maroon);
+    --accent-soft: var(--midnight);
+    --accent-dim: rgba(127, 3, 3, 0.08);
+    --green: #2E6B4F;
+    --green-dim: rgba(46, 107, 79, 0.1);
+    --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 900px 600px at 15% -5%, rgba(216, 186, 152, 0.3), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 15%, rgba(150, 192, 206, 0.2), transparent 60%),
+      radial-gradient(ellipse 800px 800px at 50% 100%, rgba(127, 3, 3, 0.04), transparent 60%);
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.02;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+    width: 100%;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(16px);
+    background: rgba(239, 232, 223, 0.75);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .logo span { color: var(--accent-soft); }
+
+  .nav-back {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-dim);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+  }
+  .nav-back:hover { color: var(--ink); }
+
+  /* ---------- MAIN ---------- */
+  main {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    padding: 48px 0 64px;
+  }
+
+  .gate-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 20px;
+  }
+  .gate-screen p {
+    font-size: 14.5px;
+    color: var(--ink-dim);
+    max-width: 320px;
+  }
+
+  .profile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .avatar-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--maroon);
+    flex-shrink: 0;
+  }
+
+  .profile-identity h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 3vw, 1.9rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .profile-identity .ig-handle {
+    font-size: 13.5px;
+    color: var(--ink-dim);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 100px;
+  }
+  .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-badge.pending {
+    background: rgba(184, 134, 11, 0.1);
+    color: #8a6508;
+  }
+  .status-badge.pending .dot { background: #B8860B; }
+  .status-badge.verified {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+  .status-badge.verified .dot { background: var(--green); }
+
+  .profile-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-action {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+  }
+  .btn-action:hover { transform: translateY(-1px); }
+  .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-approve { background: var(--green); color: #fff; }
+  .btn-reject {
+    background: transparent;
+    color: var(--maroon);
+    border: 1px solid rgba(127,3,3,0.25);
+  }
+
+  /* ---------- FRAME.IO CARD ---------- */
+  .frame-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 26px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+  }
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14.5px;
+    margin-bottom: 4px;
+  }
+  .card-subtitle {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin-bottom: 18px;
+  }
+
+  .frame-link-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .frame-link-display {
+    flex: 1;
+    min-width: 200px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--midnight);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .frame-link-display a {
+    color: var(--midnight);
+    text-decoration: underline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .frame-link-display.empty {
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+  .frame-link-display svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--midnight);
+  }
+
+  .btn-frame-open {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    background: var(--midnight);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+  }
+  .btn-frame-open:hover {
+    box-shadow: 0 6px 24px rgba(15,65,74,0.28);
+    transform: translateY(-1px);
+  }
+  .btn-frame-open:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ---------- VIDEOS DONE CARD ---------- */
+  .counter-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 26px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+
+  .counter-control {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .counter-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+  }
+  .counter-btn:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+    transform: translateY(-1px);
+  }
+  .counter-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .counter-value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 34px;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  /* ---------- TRACKER ---------- */
+  .tracker-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 26px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+  }
+
+  .tracker-month-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .tracker-month-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .tracker-nav-group { display: flex; gap: 8px; }
+  .tracker-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .tracker-nav-btn:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+
+  .tracker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+  }
+
+  .tracker-field {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .tracker-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  .tracker-dollar-input {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+  }
+  .tracker-dollar-input span {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink-dim);
+    flex-shrink: 0;
+  }
+  .tracker-dollar-input input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    font-family: var(--font-body);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 4px 2px;
+    box-sizing: border-box;
+  }
+  .tracker-dollar-input input:focus { border-bottom-color: var(--midnight); }
+
+  .tracker-counter-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .tracker-counter-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.6);
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .tracker-counter-btn:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+  .tracker-counter-row input {
+    width: 60px;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 4px 2px;
+  }
+  .tracker-counter-row input:focus { border-bottom-color: var(--midnight); }
+
+  .tracker-save-row {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-save {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    background: var(--midnight);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+  }
+  .btn-save:hover {
+    box-shadow: 0 6px 24px rgba(15,65,74,0.28);
+    transform: translateY(-1px);
+  }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .save-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--green);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+    z-index: 60;
+  }
+  .save-toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ---------- BRAND IDENTITY SECTION ---------- */
+  .luxury-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 40px 0 18px;
+  }
+  .luxury-section-head h2 {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .luxury-section-head .section-note {
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+
+  .brand-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .brand-subcard {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    backdrop-filter: blur(16px);
+  }
+
+  .brand-subcard .sub-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .brand-item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--glass-border);
+    margin-bottom: 8px;
+  }
+  .brand-item-row:last-child { margin-bottom: 0; }
+  .brand-item-row svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--midnight);
+  }
+  .brand-item-row a {
+    color: var(--midnight);
+    text-decoration: underline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .brand-empty {
+    font-size: 13px;
+    color: var(--ink-faint);
+    font-style: italic;
+    padding: 10px 2px;
+  }
+
+  .dashboard-columns {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .col-main {
+    flex: 1 1 560px;
+    min-width: 0;
+  }
+  .col-side {
+    flex: 0 0 320px;
+    min-width: 280px;
+    position: sticky;
+    top: 24px;
+  }
+  @media (max-width: 900px) {
+    .col-side { position: static; flex: 1 1 100%; }
+  }
+
+  .tracker-grid-stacked {
+    grid-template-columns: 1fr;
+  }
+
+  .tracker-save-status {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    min-height: 16px;
+    text-align: right;
+  }
+  .tracker-save-status.saving { color: var(--ink-dim); }
+  .tracker-save-status.saved { color: var(--green); }
+
+  /* ---------- INFO CARD ---------- */
+  .info-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 24px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 22px;
+  }
+
+  .info-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .info-field .value {
+    font-size: 14.5px;
+    color: var(--ink);
+    font-family: var(--font-mono);
+  }
+
+  /* ---------- PLACEHOLDER SECTION FOR FUTURE CONTENT ---------- */
+  .placeholder-card {
+    background: var(--glass-bg);
+    border: 1px dashed var(--glass-border);
+    border-radius: 16px;
+    padding: 44px 32px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 13.5px;
+  }
+
+  footer {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 32px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--ink-faint);
+    width: 100%;
+  }
+  .footer-links { display: flex; gap: 22px; }
+  .footer-links a:hover { color: var(--ink); }
+  @media (max-width: 500px) {
+    footer { flex-direction: column; gap: 10px; text-align: center; }
+    .info-card { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="noise"></div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Sotiris <span>Demertzidis</span></div>
+    <a href="admin-dashboard.html" class="nav-back">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <div id="gate-screen" class="gate-screen">
+      <p id="gate-message">Checking your session…</p>
+    </div>
+
+    <div id="profile-content" style="display:none;">
+      <div class="profile-head">
+        <div class="profile-identity">
+          <div class="avatar-circle" id="avatar-initial">?</div>
+          <div>
+            <h1 id="client-name">—</h1>
+            <div class="ig-handle" id="client-ig"></div>
+          </div>
+          <span class="status-badge" id="client-status"><span class="dot"></span><span id="client-status-text">—</span></span>
+        </div>
+        <div class="profile-actions">
+          <button class="btn-action btn-approve" id="approve-btn">Approve</button>
+          <button class="btn-action btn-reject" id="reject-btn">Reject</button>
+        </div>
+      </div>
+
+      <div class="dashboard-columns">
+        <div class="col-main">
+          <div class="frame-card">
+            <div class="card-title">Frame.io link</div>
+            <div class="card-subtitle">The client's editing review link. They can submit or update this from their side.</div>
+            <div class="frame-link-row">
+              <div class="frame-link-display empty" id="frame-link-display">No link submitted yet</div>
+              <button class="btn-frame-open" id="frame-open-btn" disabled>Open in Frame.io</button>
+            </div>
+          </div>
+
+          <div class="luxury-section-head">
+            <h2>Brand Identity</h2>
+            <span class="section-note">can also help</span>
+          </div>
+
+          <div class="brand-grid">
+            <div class="brand-subcard">
+              <div class="sub-title">Dream Follower / ICP</div>
+              <div id="icp-items"></div>
+            </div>
+            <div class="brand-subcard">
+              <div class="sub-title">Brand Identity</div>
+              <div id="brand_identity-items"></div>
+            </div>
+            <div class="brand-subcard">
+              <div class="sub-title">Competitor Research</div>
+              <div id="competitor_research-items"></div>
+            </div>
+            <div class="brand-subcard">
+              <div class="sub-title">Style / Inspiration</div>
+              <div id="style_inspiration-items"></div>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-grid">
+              <div class="info-field">
+                <label>Email</label>
+                <div class="value" id="client-email">—</div>
+              </div>
+              <div class="info-field">
+                <label>Instagram</label>
+                <div class="value" id="client-ig-full">—</div>
+              </div>
+              <div class="info-field">
+                <label>Signed up</label>
+                <div class="value" id="client-created">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-side">
+          <div class="counter-card">
+            <div>
+              <div class="card-title">Videos done</div>
+              <div class="card-subtitle" style="margin-bottom:0;">Visible to the client, editable only by you.</div>
+            </div>
+            <div class="counter-control">
+              <button class="counter-btn" id="counter-minus">−</button>
+              <div class="counter-value" id="counter-value">0</div>
+              <button class="counter-btn" id="counter-plus">+</button>
+            </div>
+          </div>
+
+          <div class="tracker-card">
+            <div class="tracker-month-row">
+              <div>
+                <div class="card-title">Tracker</div>
+                <div class="tracker-month-label" id="tracker-month-label">—</div>
+              </div>
+              <div class="tracker-nav-group">
+                <button class="tracker-nav-btn" id="tracker-prev">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <button class="tracker-nav-btn" id="tracker-next">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="tracker-grid tracker-grid-stacked">
+              <div class="tracker-field">
+                <label>Monthly revenue</label>
+                <div class="tracker-dollar-input">
+                  <span>$</span>
+                  <input type="number" id="tracker-revenue" min="0" step="0.01" placeholder="0">
+                </div>
+              </div>
+              <div class="tracker-field">
+                <label>Monthly cash collected</label>
+                <div class="tracker-dollar-input">
+                  <span>$</span>
+                  <input type="number" id="tracker-cash" min="0" step="0.01" placeholder="0">
+                </div>
+              </div>
+              <div class="tracker-field">
+                <label>Leads from content</label>
+                <div class="tracker-counter-row">
+                  <button class="tracker-counter-btn" id="tracker-leads-minus">−</button>
+                  <input type="number" id="tracker-leads" min="0" step="1" placeholder="0">
+                  <button class="tracker-counter-btn" id="tracker-leads-plus">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tracker-save-status" id="tracker-save-status"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="placeholder-card">
+        This is where the client's dedicated content will live — let's design it next.
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div>© 2026 Sotiris Demertzidis</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/sotiris.dmrtz/" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:demertzidisbusinessinfo@gmail.com">Email</a>
+  </div>
+</footer>
+
+<div class="save-toast" id="save-toast">Saved</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://ulhmvcagmlrfplwhdmid.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_wetKL2PMoCSDzBaAWIrtHQ_iz1Lkci2';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const ADMIN_EMAIL = 'demertzidisbusinessinfo@gmail.com';
+
+  const gateScreen = document.getElementById('gate-screen');
+  const gateMessage = document.getElementById('gate-message');
+  const profileContent = document.getElementById('profile-content');
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function getClientId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id');
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  let currentClient = null;
+
+  async function loadClient() {
+    const id = getClientId();
+
+    if (!id) {
+      gateMessage.textContent = 'No client specified.';
+      gateScreen.style.display = 'flex';
+      profileContent.style.display = 'none';
+      return;
+    }
+
+    const { data, error } = await supabaseClient
+      .from('profiles')
+      .select('id, full_name, email, ig_name, account_type, status, created_at, frame_link, videos_done, icp_link, icp_file, brand_identity_link, brand_identity_file, competitor_research_link, competitor_research_file, style_inspiration_link, style_inspiration_file')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      gateMessage.textContent = 'Could not find this client.';
+      gateScreen.style.display = 'flex';
+      profileContent.style.display = 'none';
+      return;
+    }
+
+    currentClient = data;
+    loadTrackerMonth();
+
+    document.getElementById('client-name').textContent = data.full_name || '—';
+    document.getElementById('avatar-initial').textContent = (data.full_name || '?').trim().charAt(0).toUpperCase();
+    document.getElementById('client-ig').textContent = data.ig_name || '';
+    document.getElementById('client-email').textContent = data.email || '—';
+    document.getElementById('client-ig-full').textContent = data.ig_name || '—';
+    document.getElementById('client-created').textContent = formatDate(data.created_at);
+
+    const frameDisplay = document.getElementById('frame-link-display');
+    const frameOpenBtn = document.getElementById('frame-open-btn');
+    if (data.frame_link && data.frame_link.trim() !== '') {
+      const safeLink = data.frame_link.trim();
+      frameDisplay.classList.remove('empty');
+      frameDisplay.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        '<a href="' + escapeHtml(safeLink) + '" target="_blank" rel="noopener">' + escapeHtml(safeLink) + '</a>';
+      frameOpenBtn.disabled = false;
+      frameOpenBtn.dataset.href = safeLink;
+    } else {
+      frameDisplay.classList.add('empty');
+      frameDisplay.textContent = 'No link submitted yet';
+      frameOpenBtn.disabled = true;
+      frameOpenBtn.dataset.href = '';
+    }
+
+    document.getElementById('counter-value').textContent = data.videos_done || 0;
+
+    await renderBrandSection('icp', data.icp_link, data.icp_file);
+    await renderBrandSection('brand_identity', data.brand_identity_link, data.brand_identity_file);
+    await renderBrandSection('competitor_research', data.competitor_research_link, data.competitor_research_file);
+    await renderBrandSection('style_inspiration', data.style_inspiration_link, data.style_inspiration_file);
+
+    const statusBadge = document.getElementById('client-status');
+    const statusText = document.getElementById('client-status-text');
+    statusBadge.className = 'status-badge ' + data.status;
+    statusText.textContent = data.status;
+
+    const approveBtn = document.getElementById('approve-btn');
+    approveBtn.style.display = data.status === 'verified' ? 'none' : 'inline-block';
+
+    gateScreen.style.display = 'none';
+    profileContent.style.display = 'block';
+  }
+
+  async function renderBrandSection(key, link, filePath) {
+    const container = document.getElementById(key + '-items');
+    container.innerHTML = '';
+
+    if (!link && !filePath) {
+      container.innerHTML = '<div class="brand-empty">Nothing submitted yet</div>';
+      return;
+    }
+
+    if (link) {
+      const row = document.createElement('div');
+      row.className = 'brand-item-row';
+      row.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a>';
+      container.appendChild(row);
+    }
+
+    if (filePath) {
+      const row = document.createElement('div');
+      row.className = 'brand-item-row';
+      row.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<a href="#" data-filepath="' + escapeHtml(filePath) + '">' + escapeHtml(filePath.split('/').pop()) + '</a>';
+
+      const link_el = row.querySelector('a');
+      link_el.addEventListener('click', async function (e) {
+        e.preventDefault();
+        const { data: signedData, error: signedError } = await supabaseClient
+          .storage
+          .from('client-uploads')
+          .createSignedUrl(filePath, 60 * 10); // 10 minute access link
+
+        if (signedError || !signedData) {
+          alert('Could not open file: ' + (signedError ? signedError.message : 'unknown error'));
+          return;
+        }
+        window.open(signedData.signedUrl, '_blank');
+      });
+
+      container.appendChild(row);
+    }
+  }
+
+  document.getElementById('counter-minus').addEventListener('click', function () {
+    updateVideoCount(-1);
+  });
+  document.getElementById('counter-plus').addEventListener('click', function () {
+    updateVideoCount(1);
+  });
+
+  async function updateVideoCount(delta) {
+    if (!currentClient) return;
+
+    const current = currentClient.videos_done || 0;
+    const next = Math.max(0, current + delta);
+    if (next === current) return;
+
+    const valueEl = document.getElementById('counter-value');
+    valueEl.textContent = next;
+    currentClient.videos_done = next;
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ videos_done: next })
+      .eq('id', currentClient.id);
+
+    if (error) {
+      alert('Could not update count: ' + error.message);
+      currentClient.videos_done = current;
+      valueEl.textContent = current;
+    }
+  }
+
+  document.getElementById('frame-open-btn').addEventListener('click', function () {
+    const href = this.dataset.href;
+    if (href) {
+      window.open(href, '_blank', 'noopener');
+    }
+  });
+
+  document.getElementById('approve-btn').addEventListener('click', async function () {
+    if (!currentClient) return;
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Approving…';
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ status: 'verified' })
+      .eq('id', currentClient.id);
+
+    if (error) {
+      alert('Could not approve: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Approve';
+      return;
+    }
+
+    loadClient();
+  });
+
+  document.getElementById('reject-btn').addEventListener('click', async function () {
+    if (!currentClient) return;
+    const confirmed = confirm('Remove ' + currentClient.full_name + '\'s account? This cannot be undone.');
+    if (!confirmed) return;
+
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Removing…';
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .delete()
+      .eq('id', currentClient.id);
+
+    if (error) {
+      alert('Could not reject: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Reject';
+      return;
+    }
+
+    window.location.href = 'admin-dashboard.html';
+  });
+
+  // ---------------- TRACKER ----------------
+
+  const saveToast = document.getElementById('save-toast');
+
+  function showToast(message) {
+    saveToast.textContent = message;
+    saveToast.classList.add('show');
+    setTimeout(function () { saveToast.classList.remove('show'); }, 2200);
+  }
+
+  let trackerViewYear = new Date().getFullYear();
+  let trackerViewMonth = new Date().getMonth(); // 0-indexed
+
+  function trackerMonthDateStr(year, month) {
+    return year + '-' + String(month + 1).padStart(2, '0') + '-01';
+  }
+
+  function renderTrackerMonthLabel() {
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('tracker-month-label').textContent = monthNames[trackerViewMonth] + ' ' + trackerViewYear;
+  }
+
+  async function loadTrackerMonth() {
+    if (!currentClient) return;
+    renderTrackerMonthLabel();
+
+    const monthStr = trackerMonthDateStr(trackerViewYear, trackerViewMonth);
+
+    const { data, error } = await supabaseClient
+      .from('client_metrics')
+      .select('monthly_revenue, cash_collected, leads_from_content')
+      .eq('client_id', currentClient.id)
+      .eq('month', monthStr)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Could not load tracker:', error.message);
+      return;
+    }
+
+    if (data) {
+      document.getElementById('tracker-revenue').value = data.monthly_revenue || 0;
+      document.getElementById('tracker-cash').value = data.cash_collected || 0;
+      document.getElementById('tracker-leads').value = data.leads_from_content || 0;
+    } else {
+      document.getElementById('tracker-revenue').value = '';
+      document.getElementById('tracker-cash').value = '';
+      document.getElementById('tracker-leads').value = 0;
+    }
+  }
+
+  document.getElementById('tracker-prev').addEventListener('click', function () {
+    trackerViewMonth--;
+    if (trackerViewMonth < 0) { trackerViewMonth = 11; trackerViewYear--; }
+    loadTrackerMonth();
+  });
+
+  document.getElementById('tracker-next').addEventListener('click', function () {
+    trackerViewMonth++;
+    if (trackerViewMonth > 11) { trackerViewMonth = 0; trackerViewYear++; }
+    loadTrackerMonth();
+  });
+
+  document.getElementById('tracker-leads-minus').addEventListener('click', function () {
+    const input = document.getElementById('tracker-leads');
+    const next = Math.max(0, (parseInt(input.value, 10) || 0) - 1);
+    input.value = next;
+    scheduleTrackerSave();
+  });
+
+  document.getElementById('tracker-leads-plus').addEventListener('click', function () {
+    const input = document.getElementById('tracker-leads');
+    const next = (parseInt(input.value, 10) || 0) + 1;
+    input.value = next;
+    scheduleTrackerSave();
+  });
+
+  const trackerSaveStatus = document.getElementById('tracker-save-status');
+  let trackerSaveTimeout = null;
+
+  function scheduleTrackerSave() {
+    trackerSaveStatus.textContent = 'Editing…';
+    trackerSaveStatus.className = 'tracker-save-status';
+
+    if (trackerSaveTimeout) clearTimeout(trackerSaveTimeout);
+    trackerSaveTimeout = setTimeout(saveTrackerNow, 700);
+  }
+
+  async function saveTrackerNow() {
+    if (!currentClient) return;
+
+    trackerSaveStatus.textContent = 'Saving…';
+    trackerSaveStatus.className = 'tracker-save-status saving';
+
+    const payload = {
+      client_id: currentClient.id,
+      month: trackerMonthDateStr(trackerViewYear, trackerViewMonth),
+      monthly_revenue: parseFloat(document.getElementById('tracker-revenue').value) || 0,
+      cash_collected: parseFloat(document.getElementById('tracker-cash').value) || 0,
+      leads_from_content: parseInt(document.getElementById('tracker-leads').value, 10) || 0
+    };
+
+    const { error } = await supabaseClient
+      .from('client_metrics')
+      .upsert(payload, { onConflict: 'client_id,month' });
+
+    if (error) {
+      trackerSaveStatus.textContent = 'Could not save';
+      trackerSaveStatus.className = 'tracker-save-status';
+      return;
+    }
+
+    trackerSaveStatus.textContent = 'Saved';
+    trackerSaveStatus.className = 'tracker-save-status saved';
+  }
+
+  ['tracker-revenue', 'tracker-cash', 'tracker-leads'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', scheduleTrackerSave);
+  });
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session || !session.user || session.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      gateMessage.textContent = 'You must be logged in as the admin to view this page.';
+      setTimeout(function () {
+        window.location.href = 'login.html';
+      }, 1800);
+      return;
+    }
+
+    loadClient();
+  }
+
+  init();
+</script>
+
+</body>
+</html>

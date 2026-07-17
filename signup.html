@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up — Sotiris Demertzidis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EFE8DF;
+    --bg-elevated: #E4DBCC;
+    --tan: #D8BA98;
+    --tan-light: #F0E2D1;
+    --maroon: #7F0303;
+    --maroon-soft: #9C1F1F;
+    --midnight: #0F414A;
+    --skyblue: #96C0CE;
+    --ink: #0F414A;
+    --ink-dim: #4A5A5C;
+    --ink-faint: #8A8378;
+    --glass-border: rgba(15, 65, 74, 0.14);
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --accent: var(--maroon);
+    --accent-soft: var(--midnight);
+    --accent-dim: rgba(127, 3, 3, 0.08);
+    --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 900px 600px at 15% -5%, rgba(216, 186, 152, 0.35), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 15%, rgba(150, 192, 206, 0.22), transparent 60%),
+      radial-gradient(ellipse 800px 800px at 50% 100%, rgba(127, 3, 3, 0.05), transparent 60%);
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.02;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+    width: 100%;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- NAV (matches main site) ---------- */
+  nav {
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(16px);
+    background: rgba(239, 232, 223, 0.75);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .logo span { color: var(--accent-soft); }
+  .nav-back {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-dim);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+  }
+  .nav-back:hover { color: var(--ink); }
+
+  /* ---------- MAIN ---------- */
+  main {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 72px 0;
+  }
+
+  .chooser {
+    width: 100%;
+  }
+
+  .chooser-head {
+    text-align: center;
+    max-width: 560px;
+    margin: 0 auto 52px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--accent-soft);
+    background: var(--accent-dim);
+    border: 1px solid var(--glass-border);
+    padding: 6px 12px;
+    border-radius: 100px;
+    margin-bottom: 22px;
+  }
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent-soft);
+    box-shadow: 0 0 8px var(--accent-soft);
+  }
+
+  .chooser-head h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2rem, 4vw, 2.7rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .chooser-head h1 .accent-italic {
+    color: var(--maroon);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+  }
+  .chooser-head p {
+    font-size: 16px;
+    color: var(--ink-dim);
+  }
+
+  .path-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  @media (max-width: 720px) {
+    .path-grid { grid-template-columns: 1fr; }
+  }
+
+  .path-card {
+    position: relative;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 40px 32px;
+    backdrop-filter: blur(16px);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    cursor: pointer;
+  }
+  .path-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-soft);
+    box-shadow: 0 16px 40px rgba(15, 65, 74, 0.1);
+  }
+
+  .path-mark {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    margin-bottom: 22px;
+  }
+
+  .path-card h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+
+  .path-card p {
+    font-size: 14.5px;
+    color: var(--ink-dim);
+    margin-bottom: 28px;
+  }
+
+  .path-cta {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 22px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+    margin-top: auto;
+  }
+
+  .path-card.client .path-cta {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 0 rgba(127,3,3,0.35);
+  }
+  .path-card.client:hover .path-cta {
+    box-shadow: 0 6px 24px rgba(127,3,3,0.3);
+  }
+
+  .path-card.partner .path-cta {
+    background: var(--midnight);
+    color: #fff;
+    box-shadow: 0 0 0 0 rgba(15,65,74,0.3);
+  }
+  .path-card.partner:hover .path-cta {
+    box-shadow: 0 6px 24px rgba(15,65,74,0.28);
+  }
+
+  .path-cta svg { width: 15px; height: 15px; transition: transform 0.2s ease; }
+  .path-card:hover .path-cta svg { transform: translateX(3px); }
+
+  footer {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 32px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+  .footer-links { display: flex; gap: 22px; }
+  .footer-links a:hover { color: var(--ink); }
+  @media (max-width: 500px) {
+    footer { flex-direction: column; gap: 10px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="noise"></div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Sotiris <span>Demertzidis</span></div>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+    <div class="chooser">
+      <div class="chooser-head">
+        <span class="eyebrow"><span class="dot"></span> Client Terminal</span>
+        <h1>How would you like to <span class="accent-italic">continue</span>?</h1>
+        <p>Pick the path that fits you — we'll take you to the right place.</p>
+      </div>
+
+      <div class="path-grid">
+        <a href="client-signup.html" class="path-card client">
+          <div class="path-mark">01 / FOR COACHES &amp; CREATORS</div>
+          <h2>Continue as Client</h2>
+          <p>You're building your personal brand and want content, strategy, or editing support.</p>
+          <span class="path-cta">Continue as Client
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </a>
+
+        <a href="partner-signup.html" class="path-card partner">
+          <div class="path-mark">02 / FOR COLLABORATORS</div>
+          <h2>Continue as Partner</h2>
+          <p>You're an editor of the team.</p>
+          <span class="path-cta">Continue as Partner
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div>© 2026 Sotiris Demertzidis</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/sotiris.dmrtz/" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:demertzidisbusinessinfo@gmail.com">Email</a>
+  </div>
+</footer>
+
+</body>
+</html>
