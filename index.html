@@ -52,10 +52,26 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background:
-      radial-gradient(ellipse 900px 600px at 15% -5%, rgba(216, 186, 152, 0.35), transparent 60%),
-      radial-gradient(ellipse 700px 500px at 90% 15%, rgba(150, 192, 206, 0.22), transparent 60%),
-      radial-gradient(ellipse 800px 800px at 50% 100%, rgba(127, 3, 3, 0.05), transparent 60%);
+    overflow: hidden;
+  }
+  .ambient-blob { position: absolute; inset: 0; }
+  .ambient-blob-1 {
+    background: radial-gradient(ellipse 900px 600px at 15% -5%, rgba(216, 186, 152, 0.35), transparent 60%);
+    animation: ambient-drift-1 26s ease-in-out infinite;
+  }
+  .ambient-blob-2 {
+    background: radial-gradient(ellipse 700px 500px at 90% 15%, rgba(150, 192, 206, 0.22), transparent 60%);
+    animation: ambient-drift-2 32s ease-in-out infinite;
+  }
+  .ambient-blob-3 {
+    background: radial-gradient(ellipse 800px 800px at 50% 100%, rgba(127, 3, 3, 0.05), transparent 60%);
+    animation: ambient-drift-3 38s ease-in-out infinite;
+  }
+  @keyframes ambient-drift-1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(3%, 2%); } }
+  @keyframes ambient-drift-2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-2.5%, 2.5%); } }
+  @keyframes ambient-drift-3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(2%, -1.5%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-blob { animation: none; }
   }
 
   .noise {
@@ -857,7 +873,11 @@
 </head>
 <body>
 
-<div class="ambient"></div>
+<div class="ambient">
+  <div class="ambient-blob ambient-blob-3"></div>
+  <div class="ambient-blob ambient-blob-2"></div>
+  <div class="ambient-blob ambient-blob-1"></div>
+</div>
 <div class="noise"></div>
 
 <nav>
