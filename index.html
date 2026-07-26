@@ -55,32 +55,22 @@
     overflow: hidden;
   }
   .ambient-blob { position: absolute; inset: 0; }
-  /* Glows spread down the whole page so the side margins never read flat */
+  /* Glows spread down the whole page so the side margins never read flat.
+     Static (no drift) — they stay fixed relative to the page as it scrolls. */
   .ambient-blob-1 {
     background: radial-gradient(ellipse 900px 640px at 12% 4%, rgba(216, 186, 152, 0.40), transparent 60%);
-    animation: ambient-drift-1 26s ease-in-out infinite;
   }
   .ambient-blob-2 {
     background: radial-gradient(ellipse 760px 620px at 92% 20%, rgba(150, 192, 206, 0.26), transparent 60%);
-    animation: ambient-drift-2 32s ease-in-out infinite;
   }
   .ambient-blob-3 {
     background: radial-gradient(ellipse 820px 640px at 6% 46%, rgba(216, 186, 152, 0.32), transparent 58%);
-    animation: ambient-drift-3 38s ease-in-out infinite;
   }
   .ambient-blob-4 {
     background: radial-gradient(ellipse 780px 640px at 96% 66%, rgba(150, 192, 206, 0.24), transparent 58%);
-    animation: ambient-drift-1 34s ease-in-out infinite;
   }
   .ambient-blob-5 {
     background: radial-gradient(ellipse 900px 720px at 50% 96%, rgba(127, 3, 3, 0.07), transparent 60%);
-    animation: ambient-drift-2 42s ease-in-out infinite;
-  }
-  @keyframes ambient-drift-1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(3%, 2%); } }
-  @keyframes ambient-drift-2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-2.5%, 2.5%); } }
-  @keyframes ambient-drift-3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(2%, -1.5%); } }
-  @media (prefers-reduced-motion: reduce) {
-    .ambient-blob { animation: none; }
   }
 
   .noise {
@@ -88,7 +78,7 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.15;
+    opacity: 0.24;
     mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
