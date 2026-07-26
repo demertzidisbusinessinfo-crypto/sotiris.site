@@ -46,26 +46,35 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Ambient background */
+  /* Ambient background — anchored to the page, scrolls with content */
   .ambient {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
   }
   .ambient-blob { position: absolute; inset: 0; }
+  /* Glows spread down the whole page so the side margins never read flat */
   .ambient-blob-1 {
-    background: radial-gradient(ellipse 900px 600px at 15% -5%, rgba(216, 186, 152, 0.35), transparent 60%);
+    background: radial-gradient(ellipse 900px 640px at 12% 4%, rgba(216, 186, 152, 0.40), transparent 60%);
     animation: ambient-drift-1 26s ease-in-out infinite;
   }
   .ambient-blob-2 {
-    background: radial-gradient(ellipse 700px 500px at 90% 15%, rgba(150, 192, 206, 0.22), transparent 60%);
+    background: radial-gradient(ellipse 760px 620px at 92% 20%, rgba(150, 192, 206, 0.26), transparent 60%);
     animation: ambient-drift-2 32s ease-in-out infinite;
   }
   .ambient-blob-3 {
-    background: radial-gradient(ellipse 800px 800px at 50% 100%, rgba(127, 3, 3, 0.05), transparent 60%);
+    background: radial-gradient(ellipse 820px 640px at 6% 46%, rgba(216, 186, 152, 0.32), transparent 58%);
     animation: ambient-drift-3 38s ease-in-out infinite;
+  }
+  .ambient-blob-4 {
+    background: radial-gradient(ellipse 780px 640px at 96% 66%, rgba(150, 192, 206, 0.24), transparent 58%);
+    animation: ambient-drift-1 34s ease-in-out infinite;
+  }
+  .ambient-blob-5 {
+    background: radial-gradient(ellipse 900px 720px at 50% 96%, rgba(127, 3, 3, 0.07), transparent 60%);
+    animation: ambient-drift-2 42s ease-in-out infinite;
   }
   @keyframes ambient-drift-1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(3%, 2%); } }
   @keyframes ambient-drift-2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-2.5%, 2.5%); } }
@@ -75,11 +84,11 @@
   }
 
   .noise {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.09;
+    opacity: 0.15;
     mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
@@ -897,6 +906,8 @@
 <body>
 
 <div class="ambient">
+  <div class="ambient-blob ambient-blob-5"></div>
+  <div class="ambient-blob ambient-blob-4"></div>
   <div class="ambient-blob ambient-blob-3"></div>
   <div class="ambient-blob ambient-blob-2"></div>
   <div class="ambient-blob ambient-blob-1"></div>
@@ -1103,23 +1114,6 @@
 
 <script>
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  // Ambient background: scroll parallax
-  var ambientEl = document.querySelector('.ambient');
-  if (ambientEl && !prefersReducedMotion) {
-    var ambientTicking = false;
-    var updateAmbientParallax = function () {
-      var y = window.scrollY || window.pageYOffset;
-      ambientEl.style.transform = 'translateY(' + (y * 0.06).toFixed(1) + 'px)';
-      ambientTicking = false;
-    };
-    window.addEventListener('scroll', function () {
-      if (!ambientTicking) {
-        requestAnimationFrame(updateAmbientParallax);
-        ambientTicking = true;
-      }
-    }, { passive: true });
-  }
 
   // Hero headline line-reveal
   var heroH1 = document.getElementById('hero-h1');
