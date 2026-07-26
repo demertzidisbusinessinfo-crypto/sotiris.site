@@ -335,7 +335,6 @@
     overflow: hidden;
     user-select: none;
     touch-action: none;
-    margin-bottom: 16px;
   }
   .baf-side {
     position: absolute;
@@ -356,7 +355,6 @@
     background: rgba(15,65,74,0.6);
     padding: 3px 8px;
     border-radius: 5px;
-    z-index: 2;
   }
   .baf-designed .baf-tag { left: auto; right: 10px; background: rgba(127,3,3,0.68); }
   .baf-handle {
@@ -823,20 +821,11 @@
 
     <div class="reveal" id="hero-clip-wrap">
       <div class="clip-card">
-        <div class="clip-card-header">
-          <span class="clip-timestamp">00:00:03</span>
-          <span class="clip-badge">HOOK</span>
-        </div>
         <div class="baf-frame" id="hero-baf">
           <div class="baf-side baf-raw"><span class="baf-tag">RAW</span></div>
           <div class="baf-side baf-designed" id="hero-baf-designed"><span class="baf-tag">DESIGNED</span></div>
           <div class="baf-handle" id="hero-baf-handle"></div>
         </div>
-        <div class="clip-row" style="margin-bottom: 6px;">
-          <span class="clip-label">Hook retention</span>
-          <span class="clip-value" id="hero-hook-pct">0%</span>
-        </div>
-        <div class="hook-bar-track"><div class="hook-bar-fill" id="hero-hook-fill"></div></div>
       </div>
     </div>
   </section>
@@ -1067,37 +1056,6 @@
     heroBaf.addEventListener('pointerdown', function (e) { if (e.target === heroBaf || e.target.closest('.baf-side')) setHeroBaf(e.clientX); });
   }
 
-  // Hero hook-retention meter: count up + fill when it scrolls into view
-  var heroClipWrap = document.getElementById('hero-clip-wrap');
-  var heroReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function playHeroHook() {
-    var fill = document.getElementById('hero-hook-fill');
-    var pct = document.getElementById('hero-hook-pct');
-    if (!fill || !pct) return;
-    var target = 91;
-    fill.style.width = target + '%';
-    if (heroReducedMotion) { pct.textContent = target + '%'; return; }
-    var start = performance.now(), duration = 1100;
-    function tick(now) {
-      var p = Math.min(1, (now - start) / duration);
-      var eased = 1 - Math.pow(1 - p, 3);
-      pct.textContent = Math.round(eased * target) + '%';
-      if (p < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
-  if (heroClipWrap) {
-    if ('IntersectionObserver' in window && !heroReducedMotion) {
-      var heroHookObs = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) { playHeroHook(); heroHookObs.unobserve(heroClipWrap); }
-        });
-      }, { threshold: 0.4 });
-      heroHookObs.observe(heroClipWrap);
-    } else {
-      playHeroHook();
-    }
-  }
 </script>
 
 </body>
