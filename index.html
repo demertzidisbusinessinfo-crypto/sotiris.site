@@ -448,6 +448,20 @@
     box-shadow: 0 6px 16px rgba(0,0,0,0.3);
   }
 
+  .baf-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.18;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain-flicker 0.4s steps(1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .baf-grain { animation: none; }
+  }
+
   .clip-script {
     margin-top: 16px;
     font-size: 13px;
@@ -552,12 +566,25 @@
     .services-grid { grid-template-columns: 1fr; }
   }
   .service-card {
+    position: relative;
     background: var(--tan-light);
     border-radius: 16px;
     padding: 30px 26px;
     backdrop-filter: blur(12px);
     box-shadow: 0 6px 18px -10px rgba(15,65,74,0.25);
     transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .service-card::after,
+  .clip-card::after,
+  .cta-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.09;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   .service-card:hover {
     background: var(--tan);
@@ -928,6 +955,7 @@
         <div class="baf-frame" id="hero-baf">
           <div class="baf-side baf-raw"><span class="baf-tag">RAW</span></div>
           <div class="baf-side baf-designed" id="hero-baf-designed"><span class="baf-tag">DESIGNED</span></div>
+          <div class="baf-grain"></div>
           <div class="baf-handle" id="hero-baf-handle"></div>
         </div>
       </div>
