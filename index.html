@@ -227,6 +227,35 @@
     font-weight: 600;
   }
 
+  h1 .reveal-line { display: block; overflow: hidden; }
+  h1 .reveal-inner {
+    display: block;
+    transform: translateY(110%);
+    opacity: 0;
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease;
+  }
+  h1.play .reveal-inner { transform: translateY(0); opacity: 1; }
+  h1 .reveal-line:nth-child(1) .reveal-inner { transition-delay: 0.05s; }
+  h1 .reveal-line:nth-child(2) .reveal-inner { transition-delay: 0.18s; }
+  h1 .reveal-line:nth-child(3) .reveal-inner { transition-delay: 0.31s; }
+
+  @keyframes accent-pop-flash {
+    0% { background: transparent; }
+    45% { background: rgba(127, 3, 3, 0.14); }
+    100% { background: transparent; }
+  }
+  h1 .accent-pop {
+    padding: 0 2px;
+    margin: 0 -2px;
+    border-radius: 4px;
+    animation: accent-pop-flash 0.9s ease both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    h1 .reveal-inner { transform: none; opacity: 1; transition: none; }
+    h1 .accent-pop { animation: none; }
+  }
+
   .hero-sub {
     font-size: 17px;
     color: var(--ink-dim);
@@ -502,6 +531,20 @@
     transform: translateY(-3px);
     box-shadow: 0 10px 26px -10px rgba(15,65,74,0.35);
   }
+  .services-grid { perspective: 800px; }
+  .service-card.stagger-item {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), background 0.25s ease, box-shadow 0.25s ease;
+  }
+  .service-card.stagger-item.visible { opacity: 1; transform: none; }
+  .services-grid .service-card:nth-child(1) { transition-delay: 0s; }
+  .services-grid .service-card:nth-child(2) { transition-delay: 0.12s; }
+  .services-grid .service-card:nth-child(3) { transition-delay: 0.24s; }
+  .services-grid .service-card.visible { transition-delay: 0s; }
+  @media (prefers-reduced-motion: reduce) {
+    .service-card.stagger-item { opacity: 1; transform: none; transition: none; }
+  }
   .service-icon {
     margin-bottom: 20px;
     font-family: var(--font-serif);
@@ -750,13 +793,37 @@
     padding: 100px 0 110px;
   }
   .cta-card {
+    position: relative;
+    isolation: isolate;
     max-width: 640px;
     margin: 0 auto;
     background: var(--tan);
-    border: 1px solid var(--glass-border);
     border-radius: 22px;
     padding: 56px 44px;
     backdrop-filter: blur(16px);
+  }
+  .cta-card::before {
+    content: '';
+    position: absolute;
+    inset: -1.5px;
+    border-radius: 23px;
+    padding: 1.5px;
+    background: conic-gradient(from var(--cta-ang, 0deg), var(--maroon), var(--tan-light), var(--skyblue), var(--maroon));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+    animation: cta-shimmer 6s linear infinite;
+  }
+  @keyframes cta-shimmer { to { --cta-ang: 360deg; } }
+  @property --cta-ang {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cta-card { border: 1px solid var(--glass-border); }
+    .cta-card::before { display: none; }
   }
   .cta-card h2 { margin-bottom: 16px; }
   .cta-card p { color: var(--ink-dim); font-size: 15.5px; margin-bottom: 32px; }
@@ -812,7 +879,7 @@
   <section class="hero" style="padding-top: 96px;">
     <div>
       <div class="eyebrow"><span class="dot"></span> DFY CREATIVE VIDEO DESIGN FOR COACHES AND CREATORS</div>
-      <h1>Your content could give the <span class="accent-italic">right</span> message through the <span class="accent-italic">right</span> visual design.</h1>
+      <h1 id="hero-h1"><span class="reveal-line"><span class="reveal-inner">Your content could give the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.45s;">right</span> message through the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.6s;">right</span> visual design.</span></span></h1>
       <p class="hero-sub">I find emotion in your raw videos and turn it into visual design — not just a motion graphic, but a done-for-you service that takes care of your personal brand's video design so you can scale.</p>
       <div class="hero-ctas">
         <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="btn-primary">Book a call →</a>
@@ -930,24 +997,24 @@
   </div>
 
   <!-- SERVICES -->
-  <section id="services" class="reveal">
-    <div class="section-head">
+  <section id="services">
+    <div class="section-head reveal">
       <span class="section-eyebrow">WHAT I DO</span>
       <h2>Build a personal brand that <span class="accent-italic">feels</span> like you.</h2>
       <p class="section-sub">You already did the hard part — showing up and saying something real. I handle the rest.</p>
     </div>
     <div class="services-grid">
-      <div class="service-card">
+      <div class="service-card stagger-item">
         <div class="service-icon">1)</div>
         <h3>Getting to know your story</h3>
         <p>We dig into your story and your ICP — who you're really talking to and why they should care — so every piece of content we make actually sounds like you and lands with the right people.</p>
       </div>
-      <div class="service-card">
+      <div class="service-card stagger-item">
         <div class="service-icon">2)</div>
         <h3>Every second, designed</h3>
         <p>Every second of visual design, every cut, every frame is made to count — built to hit an emotion first, because content that makes someone feel something is what earns their trust, and trust is what turns a viewer into a client.</p>
       </div>
-      <div class="service-card">
+      <div class="service-card stagger-item">
         <div class="service-icon">3)</div>
         <h3>Editing & post</h3>
         <p>We're on deadline, every time, and we own 100% of the video editing process from start to finish — so you get your time back to scale your business instead of babysitting your content.</p>
@@ -991,6 +1058,48 @@
 </div>
 
 <script>
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Hero headline line-reveal
+  var heroH1 = document.getElementById('hero-h1');
+  if (heroH1) {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { heroH1.classList.add('play'); });
+    });
+  }
+
+  // Services: staggered group reveal
+  var servicesGrid = document.querySelector('.services-grid');
+  if (servicesGrid) {
+    var staggerItems = servicesGrid.querySelectorAll('.stagger-item');
+    if ('IntersectionObserver' in window && !prefersReducedMotion) {
+      var staggerObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            staggerItems.forEach(function (el) { el.classList.add('visible'); });
+            staggerObserver.unobserve(servicesGrid);
+          }
+        });
+      }, { threshold: 0.2 });
+      staggerObserver.observe(servicesGrid);
+    } else {
+      staggerItems.forEach(function (el) { el.classList.add('visible'); });
+    }
+
+    // Services: magnetic tilt on hover
+    if (!prefersReducedMotion) {
+      staggerItems.forEach(function (card) {
+        card.addEventListener('mousemove', function (e) {
+          var rect = card.getBoundingClientRect();
+          var px = (e.clientX - rect.left) / rect.width - 0.5;
+          var py = (e.clientY - rect.top) / rect.height - 0.5;
+          card.style.transform = 'perspective(700px) rotateY(' + (px * 8).toFixed(2) + 'deg) rotateX(' + (-py * 8).toFixed(2) + 'deg) translateY(-3px)';
+        });
+        card.addEventListener('mouseleave', function () { card.style.transform = ''; });
+      });
+    }
+  }
+
   // Scroll reveal
   var revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window && revealEls.length) {
@@ -1009,6 +1118,37 @@
 
   // Tap-to-open Instagram popovers on touch devices, with edge clamping
   var avatarWraps = document.querySelectorAll('.client-avatar-wrap');
+
+  function parseStatTarget(str) {
+    var m = str.trim().match(/^([\d,]+\.?\d*)(k?)$/i);
+    if (!m) return null;
+    return {
+      value: parseFloat(m[1].replace(/,/g, '')),
+      isK: /k/i.test(m[2]),
+      decimals: m[1].indexOf('.') > -1 ? 1 : 0
+    };
+  }
+  function formatStat(value, isK, decimals) {
+    return isK ? value.toFixed(decimals) + 'k' : Math.round(value).toLocaleString();
+  }
+  function animatePopoverStats(wrap) {
+    if (prefersReducedMotion) return;
+    wrap.querySelectorAll('.ig-popover-stats strong').forEach(function (el) {
+      if (!el.dataset.target) el.dataset.target = el.textContent.trim();
+      var target = parseStatTarget(el.dataset.target);
+      if (!target) return;
+      var start = performance.now(), duration = 700;
+      function tick(now) {
+        var p = Math.min(1, (now - start) / duration);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = formatStat(target.value * eased, target.isK, target.decimals);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = el.dataset.target;
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
   function positionPopover(wrap) {
     var pop = wrap.querySelector('.ig-popover');
     pop.style.setProperty('--shift', '0px');
@@ -1018,6 +1158,7 @@
     if (rect.left < margin) shift = margin - rect.left;
     else if (rect.right > window.innerWidth - margin) shift = (window.innerWidth - margin) - rect.right;
     if (shift) pop.style.setProperty('--shift', shift + 'px');
+    animatePopoverStats(wrap);
   }
   avatarWraps.forEach(function (wrap) {
     wrap.addEventListener('mouseenter', function () { positionPopover(wrap); });
