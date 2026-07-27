@@ -107,10 +107,21 @@
 
   /* ---------- NAV ---------- */
   nav {
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 50;
     backdrop-filter: blur(16px);
     background: rgba(239, 232, 223, 0.75);
     border-bottom: 1px solid var(--glass-border);
+  }
+  nav::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 2px;
+    width: var(--scroll-progress, 0%);
+    background: var(--maroon);
   }
   .nav-inner {
     max-width: 1180px;
@@ -1093,6 +1104,26 @@
 
 <script>
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Nav hairline: fills left-to-right as a scroll progress bar
+  var navEl = document.querySelector('nav');
+  if (navEl) {
+    var progressTicking = false;
+    var updateScrollProgress = function () {
+      var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+      navEl.style.setProperty('--scroll-progress', Math.max(0, Math.min(100, pct)) + '%');
+      progressTicking = false;
+    };
+    updateScrollProgress();
+    window.addEventListener('scroll', function () {
+      if (!progressTicking) {
+        requestAnimationFrame(updateScrollProgress);
+        progressTicking = true;
+      }
+    }, { passive: true });
+    window.addEventListener('resize', updateScrollProgress);
+  }
 
   // Hero headline line-reveal
   var heroH1 = document.getElementById('hero-h1');
