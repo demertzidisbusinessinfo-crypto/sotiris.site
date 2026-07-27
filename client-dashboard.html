@@ -615,6 +615,19 @@
     color: rgba(232,240,242,0.6);
     margin-bottom: 6px;
   }
+  .chart-tip-head {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 8.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(232,240,242,0.35);
+    margin-bottom: 4px;
+  }
+  .chart-tip-head span:first-child { width: 64px; text-align: right; }
+  .chart-tip-head span:last-child { width: 72px; text-align: right; }
   .chart-tip-row {
     display: flex;
     align-items: center;
@@ -623,9 +636,19 @@
     color: rgba(232,240,242,0.75);
   }
   .chart-tip-row + .chart-tip-row { margin-top: 3px; }
-  .chart-tip-row b {
+  .chart-tip-day {
     margin-left: auto;
+    width: 64px;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(232,240,242,0.55);
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-tip-row b {
+    width: 72px;
     padding-left: 14px;
+    text-align: right;
     font-family: var(--font-mono);
     font-size: 12px;
     color: #fff;
@@ -654,6 +677,25 @@
     transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
   }
   .tracker-mode-btn:hover { border-color: var(--midnight); color: var(--ink); }
+  .tracker-date-input {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-dim);
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.55);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .tracker-date-input:hover { border-color: var(--midnight); color: var(--ink); }
+  .tracker-date-input:focus { outline: none; border-color: var(--midnight); color: var(--ink); }
+  .tracker-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .tracker-nav-btn:disabled:hover {
+    border-color: var(--glass-border);
+    background: rgba(255,255,255,0.5);
+  }
   .tracker-mode-btn.active {
     background: var(--midnight);
     border-color: var(--midnight);
@@ -922,6 +964,7 @@
               <div class="tracker-month-label" id="tracker-month-label">—</div>
             </div>
             <div class="tracker-nav-group">
+              <input type="date" class="tracker-date-input" id="tracker-date-input" aria-label="Jump to a past date">
               <button class="tracker-mode-btn" id="tracker-mode-btn">Add for month</button>
               <button class="tracker-nav-btn" id="tracker-prev">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -1269,6 +1312,19 @@
       modeBtn.textContent = 'Back to daily';
       modeBtn.classList.add('active');
     }
+
+    // Date jump is only meaningful in daily mode; months have their own arrows.
+    const dateInput = document.getElementById('tracker-date-input');
+    const nextBtn = document.getElementById('tracker-next');
+    if (trackerMode === 'daily') {
+      dateInput.style.display = '';
+      dateInput.value = ymd(trackerViewDate);
+      dateInput.max = ymd(new Date()); // past days only — nothing in the future
+      nextBtn.disabled = isToday(trackerViewDate);
+    } else {
+      dateInput.style.display = 'none';
+      nextBtn.disabled = false;
+    }
   }
 
   async function loadTracker() {
@@ -1306,10 +1362,21 @@
     loadTracker();
   });
 
+  document.getElementById('tracker-date-input').addEventListener('change', function () {
+    if (!this.value) return;
+    const picked = new Date(this.value + 'T00:00:00');
+    if (isNaN(picked.getTime())) return;
+    if (startOfDay(picked) > startOfDay(new Date())) return; // past days only
+    trackerViewDate = picked;
+    loadTracker();
+  });
+
   function shiftTracker(delta) {
     if (trackerMode === 'daily') {
-      trackerViewDate = new Date(trackerViewDate.getTime());
-      trackerViewDate.setDate(trackerViewDate.getDate() + delta);
+      const next = new Date(trackerViewDate.getTime());
+      next.setDate(next.getDate() + delta);
+      if (startOfDay(next) > startOfDay(new Date())) return; // can't log the future
+      trackerViewDate = next;
     } else {
       trackerViewMonth += delta;
       if (trackerViewMonth < 0) { trackerViewMonth = 11; trackerViewYear--; }
@@ -1445,6 +1512,16 @@
       });
       cur.setDate(cur.getDate() + 1);
     }
+
+    // Running totals: what the lines plot. They only ever climb, stepping up on
+    // each day that has an entry and holding flat through the days that don't.
+    let runRev = 0, runCash = 0;
+    days.forEach(function (d) {
+      runRev += d.rev || 0;
+      runCash += d.cash || 0;
+      d.cumRev = runRev;
+      d.cumCash = runCash;
+    });
     return days;
   }
 
@@ -1565,10 +1642,9 @@
     emptyEl.style.display = 'none';
 
     const TICKS = 4;
-    const maxDaily = Math.max.apply(null, entryIdx.map(function (i) {
-      return Math.max(days[i].rev || 0, days[i].cash || 0);
-    }).concat([0]));
-    const axis = niceAxis(maxDaily, TICKS);
+    // The lines top out at the range totals, so the axis is scaled to those.
+    const lastDay = days[n - 1];
+    const axis = niceAxis(Math.max(lastDay.cumRev, lastDay.cumCash), TICKS);
     const yMax = axis.max;
     const plotW = CH_W - CH_PAD_L - CH_PAD_R;
     const plotH = CH_H - CH_PAD_T - CH_PAD_B;
@@ -1667,17 +1743,17 @@
       }
     }
 
-    // Lines join the days that have entries, positioned on the real date axis.
+    // Continuous across every day in the range — flat where nothing was logged.
     function linePath(field) {
-      return entryIdx.map(function (i, k) {
-        return (k === 0 ? 'M' : 'L') + xAt(i).toFixed(1) + ',' + yAt(days[i][field] || 0).toFixed(1);
+      return days.map(function (d, i) {
+        return (i === 0 ? 'M' : 'L') + xAt(i).toFixed(1) + ',' + yAt(d[field]).toFixed(1);
       }).join(' ');
     }
     function areaPath(field) {
       const base = yAt(0).toFixed(1);
       return linePath(field) +
-        ' L' + xAt(entryIdx[entryIdx.length - 1]).toFixed(1) + ',' + base +
-        ' L' + xAt(entryIdx[0]).toFixed(1) + ',' + base + ' Z';
+        ' L' + xAt(n - 1).toFixed(1) + ',' + base +
+        ' L' + xAt(0).toFixed(1) + ',' + base + ' Z';
     }
     // On dense ranges the per-point dots swallow the line, so only mark every
     // point when there are few; the latest value always gets an endpoint marker.
@@ -1685,13 +1761,14 @@
     function dots(field, color) {
       let out = '';
       if (showAllDots) {
+        // Dots sit on the days that actually moved the total.
         out += entryIdx.map(function (i) {
-          return '<circle class="chart-dot" cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(days[i][field] || 0).toFixed(1) +
+          return '<circle class="chart-dot" cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(days[i][field]).toFixed(1) +
             '" r="3.2" fill="' + color + '" stroke="#0A1013" stroke-width="1.5"/>';
         }).join('');
       }
-      const li = entryIdx[entryIdx.length - 1];
-      const lx = xAt(li).toFixed(1), ly = yAt(days[li][field] || 0).toFixed(1);
+      const li = n - 1;
+      const lx = xAt(li).toFixed(1), ly = yAt(days[li][field]).toFixed(1);
       out += '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="7" fill="' + color + '" opacity="0.18"/>' +
              '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="3.6" fill="' + color +
              '" stroke="#0A1013" stroke-width="1.5" filter="url(#chartGlow)"/>';
@@ -1699,14 +1776,14 @@
     }
 
     let body = '';
-    if (entryIdx.length > 1) {
+    if (n > 1) {
       body =
-        '<path class="chart-area" d="' + areaPath('rev') + '" fill="url(#revGrad)"/>' +
-        '<path class="chart-area" d="' + areaPath('cash') + '" fill="url(#cashGrad)"/>' +
-        '<path class="chart-line" id="chart-line-rev" d="' + linePath('rev') + '" stroke="' + revColor + '" filter="url(#chartGlow)"/>' +
-        '<path class="chart-line" id="chart-line-cash" d="' + linePath('cash') + '" stroke="' + cashColor + '" filter="url(#chartGlow)"/>';
+        '<path class="chart-area" d="' + areaPath('cumRev') + '" fill="url(#revGrad)"/>' +
+        '<path class="chart-area" d="' + areaPath('cumCash') + '" fill="url(#cashGrad)"/>' +
+        '<path class="chart-line" id="chart-line-rev" d="' + linePath('cumRev') + '" stroke="' + revColor + '" filter="url(#chartGlow)"/>' +
+        '<path class="chart-line" id="chart-line-cash" d="' + linePath('cumCash') + '" stroke="' + cashColor + '" filter="url(#chartGlow)"/>';
     }
-    body += dots('rev', revColor) + dots('cash', cashColor);
+    body += dots('cumRev', revColor) + dots('cumCash', cashColor);
 
     const hoverLayer =
       '<line id="ch-cross" x1="0" y1="' + CH_PAD_T + '" x2="0" y2="' + baselineY +
@@ -1779,28 +1856,28 @@
     const hc = document.getElementById('ch-hov-cash');
     if (cross) { cross.setAttribute('x1', x); cross.setAttribute('x2', x); cross.setAttribute('opacity', '1'); }
 
-    if (day.has) {
-      if (hr) { hr.setAttribute('cx', x); hr.setAttribute('cy', chartState.yAt(day.rev || 0)); hr.setAttribute('opacity', '1'); }
-      if (hc) { hc.setAttribute('cx', x); hc.setAttribute('cy', chartState.yAt(day.cash || 0)); hc.setAttribute('opacity', '1'); }
-    } else {
-      if (hr) hr.setAttribute('opacity', '0');
-      if (hc) hc.setAttribute('opacity', '0');
-    }
+    // Markers ride the running-total lines, so they exist for every day.
+    if (hr) { hr.setAttribute('cx', x); hr.setAttribute('cy', chartState.yAt(day.cumRev)); hr.setAttribute('opacity', '1'); }
+    if (hc) { hc.setAttribute('cx', x); hc.setAttribute('cy', chartState.yAt(day.cumCash)); hc.setAttribute('opacity', '1'); }
 
     const dateTxt = day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    chartTipEl.innerHTML = day.has
-      ? '<div class="chart-tip-date">' + dateTxt + '</div>' +
-        '<div class="chart-tip-row"><span class="chart-tip-dot" style="background:var(--chart-revenue)"></span>Revenue<b>' + formatMoney(day.rev || 0) + '</b></div>' +
-        '<div class="chart-tip-row"><span class="chart-tip-dot" style="background:var(--chart-cash)"></span>Cash<b>' + formatMoney(day.cash || 0) + '</b></div>'
-      : '<div class="chart-tip-date">' + dateTxt + '</div><div class="chart-tip-none">No entry</div>';
+    function tipRow(label, colorVar, dayAmt, total) {
+      return '<div class="chart-tip-row">' +
+        '<span class="chart-tip-dot" style="background:var(' + colorVar + ')"></span>' + label +
+        '<span class="chart-tip-day">' + (dayAmt == null ? '—' : '+' + formatMoney(dayAmt)) + '</span>' +
+        '<b>' + formatMoney(total) + '</b></div>';
+    }
+    chartTipEl.innerHTML =
+      '<div class="chart-tip-date">' + dateTxt + (day.has ? '' : ' · no entry') + '</div>' +
+      '<div class="chart-tip-head"><span>that day</span><span>total</span></div>' +
+      tipRow('Revenue', '--chart-revenue', day.has ? (day.rev || 0) : null, day.cumRev) +
+      tipRow('Cash', '--chart-cash', day.has ? (day.cash || 0) : null, day.cumCash);
 
     const leftPx = (x / CH_W) * rect.width;
     const halfW = (chartTipEl.offsetWidth || 120) / 2;
     chartTipEl.style.left = Math.max(halfW + 4, Math.min(rect.width - halfW - 4, leftPx)) + 'px';
 
-    const yTop = day.has
-      ? Math.min(chartState.yAt(day.rev || 0), chartState.yAt(day.cash || 0))
-      : CH_PAD_T + 40;
+    const yTop = Math.min(chartState.yAt(day.cumRev), chartState.yAt(day.cumCash));
     chartTipEl.style.top = ((yTop / CH_H) * rect.height - 12) + 'px';
     chartTipEl.classList.add('show');
   }
