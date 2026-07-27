@@ -519,7 +519,7 @@
     gap: 12px;
     margin-bottom: 18px;
   }
-  .chart-range-group { display: flex; gap: 6px; }
+  .chart-range-group { display: flex; gap: 6px; flex-wrap: wrap; }
   .chart-range-btn {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -1007,6 +1007,7 @@
           <div class="chart-head">
             <div class="card-title">Revenue &amp; cash collected</div>
             <div class="chart-range-group" id="chart-range-group">
+              <button class="chart-range-btn" data-range="1w">1W</button>
               <button class="chart-range-btn" data-range="1">1M</button>
               <button class="chart-range-btn active" data-range="3">3M</button>
               <button class="chart-range-btn" data-range="6">6M</button>
@@ -1475,14 +1476,21 @@
     return x;
   }
 
-  // Ranges are calendar months, not rolling windows: 1M is the current month
-  // from the 1st to today, 3M is this month plus the two before it, etc.
+  // The month ranges are calendar periods — 1M is this month from the 1st to
+  // today, 3M is this month plus the two before it. 1W is deliberately the
+  // last 7 days instead of the calendar week, so it always shows a full week
+  // of days to compare rather than collapsing to a single point on a Monday.
   function chartRangeStart() {
     const now = new Date();
     if (chartRange === 'all') {
       if (!allMetricsRows.length) return new Date(now.getFullYear(), now.getMonth(), 1);
       const first = new Date(allMetricsRows[0].month + 'T00:00:00');
       return new Date(first.getFullYear(), first.getMonth(), 1);
+    }
+    if (chartRange === '1w') {
+      const s = startOfDay(now);
+      s.setDate(s.getDate() - 6);            // today plus the 6 days before it
+      return s;
     }
     return new Date(now.getFullYear(), now.getMonth() - (chartRange - 1), 1);
   }
@@ -1530,7 +1538,13 @@
   function previousPeriodTotals() {
     if (chartRange === 'all') return null;
     const curStart = chartRangeStart();
-    const prevStart = new Date(curStart.getFullYear(), curStart.getMonth() - chartRange, 1);
+    let prevStart;
+    if (chartRange === '1w') {
+      prevStart = new Date(curStart.getTime());
+      prevStart.setDate(prevStart.getDate() - 7);
+    } else {
+      prevStart = new Date(curStart.getFullYear(), curStart.getMonth() - chartRange, 1);
+    }
     const prevEnd = new Date(curStart.getTime());
     prevEnd.setDate(prevEnd.getDate() - 1);
 
@@ -1892,7 +1906,7 @@
       document.querySelectorAll('.chart-range-btn').forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
       const r = btn.getAttribute('data-range');
-      chartRange = r === 'all' ? 'all' : parseInt(r, 10);
+      chartRange = (r === 'all' || r === '1w') ? r : parseInt(r, 10);
       renderChart(true);
     });
   });
