@@ -409,6 +409,16 @@
     background: linear-gradient(158deg, #A279F2 0%, #6B3FD4 55%, #3D2280 100%);
     box-shadow: 0 0 46px -10px rgba(123,71,224,0.65), 0 18px 38px -18px rgba(0,0,0,0.55);
   }
+  .stat-board-metric {
+    position: absolute;
+    top: 20px;
+    right: 22px;
+    z-index: 1;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.82);
+  }
   .stat-board-value {
     font-family: var(--font-display);
     font-weight: 600;
@@ -416,6 +426,7 @@
     letter-spacing: -0.01em;
     font-variant-numeric: tabular-nums;
     margin-bottom: 18px;
+    padding-right: 96px;
   }
   .stat-board-line {
     flex: 1;
@@ -998,10 +1009,12 @@
         </div>
         <div class="stat-boards">
           <div class="stat-board stat-board-rev">
+            <span class="stat-board-metric">Revenue</span>
             <div class="stat-board-value" id="board-rev-value">—</div>
             <div class="stat-board-line" id="board-rev-line"></div>
           </div>
           <div class="stat-board stat-board-cash">
+            <span class="stat-board-metric">Cash collected</span>
             <div class="stat-board-value" id="board-cash-value">—</div>
             <div class="stat-board-line" id="board-cash-line"></div>
           </div>
