@@ -26,6 +26,8 @@
     --accent-dim: rgba(127, 3, 3, 0.08);
     --green: #2E6B4F;
     --green-dim: rgba(46, 107, 79, 0.1);
+    --chart-revenue: #7F0303;
+    --chart-cash: #4A2A6B;
     --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     --font-serif: 'Playfair Display', Georgia, serif;
     --font-body: 'Inter', sans-serif;
@@ -487,6 +489,78 @@
     justify-content: flex-end;
   }
 
+  /* ---------- REVENUE / CASH CHART ---------- */
+  .chart-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .chart-range-group { display: flex; gap: 6px; }
+  .chart-range-btn {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.5);
+    color: var(--ink-dim);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .chart-range-btn:hover { border-color: var(--midnight); }
+  .chart-range-btn.active { background: var(--midnight); color: #fff; border-color: var(--midnight); }
+
+  .chart-stats-row {
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .chart-stat { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .chart-stat-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .chart-stat-label {
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+  .chart-stat-value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--ink);
+  }
+  .chart-stat-change { font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+  .chart-stat-change.up { color: var(--green); }
+  .chart-stat-change.down { color: var(--maroon-soft); }
+
+  .chart-canvas-wrap { position: relative; width: 100%; height: 220px; }
+  .chart-canvas-wrap svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .chart-empty {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--ink-faint);
+    text-align: center;
+    padding: 20px;
+  }
+  .chart-x-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--ink-faint);
+  }
+
   /* ---------- BRAND IDENTITY SECTION ---------- */
   .luxury-section-head {
     display: flex;
@@ -785,6 +859,39 @@
 
           <div class="tracker-save-status" id="tracker-save-status"></div>
         </div>
+
+        <div class="tracker-card chart-card">
+          <div class="chart-head">
+            <div class="card-title">Revenue &amp; cash collected</div>
+            <div class="chart-range-group" id="chart-range-group">
+              <button class="chart-range-btn" data-range="1">1M</button>
+              <button class="chart-range-btn active" data-range="3">3M</button>
+              <button class="chart-range-btn" data-range="6">6M</button>
+              <button class="chart-range-btn" data-range="all">All</button>
+            </div>
+          </div>
+
+          <div class="chart-stats-row">
+            <div class="chart-stat">
+              <span class="chart-stat-dot" style="background: var(--chart-revenue);"></span>
+              <span class="chart-stat-label">Revenue</span>
+              <span class="chart-stat-value" id="chart-revenue-value">—</span>
+              <span class="chart-stat-change" id="chart-revenue-change"></span>
+            </div>
+            <div class="chart-stat">
+              <span class="chart-stat-dot" style="background: var(--chart-cash);"></span>
+              <span class="chart-stat-label">Cash collected</span>
+              <span class="chart-stat-value" id="chart-cash-value">—</span>
+              <span class="chart-stat-change" id="chart-cash-change"></span>
+            </div>
+          </div>
+
+          <div class="chart-canvas-wrap">
+            <svg id="chart-svg" viewBox="0 0 640 220" preserveAspectRatio="none"></svg>
+            <div class="chart-empty" id="chart-empty">No data recorded yet.</div>
+          </div>
+          <div class="chart-x-labels" id="chart-x-labels"></div>
+        </div>
       </div>
 
     </div>
@@ -1008,6 +1115,7 @@
 
     renderProfile(data);
     loadTrackerMonth();
+    loadMetricsHistory();
   }
 
   // ---------------- TRACKER ----------------
@@ -1116,7 +1224,141 @@
 
     trackerSaveStatus.textContent = 'Saved';
     trackerSaveStatus.className = 'tracker-save-status saved';
+    loadMetricsHistory();
   }
+
+  // ---------------- REVENUE / CASH CHART ----------------
+  let allMetricsRows = [];
+  let chartRange = 3;
+
+  async function loadMetricsHistory() {
+    const { data, error } = await supabaseClient
+      .from('client_metrics')
+      .select('month, monthly_revenue, cash_collected')
+      .eq('client_id', currentUserId)
+      .order('month', { ascending: true });
+
+    if (error) {
+      console.error('Could not load metrics history:', error.message);
+      allMetricsRows = [];
+    } else {
+      allMetricsRows = data || [];
+    }
+    renderChart();
+  }
+
+  function getChartSlice() {
+    if (chartRange === 'all') return allMetricsRows;
+    return allMetricsRows.slice(-(chartRange + 1));
+  }
+
+  function formatMoney(n) {
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+
+  function formatMonthLabel(monthStr) {
+    const d = new Date(monthStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short' });
+  }
+
+  function setChangeLabel(id, last, prev) {
+    const el = document.getElementById(id);
+    if (last == null || prev == null || prev === 0) {
+      el.textContent = '';
+      el.className = 'chart-stat-change';
+      return;
+    }
+    const pct = ((last - prev) / Math.abs(prev)) * 100;
+    el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+    el.className = 'chart-stat-change ' + (pct >= 0 ? 'up' : 'down');
+  }
+
+  function updateChartStats(revenues, cashes) {
+    const revLast = revenues.length ? revenues[revenues.length - 1] : null;
+    const revPrev = revenues.length > 1 ? revenues[revenues.length - 2] : null;
+    const cashLast = cashes.length ? cashes[cashes.length - 1] : null;
+    const cashPrev = cashes.length > 1 ? cashes[cashes.length - 2] : null;
+
+    document.getElementById('chart-revenue-value').textContent = revLast != null ? formatMoney(revLast) : '—';
+    document.getElementById('chart-cash-value').textContent = cashLast != null ? formatMoney(cashLast) : '—';
+    setChangeLabel('chart-revenue-change', revLast, revPrev);
+    setChangeLabel('chart-cash-change', cashLast, cashPrev);
+  }
+
+  function renderChart() {
+    const slice = getChartSlice();
+    const svg = document.getElementById('chart-svg');
+    const emptyEl = document.getElementById('chart-empty');
+    const xLabelsEl = document.getElementById('chart-x-labels');
+
+    const revenues = slice.map(function (r) { return r.monthly_revenue || 0; });
+    const cashes = slice.map(function (r) { return r.cash_collected || 0; });
+    updateChartStats(revenues, cashes);
+
+    if (slice.length < 2) {
+      svg.innerHTML = '';
+      xLabelsEl.innerHTML = '';
+      emptyEl.style.display = 'flex';
+      emptyEl.textContent = slice.length === 0
+        ? 'No data recorded yet.'
+        : 'Not enough history yet to show a trend — add another month.';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    const allValues = revenues.concat(cashes);
+    const maxVal = Math.max.apply(null, allValues.concat([1]));
+    const minVal = Math.min.apply(null, allValues.concat([0]));
+    const valueRange = (maxVal - minVal) || 1;
+
+    const W = 640, H = 220, padY = 16;
+    const stepX = W / (slice.length - 1);
+
+    function toXY(values, i) {
+      const x = i * stepX;
+      const y = padY + (1 - (values[i] - minVal) / valueRange) * (H - padY * 2);
+      return [x, y];
+    }
+    function toPath(values) {
+      return values.map(function (v, i) {
+        const xy = toXY(values, i);
+        return (i === 0 ? 'M' : 'L') + xy[0].toFixed(1) + ',' + xy[1].toFixed(1);
+      }).join(' ');
+    }
+    function toCircles(values, color) {
+      return values.map(function (v, i) {
+        const xy = toXY(values, i);
+        return '<circle cx="' + xy[0].toFixed(1) + '" cy="' + xy[1].toFixed(1) + '" r="3.5" fill="' + color + '" stroke="#fff" stroke-width="1.5" />';
+      }).join('');
+    }
+
+    let grid = '';
+    for (let i = 0; i <= 3; i++) {
+      const y = padY + (i / 3) * (H - padY * 2);
+      grid += '<line x1="0" y1="' + y.toFixed(1) + '" x2="' + W + '" y2="' + y.toFixed(1) + '" stroke="rgba(15,65,74,0.08)" stroke-width="1" />';
+    }
+
+    const revColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-revenue').trim();
+    const cashColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-cash').trim();
+
+    svg.innerHTML = grid +
+      '<path d="' + toPath(revenues) + '" fill="none" stroke="' + revColor + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />' +
+      '<path d="' + toPath(cashes) + '" fill="none" stroke="' + cashColor + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />' +
+      toCircles(revenues, revColor) +
+      toCircles(cashes, cashColor);
+
+    xLabelsEl.innerHTML = slice.map(function (r) { return '<span>' + formatMonthLabel(r.month) + '</span>'; }).join('');
+  }
+
+  document.querySelectorAll('.chart-range-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.chart-range-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      const r = btn.getAttribute('data-range');
+      chartRange = r === 'all' ? 'all' : parseInt(r, 10);
+      renderChart();
+    });
+  });
 
   ['tracker-revenue', 'tracker-cash', 'tracker-leads'].forEach(function (id) {
     document.getElementById(id).addEventListener('input', scheduleTrackerSave);
