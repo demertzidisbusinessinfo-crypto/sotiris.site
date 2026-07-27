@@ -570,6 +570,35 @@
     text-align: center;
   }
 
+  /* Two compact counters side by side (Videos done + Leads from content) */
+  .counter-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .counter-card--compact {
+    margin-bottom: 0;
+    padding: 18px 14px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    gap: 12px;
+  }
+  .counter-card--compact .card-title { font-size: 14px; }
+  .counter-card--compact .counter-sub {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 3px;
+  }
+  .counter-card--compact .counter-control { gap: 10px; }
+  .counter-card--compact .counter-btn { width: 30px; height: 30px; font-size: 16px; }
+  .counter-card--compact .counter-value { font-size: 28px; min-width: 30px; }
+  @media (max-width: 420px) {
+    .counter-row { grid-template-columns: 1fr; }
+  }
+
   .tracker-card {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -1663,6 +1692,42 @@
                 </div>
               </div>
 
+              <div class="tracker-card">
+                <div class="tracker-month-row">
+                  <div>
+                    <div class="card-title">Tracker</div>
+                    <div class="tracker-month-label" id="cd-tracker-month-label">—</div>
+                  </div>
+                  <div class="tracker-nav-group">
+                    <button class="tracker-nav-btn" id="cd-tracker-prev">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <button class="tracker-nav-btn" id="cd-tracker-next">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="tracker-grid">
+                  <div class="tracker-field">
+                    <label>Monthly revenue</label>
+                    <div class="tracker-dollar-input">
+                      <span>$</span>
+                      <input type="number" id="cd-tracker-revenue" min="0" step="0.01" placeholder="0">
+                    </div>
+                  </div>
+                  <div class="tracker-field">
+                    <label>Monthly cash collected</label>
+                    <div class="tracker-dollar-input">
+                      <span>$</span>
+                      <input type="number" id="cd-tracker-cash" min="0" step="0.01" placeholder="0">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tracker-save-status" id="cd-tracker-save-status"></div>
+              </div>
+
               <div class="luxury-section-head">
                 <h2>Brand Identity</h2>
                 <span class="section-note">can also help</span>
@@ -1706,60 +1771,29 @@
             </div>
 
             <div class="col-side">
-              <div class="counter-card">
-                <div>
-                  <div class="card-title">Videos done</div>
-                  <div class="card-subtitle" style="margin-bottom:0;">Visible to the client, editable only by you.</div>
-                </div>
-                <div class="counter-control">
-                  <button class="counter-btn" id="cd-counter-minus">−</button>
-                  <div class="counter-value" id="cd-counter-value">0</div>
-                  <button class="counter-btn" id="cd-counter-plus">+</button>
-                </div>
-              </div>
-
-              <div class="tracker-card">
-                <div class="tracker-month-row">
+              <div class="counter-row">
+                <div class="counter-card counter-card--compact">
                   <div>
-                    <div class="card-title">Tracker</div>
-                    <div class="tracker-month-label" id="cd-tracker-month-label">—</div>
+                    <div class="card-title">Videos done</div>
+                    <div class="counter-sub">Editable only by you</div>
                   </div>
-                  <div class="tracker-nav-group">
-                    <button class="tracker-nav-btn" id="cd-tracker-prev">
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    </button>
-                    <button class="tracker-nav-btn" id="cd-tracker-next">
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </button>
+                  <div class="counter-control">
+                    <button class="counter-btn" id="cd-counter-minus">−</button>
+                    <div class="counter-value" id="cd-counter-value">0</div>
+                    <button class="counter-btn" id="cd-counter-plus">+</button>
                   </div>
                 </div>
-
-                <div class="tracker-grid tracker-grid-stacked">
-                  <div class="tracker-field">
-                    <label>Monthly revenue</label>
-                    <div class="tracker-dollar-input">
-                      <span>$</span>
-                      <input type="number" id="cd-tracker-revenue" min="0" step="0.01" placeholder="0">
-                    </div>
+                <div class="counter-card counter-card--compact">
+                  <div>
+                    <div class="card-title">Leads from content</div>
+                    <div class="counter-sub" id="cd-leads-month">—</div>
                   </div>
-                  <div class="tracker-field">
-                    <label>Monthly cash collected</label>
-                    <div class="tracker-dollar-input">
-                      <span>$</span>
-                      <input type="number" id="cd-tracker-cash" min="0" step="0.01" placeholder="0">
-                    </div>
-                  </div>
-                  <div class="tracker-field">
-                    <label>Leads from content</label>
-                    <div class="tracker-counter-row">
-                      <button class="tracker-counter-btn" id="cd-tracker-leads-minus">−</button>
-                      <input type="number" id="cd-tracker-leads" min="0" step="1" placeholder="0">
-                      <button class="tracker-counter-btn" id="cd-tracker-leads-plus">+</button>
-                    </div>
+                  <div class="counter-control">
+                    <button class="counter-btn" id="cd-leads-minus">−</button>
+                    <div class="counter-value" id="cd-leads-value">0</div>
+                    <button class="counter-btn" id="cd-leads-plus">+</button>
                   </div>
                 </div>
-
-                <div class="tracker-save-status" id="cd-tracker-save-status"></div>
               </div>
 
               <div class="tracker-card chart-card">
@@ -2587,7 +2621,10 @@
 
   function renderTrackerMonthLabel() {
     const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    document.getElementById('cd-tracker-month-label').textContent = monthNames[trackerViewMonth] + ' ' + trackerViewYear;
+    const label = monthNames[trackerViewMonth] + ' ' + trackerViewYear;
+    document.getElementById('cd-tracker-month-label').textContent = label;
+    // The leads counter (next to Videos done) tracks the same month as the tracker.
+    document.getElementById('cd-leads-month').textContent = label;
   }
 
   async function loadTrackerMonth() {
@@ -2612,11 +2649,11 @@
     if (data) {
       document.getElementById('cd-tracker-revenue').value = data.monthly_revenue || 0;
       document.getElementById('cd-tracker-cash').value = data.cash_collected || 0;
-      document.getElementById('cd-tracker-leads').value = data.leads_from_content || 0;
+      document.getElementById('cd-leads-value').textContent = data.leads_from_content || 0;
     } else {
       document.getElementById('cd-tracker-revenue').value = '';
       document.getElementById('cd-tracker-cash').value = '';
-      document.getElementById('cd-tracker-leads').value = 0;
+      document.getElementById('cd-leads-value').textContent = 0;
     }
   }
 
@@ -2631,16 +2668,14 @@
     loadTrackerMonth();
   });
 
-  document.getElementById('cd-tracker-leads-minus').addEventListener('click', function () {
-    const input = document.getElementById('cd-tracker-leads');
-    const next = Math.max(0, (parseInt(input.value, 10) || 0) - 1);
-    input.value = next;
+  document.getElementById('cd-leads-minus').addEventListener('click', function () {
+    const el = document.getElementById('cd-leads-value');
+    el.textContent = Math.max(0, (parseInt(el.textContent, 10) || 0) - 1);
     scheduleTrackerSave();
   });
-  document.getElementById('cd-tracker-leads-plus').addEventListener('click', function () {
-    const input = document.getElementById('cd-tracker-leads');
-    const next = (parseInt(input.value, 10) || 0) + 1;
-    input.value = next;
+  document.getElementById('cd-leads-plus').addEventListener('click', function () {
+    const el = document.getElementById('cd-leads-value');
+    el.textContent = (parseInt(el.textContent, 10) || 0) + 1;
     scheduleTrackerSave();
   });
 
@@ -2666,7 +2701,7 @@
       entry_type: 'monthly',
       monthly_revenue: parseFloat(document.getElementById('cd-tracker-revenue').value) || 0,
       cash_collected: parseFloat(document.getElementById('cd-tracker-cash').value) || 0,
-      leads_from_content: parseInt(document.getElementById('cd-tracker-leads').value, 10) || 0
+      leads_from_content: parseInt(document.getElementById('cd-leads-value').textContent, 10) || 0
     };
 
     const { error } = await supabaseClient
@@ -2684,7 +2719,7 @@
     loadClientMetricsChart(false); // keep the read-only chart in sync after an edit
   }
 
-  ['cd-tracker-revenue', 'cd-tracker-cash', 'cd-tracker-leads'].forEach(function (id) {
+  ['cd-tracker-revenue', 'cd-tracker-cash'].forEach(function (id) {
     document.getElementById(id).addEventListener('input', scheduleTrackerSave);
   });
 
