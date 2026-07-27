@@ -2392,6 +2392,7 @@
       .select('monthly_revenue, cash_collected, leads_from_content')
       .eq('client_id', currentClient.id)
       .eq('month', monthStr)
+      .eq('entry_type', 'monthly')
       .maybeSingle();
 
     if (error) {
@@ -2453,6 +2454,7 @@
     const payload = {
       client_id: currentClient.id,
       month: trackerMonthDateStr(trackerViewYear, trackerViewMonth),
+      entry_type: 'monthly',
       monthly_revenue: parseFloat(document.getElementById('cd-tracker-revenue').value) || 0,
       cash_collected: parseFloat(document.getElementById('cd-tracker-cash').value) || 0,
       leads_from_content: parseInt(document.getElementById('cd-tracker-leads').value, 10) || 0
@@ -2460,7 +2462,7 @@
 
     const { error } = await supabaseClient
       .from('client_metrics')
-      .upsert(payload, { onConflict: 'client_id,month' });
+      .upsert(payload, { onConflict: 'client_id,month,entry_type' });
 
     if (error) {
       trackerSaveStatus.textContent = 'Could not save';
