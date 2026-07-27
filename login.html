@@ -100,6 +100,16 @@
     letter-spacing: -0.01em;
   }
   .logo span { color: var(--accent-soft); }
+  .nav-back {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-dim);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+  }
+  .nav-back:hover { color: var(--ink); }
 
   /* ---------- MAIN ---------- */
   main {
@@ -333,6 +343,7 @@
 <nav>
   <div class="nav-inner">
     <div class="logo">Sotiris <span>Demertzidis</span></div>
+    <a href="index.html" class="nav-back">← Back</a>
   </div>
 </nav>
 
