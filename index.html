@@ -638,10 +638,20 @@
   @media (max-width: 700px) {
     .client-row { max-width: 100%; gap: 16px; }
   }
+  /* Phone only: 4 avatars in one row was overflowing and forcing horizontal
+     scroll. Switch to a centered 2x2 grid instead. */
+  @media (max-width: 560px) {
+    .client-row {
+      display: grid;
+      grid-template-columns: repeat(2, auto);
+      justify-content: center;
+      gap: 32px 40px;
+    }
+  }
   @media (max-width: 420px) {
-    .client-row { gap: 10px; }
-    .client-avatar-wrap { width: 72px; height: 72px; }
-    .client-avatar { width: 72px; height: 72px; }
+    .client-row { gap: 24px 32px; }
+    .client-avatar-wrap { width: 84px; height: 84px; }
+    .client-avatar { width: 84px; height: 84px; }
   }
   .client-avatar-wrap {
     position: relative;
