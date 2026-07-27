@@ -867,11 +867,21 @@
     inset: -1.5px;
     border-radius: 23px;
     padding: 1.5px;
-    background: conic-gradient(from 20deg, var(--maroon), var(--tan-light), var(--skyblue), var(--maroon));
+    background: conic-gradient(from var(--cta-ang, 20deg), var(--maroon), var(--tan-light), var(--skyblue), var(--maroon));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     z-index: -1;
+    animation: cta-shimmer 2.2s linear infinite;
+  }
+  @keyframes cta-shimmer { to { --cta-ang: 380deg; } }
+  @property --cta-ang {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 20deg;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cta-card::before { animation: none; }
   }
   .cta-card h2 { margin-bottom: 16px; }
   .cta-card p { color: var(--ink-dim); font-size: 15.5px; margin-bottom: 32px; }
