@@ -590,6 +590,50 @@
     padding: 20px;
   }
 
+  .chart-canvas-wrap { cursor: crosshair; }
+  .chart-tip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    background: rgba(8, 14, 17, 0.96);
+    border: 1px solid rgba(150, 192, 206, 0.3);
+    border-radius: 10px;
+    padding: 9px 12px;
+    white-space: nowrap;
+    z-index: 5;
+    box-shadow: 0 12px 26px -10px rgba(0,0,0,0.75);
+  }
+  .chart-tip.show { opacity: 1; }
+  .chart-tip-date {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: rgba(232,240,242,0.6);
+    margin-bottom: 6px;
+  }
+  .chart-tip-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11.5px;
+    color: rgba(232,240,242,0.75);
+  }
+  .chart-tip-row + .chart-tip-row { margin-top: 3px; }
+  .chart-tip-row b {
+    margin-left: auto;
+    padding-left: 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-tip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .chart-tip-none { font-size: 11.5px; color: rgba(232,240,242,0.4); }
+
   .chart-line { fill: none; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
   .chart-area { opacity: 0; transition: opacity 0.7s ease 0.25s; }
   .chart-area.shown { opacity: 1; }
@@ -930,20 +974,21 @@
           <div class="chart-stats-row">
             <div class="chart-stat">
               <span class="chart-stat-dot" style="background: var(--chart-revenue);"></span>
-              <span class="chart-stat-label">Revenue</span>
+              <span class="chart-stat-label">Total revenue</span>
               <span class="chart-stat-value" id="chart-revenue-value">—</span>
               <span class="chart-stat-change" id="chart-revenue-change"></span>
             </div>
             <div class="chart-stat">
               <span class="chart-stat-dot" style="background: var(--chart-cash);"></span>
-              <span class="chart-stat-label">Cash collected</span>
+              <span class="chart-stat-label">Total cash collected</span>
               <span class="chart-stat-value" id="chart-cash-value">—</span>
               <span class="chart-stat-change" id="chart-cash-change"></span>
             </div>
           </div>
 
           <div class="chart-canvas-wrap">
-            <svg id="chart-svg" viewBox="0 0 640 260" role="img" aria-label="Revenue and cash collected over time"></svg>
+            <svg id="chart-svg" viewBox="0 0 640 272" role="img" aria-label="Revenue and cash collected over time"></svg>
+            <div class="chart-tip" id="chart-tip"></div>
             <div class="chart-empty" id="chart-empty">No data recorded yet.</div>
           </div>
         </div>
@@ -1352,17 +1397,76 @@
   const chartReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Chart geometry (SVG user units; scales uniformly to the container width)
-  const CH_W = 640, CH_H = 260;
-  const CH_PAD_L = 64, CH_PAD_R = 16, CH_PAD_T = 20, CH_PAD_B = 34;
+  const CH_W = 640, CH_H = 272;
+  const CH_PAD_L = 64, CH_PAD_R = 18, CH_PAD_T = 20, CH_PAD_B = 46;
 
-  function getChartSlice() {
-    if (chartRange === 'all') return allMetricsRows;
-    const cutoff = new Date();
-    cutoff.setMonth(cutoff.getMonth() - chartRange);
-    cutoff.setHours(0, 0, 0, 0);
-    return allMetricsRows.filter(function (r) {
-      return new Date(r.month + 'T00:00:00') >= cutoff;
+  let chartState = null;
+
+  function startOfDay(d) {
+    const x = new Date(d.getTime());
+    x.setHours(0, 0, 0, 0);
+    return x;
+  }
+
+  // Ranges are calendar months, not rolling windows: 1M is the current month
+  // from the 1st to today, 3M is this month plus the two before it, etc.
+  function chartRangeStart() {
+    const now = new Date();
+    if (chartRange === 'all') {
+      if (!allMetricsRows.length) return new Date(now.getFullYear(), now.getMonth(), 1);
+      const first = new Date(allMetricsRows[0].month + 'T00:00:00');
+      return new Date(first.getFullYear(), first.getMonth(), 1);
+    }
+    return new Date(now.getFullYear(), now.getMonth() - (chartRange - 1), 1);
+  }
+
+  // One slot per calendar day across the whole range, whether or not it has
+  // an entry — several entries on the same day are summed into that day.
+  function buildChartDays() {
+    const byDate = {};
+    allMetricsRows.forEach(function (r) {
+      if (!byDate[r.month]) byDate[r.month] = { rev: 0, cash: 0 };
+      byDate[r.month].rev += Number(r.monthly_revenue) || 0;
+      byDate[r.month].cash += Number(r.cash_collected) || 0;
     });
+
+    const end = startOfDay(new Date());
+    const cur = chartRangeStart();
+    const days = [];
+    while (cur <= end) {
+      const key = ymd(cur);
+      const e = byDate[key];
+      days.push({
+        date: new Date(cur.getTime()),
+        key: key,
+        rev: e ? e.rev : null,
+        cash: e ? e.cash : null,
+        has: !!e
+      });
+      cur.setDate(cur.getDate() + 1);
+    }
+    return days;
+  }
+
+  // Totals for the equivalent span immediately before this one, so the % change
+  // compares like with like (this month vs last month, this quarter vs last).
+  function previousPeriodTotals() {
+    if (chartRange === 'all') return null;
+    const curStart = chartRangeStart();
+    const prevStart = new Date(curStart.getFullYear(), curStart.getMonth() - chartRange, 1);
+    const prevEnd = new Date(curStart.getTime());
+    prevEnd.setDate(prevEnd.getDate() - 1);
+
+    let rev = 0, cash = 0, found = false;
+    allMetricsRows.forEach(function (r) {
+      const d = new Date(r.month + 'T00:00:00');
+      if (d >= prevStart && d <= prevEnd) {
+        rev += Number(r.monthly_revenue) || 0;
+        cash += Number(r.cash_collected) || 0;
+        found = true;
+      }
+    });
+    return found ? { rev: rev, cash: cash } : null;
   }
 
   function formatMoney(n) {
@@ -1372,13 +1476,6 @@
   // Y-axis amounts: no currency symbol, per spec
   function formatAxisAmount(n) {
     return Math.round(n).toLocaleString('en-US');
-  }
-
-  function formatDateLabel(dateStr, isMonthly) {
-    const d = new Date(dateStr + 'T00:00:00');
-    return isMonthly
-      ? d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
-      : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
   // Pick a clean tick step whose top gridline sits strictly above the data,
@@ -1428,31 +1525,37 @@
     el.className = 'chart-stat-change ' + (pct >= 0 ? 'up' : 'down');
   }
 
-  function updateChartStats(revenues, cashes, animate) {
-    const revLast = revenues.length ? revenues[revenues.length - 1] : null;
-    const revPrev = revenues.length > 1 ? revenues[revenues.length - 2] : null;
-    const cashLast = cashes.length ? cashes[cashes.length - 1] : null;
-    const cashPrev = cashes.length > 1 ? cashes[cashes.length - 2] : null;
-
-    animateCount(document.getElementById('chart-revenue-value'), revLast, animate);
-    animateCount(document.getElementById('chart-cash-value'), cashLast, animate);
-    setChangeLabel('chart-revenue-change', revLast, revPrev);
-    setChangeLabel('chart-cash-change', cashLast, cashPrev);
+  function updateChartStats(totalRev, totalCash, prev, animate) {
+    animateCount(document.getElementById('chart-revenue-value'), totalRev, animate);
+    animateCount(document.getElementById('chart-cash-value'), totalCash, animate);
+    setChangeLabel('chart-revenue-change', prev ? totalRev : null, prev ? prev.rev : null);
+    setChangeLabel('chart-cash-change', prev ? totalCash : null, prev ? prev.cash : null);
   }
 
   function renderChart(animate) {
     const shouldAnimate = animate !== false && !chartReducedMotion;
-    const slice = getChartSlice();
     const svg = document.getElementById('chart-svg');
     const emptyEl = document.getElementById('chart-empty');
 
-    const revenues = slice.map(function (r) { return Number(r.monthly_revenue) || 0; });
-    const cashes = slice.map(function (r) { return Number(r.cash_collected) || 0; });
+    const days = buildChartDays();
+    const n = days.length;
+    const entryIdx = [];
+    days.forEach(function (d, i) { if (d.has) entryIdx.push(i); });
 
-    updateChartStats(revenues, cashes, shouldAnimate);
+    // Headline figures are the running total across everything in this range.
+    const totalRev = days.reduce(function (s, d) { return s + (d.rev || 0); }, 0);
+    const totalCash = days.reduce(function (s, d) { return s + (d.cash || 0); }, 0);
 
-    if (slice.length === 0) {
+    updateChartStats(
+      entryIdx.length ? totalRev : null,
+      entryIdx.length ? totalCash : null,
+      previousPeriodTotals(),
+      shouldAnimate
+    );
+
+    if (!entryIdx.length) {
       svg.innerHTML = '';
+      chartState = null;
       emptyEl.style.display = 'flex';
       emptyEl.textContent = allMetricsRows.length
         ? 'No entries in this range yet.'
@@ -1462,11 +1565,13 @@
     emptyEl.style.display = 'none';
 
     const TICKS = 4;
-    const axis = niceAxis(Math.max.apply(null, revenues.concat(cashes).concat([0])), TICKS);
+    const maxDaily = Math.max.apply(null, entryIdx.map(function (i) {
+      return Math.max(days[i].rev || 0, days[i].cash || 0);
+    }).concat([0]));
+    const axis = niceAxis(maxDaily, TICKS);
     const yMax = axis.max;
     const plotW = CH_W - CH_PAD_L - CH_PAD_R;
     const plotH = CH_H - CH_PAD_T - CH_PAD_B;
-    const n = slice.length;
 
     const xAt = function (i) {
       return n > 1 ? CH_PAD_L + (i * plotW) / (n - 1) : CH_PAD_L + plotW / 2;
@@ -1507,41 +1612,86 @@
         'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">' + formatAxisAmount(val) + '</text>';
     }
 
-    // X-axis dates (thinned so labels never collide)
-    let xLabels = '';
-    const maxLabels = 6;
-    const stepLabel = Math.max(1, Math.ceil(n / maxLabels));
-    for (let i = 0; i < n; i += stepLabel) {
-      xLabels +=
-        '<text x="' + xAt(i).toFixed(1) + '" y="' + (CH_H - 12) + '" text-anchor="middle" font-size="10" ' +
-        'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">' +
-        formatDateLabel(slice[i].month, slice[i].entry_type === 'monthly') + '</text>';
+    // X axis: a slot for every calendar day in the range. Days that actually
+    // have entries get a taller tick and a bolder, larger label, and they win
+    // the space — plain days only fill in the gaps that are left over.
+    const baselineY = CH_PAD_T + plotH;
+    let ticks = '';
+    days.forEach(function (d, i) {
+      const x = xAt(i).toFixed(1);
+      ticks += '<line x1="' + x + '" y1="' + baselineY + '" x2="' + x + '" y2="' + (baselineY + (d.has ? 6 : 3)) +
+        '" stroke="rgba(150,192,206,' + (d.has ? '0.6' : '0.18') + ')" stroke-width="1"/>';
+    });
+
+    const placed = [];
+    const MIN_GAP = 15;
+    function canPlace(x) {
+      for (let k = 0; k < placed.length; k++) {
+        if (Math.abs(placed[k] - x) < MIN_GAP) return false;
+      }
+      return true;
     }
 
-    function linePath(vals) {
-      return vals.map(function (v, i) {
-        return (i === 0 ? 'M' : 'L') + xAt(i).toFixed(1) + ',' + yAt(v).toFixed(1);
+    const dayLabelY = baselineY + 20;
+    let dayLabels = '';
+    // Pass 1 — transaction days claim their spot first
+    days.forEach(function (d, i) {
+      if (!d.has) return;
+      const x = xAt(i);
+      if (!canPlace(x)) return;
+      placed.push(x);
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY + '" text-anchor="middle" font-size="12" ' +
+        'font-weight="700" font-family="ui-monospace, monospace" fill="rgba(255,255,255,0.95)">' + d.date.getDate() + '</text>';
+    });
+    // Pass 2 — remaining days fill whatever room is left
+    days.forEach(function (d, i) {
+      if (d.has) return;
+      const x = xAt(i);
+      if (!canPlace(x)) return;
+      placed.push(x);
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY + '" text-anchor="middle" font-size="8.5" ' +
+        'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.32)">' + d.date.getDate() + '</text>';
+    });
+
+    // Month names centred beneath each month's run of days
+    let monthLabels = '';
+    let mStart = 0;
+    for (let i = 1; i <= n; i++) {
+      if (i === n || days[i].date.getMonth() !== days[mStart].date.getMonth()) {
+        const cx = (xAt(mStart) + xAt(i - 1)) / 2;
+        const d0 = days[mStart].date;
+        monthLabels += '<text x="' + cx.toFixed(1) + '" y="' + (CH_H - 8) + '" text-anchor="middle" font-size="10" ' +
+          'font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">' +
+          d0.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() + '</text>';
+        mStart = i;
+      }
+    }
+
+    // Lines join the days that have entries, positioned on the real date axis.
+    function linePath(field) {
+      return entryIdx.map(function (i, k) {
+        return (k === 0 ? 'M' : 'L') + xAt(i).toFixed(1) + ',' + yAt(days[i][field] || 0).toFixed(1);
       }).join(' ');
     }
-    function areaPath(vals) {
+    function areaPath(field) {
       const base = yAt(0).toFixed(1);
-      return linePath(vals) +
-        ' L' + xAt(n - 1).toFixed(1) + ',' + base +
-        ' L' + xAt(0).toFixed(1) + ',' + base + ' Z';
+      return linePath(field) +
+        ' L' + xAt(entryIdx[entryIdx.length - 1]).toFixed(1) + ',' + base +
+        ' L' + xAt(entryIdx[0]).toFixed(1) + ',' + base + ' Z';
     }
     // On dense ranges the per-point dots swallow the line, so only mark every
     // point when there are few; the latest value always gets an endpoint marker.
-    const showAllDots = n <= 14;
-    function dots(vals, color) {
+    const showAllDots = entryIdx.length <= 14;
+    function dots(field, color) {
       let out = '';
       if (showAllDots) {
-        out += vals.map(function (v, i) {
-          return '<circle class="chart-dot" cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(v).toFixed(1) +
+        out += entryIdx.map(function (i) {
+          return '<circle class="chart-dot" cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(days[i][field] || 0).toFixed(1) +
             '" r="3.2" fill="' + color + '" stroke="#0A1013" stroke-width="1.5"/>';
         }).join('');
       }
-      const li = n - 1;
-      const lx = xAt(li).toFixed(1), ly = yAt(vals[li]).toFixed(1);
+      const li = entryIdx[entryIdx.length - 1];
+      const lx = xAt(li).toFixed(1), ly = yAt(days[li][field] || 0).toFixed(1);
       out += '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="7" fill="' + color + '" opacity="0.18"/>' +
              '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="3.6" fill="' + color +
              '" stroke="#0A1013" stroke-width="1.5" filter="url(#chartGlow)"/>';
@@ -1549,16 +1699,24 @@
     }
 
     let body = '';
-    if (n > 1) {
+    if (entryIdx.length > 1) {
       body =
-        '<path class="chart-area" d="' + areaPath(revenues) + '" fill="url(#revGrad)"/>' +
-        '<path class="chart-area" d="' + areaPath(cashes) + '" fill="url(#cashGrad)"/>' +
-        '<path class="chart-line" id="chart-line-rev" d="' + linePath(revenues) + '" stroke="' + revColor + '" filter="url(#chartGlow)"/>' +
-        '<path class="chart-line" id="chart-line-cash" d="' + linePath(cashes) + '" stroke="' + cashColor + '" filter="url(#chartGlow)"/>';
+        '<path class="chart-area" d="' + areaPath('rev') + '" fill="url(#revGrad)"/>' +
+        '<path class="chart-area" d="' + areaPath('cash') + '" fill="url(#cashGrad)"/>' +
+        '<path class="chart-line" id="chart-line-rev" d="' + linePath('rev') + '" stroke="' + revColor + '" filter="url(#chartGlow)"/>' +
+        '<path class="chart-line" id="chart-line-cash" d="' + linePath('cash') + '" stroke="' + cashColor + '" filter="url(#chartGlow)"/>';
     }
-    body += dots(revenues, revColor) + dots(cashes, cashColor);
+    body += dots('rev', revColor) + dots('cash', cashColor);
 
-    svg.innerHTML = defs + grid + xLabels + body;
+    const hoverLayer =
+      '<line id="ch-cross" x1="0" y1="' + CH_PAD_T + '" x2="0" y2="' + baselineY +
+        '" stroke="rgba(150,192,206,0.55)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>' +
+      '<circle id="ch-hov-rev" r="4.6" fill="' + revColor + '" stroke="#0A1013" stroke-width="1.5" opacity="0"/>' +
+      '<circle id="ch-hov-cash" r="4.6" fill="' + cashColor + '" stroke="#0A1013" stroke-width="1.5" opacity="0"/>';
+
+    svg.innerHTML = defs + grid + ticks + dayLabels + monthLabels + body + hoverLayer;
+
+    chartState = { days: days, n: n, plotW: plotW, xAt: xAt, yAt: yAt };
 
     // Draw-on animation: lines trace out from the start, then fills and dots settle in.
     const areas = svg.querySelectorAll('.chart-area');
@@ -1583,10 +1741,73 @@
     requestAnimationFrame(function () {
       areas.forEach(function (a) { a.classList.add('shown'); });
     });
+    const dotSpread = Math.max(1, entryIdx.length);
     dotEls.forEach(function (d, i) {
-      const delay = 400 + (i % Math.max(1, n)) * (700 / Math.max(1, n));
-      setTimeout(function () { d.classList.add('shown'); }, delay);
+      setTimeout(function () { d.classList.add('shown'); }, 400 + (i % dotSpread) * (700 / dotSpread));
     });
+  }
+
+  // ---- Cursor readout: crosshair + per-day tooltip ----
+  const chartWrapEl = document.querySelector('.chart-canvas-wrap');
+  const chartTipEl = document.getElementById('chart-tip');
+
+  function hideChartHover() {
+    const cross = document.getElementById('ch-cross');
+    const hr = document.getElementById('ch-hov-rev');
+    const hc = document.getElementById('ch-hov-cash');
+    if (cross) cross.setAttribute('opacity', '0');
+    if (hr) hr.setAttribute('opacity', '0');
+    if (hc) hc.setAttribute('opacity', '0');
+    if (chartTipEl) chartTipEl.classList.remove('show');
+  }
+
+  function onChartHover(e) {
+    if (!chartState || !chartTipEl) return;
+    const svg = document.getElementById('chart-svg');
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width) return;
+
+    const svgX = (e.clientX - rect.left) * (CH_W / rect.width);
+    const t = Math.max(0, Math.min(1, (svgX - CH_PAD_L) / chartState.plotW));
+    const idx = chartState.n > 1 ? Math.round(t * (chartState.n - 1)) : 0;
+    const day = chartState.days[idx];
+    if (!day) return;
+
+    const x = chartState.xAt(idx);
+    const cross = document.getElementById('ch-cross');
+    const hr = document.getElementById('ch-hov-rev');
+    const hc = document.getElementById('ch-hov-cash');
+    if (cross) { cross.setAttribute('x1', x); cross.setAttribute('x2', x); cross.setAttribute('opacity', '1'); }
+
+    if (day.has) {
+      if (hr) { hr.setAttribute('cx', x); hr.setAttribute('cy', chartState.yAt(day.rev || 0)); hr.setAttribute('opacity', '1'); }
+      if (hc) { hc.setAttribute('cx', x); hc.setAttribute('cy', chartState.yAt(day.cash || 0)); hc.setAttribute('opacity', '1'); }
+    } else {
+      if (hr) hr.setAttribute('opacity', '0');
+      if (hc) hc.setAttribute('opacity', '0');
+    }
+
+    const dateTxt = day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    chartTipEl.innerHTML = day.has
+      ? '<div class="chart-tip-date">' + dateTxt + '</div>' +
+        '<div class="chart-tip-row"><span class="chart-tip-dot" style="background:var(--chart-revenue)"></span>Revenue<b>' + formatMoney(day.rev || 0) + '</b></div>' +
+        '<div class="chart-tip-row"><span class="chart-tip-dot" style="background:var(--chart-cash)"></span>Cash<b>' + formatMoney(day.cash || 0) + '</b></div>'
+      : '<div class="chart-tip-date">' + dateTxt + '</div><div class="chart-tip-none">No entry</div>';
+
+    const leftPx = (x / CH_W) * rect.width;
+    const halfW = (chartTipEl.offsetWidth || 120) / 2;
+    chartTipEl.style.left = Math.max(halfW + 4, Math.min(rect.width - halfW - 4, leftPx)) + 'px';
+
+    const yTop = day.has
+      ? Math.min(chartState.yAt(day.rev || 0), chartState.yAt(day.cash || 0))
+      : CH_PAD_T + 40;
+    chartTipEl.style.top = ((yTop / CH_H) * rect.height - 12) + 'px';
+    chartTipEl.classList.add('show');
+  }
+
+  if (chartWrapEl) {
+    chartWrapEl.addEventListener('mousemove', onChartHover);
+    chartWrapEl.addEventListener('mouseleave', hideChartHover);
   }
 
   document.querySelectorAll('.chart-range-btn').forEach(function (btn) {
