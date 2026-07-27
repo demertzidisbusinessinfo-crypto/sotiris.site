@@ -26,6 +26,9 @@
     --accent-dim: rgba(127, 3, 3, 0.08);
     --green: #2E6B4F;
     --green-dim: rgba(46, 107, 79, 0.1);
+    --chart-revenue: #C42032;
+    --chart-cash: #7B47E0;
+    --chart-panel-ink: #E8F0F2;
     --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     --font-serif: 'Playfair Display', Georgia, serif;
     --font-body: 'Inter', sans-serif;
@@ -707,6 +710,177 @@
   }
   .tracker-save-status.saving { color: var(--ink-dim); }
   .tracker-save-status.saved { color: var(--green); }
+
+  /* ---------- REVENUE / CASH CHART (read-only, futuristic panel) ---------- */
+  .chart-card {
+    background: linear-gradient(160deg, #111C21 0%, #0A1013 100%);
+    border: 1px solid rgba(150, 192, 206, 0.18);
+    box-shadow: 0 20px 46px -20px rgba(0,0,0,0.65);
+    color: var(--chart-panel-ink);
+    position: relative;
+    overflow: hidden;
+  }
+  .chart-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 420px 220px at 12% -10%, rgba(196, 32, 50, 0.14), transparent 65%),
+      radial-gradient(ellipse 400px 220px at 88% 110%, rgba(123, 71, 224, 0.14), transparent 65%);
+  }
+  .chart-card > * { position: relative; z-index: 1; }
+  .chart-card .card-title { color: #F4F9FA; }
+
+  .chart-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .chart-range-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chart-range-btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: rgba(232,240,242,0.62);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .chart-range-btn:hover { border-color: rgba(150,192,206,0.55); color: var(--chart-panel-ink); }
+  .chart-range-btn.active {
+    background: rgba(150,192,206,0.18);
+    border-color: rgba(150,192,206,0.6);
+    color: #fff;
+  }
+
+  .chart-stats-row {
+    display: flex;
+    gap: 34px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .chart-stat { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .chart-stat-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    align-self: center;
+  }
+  .chart-stat-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: rgba(232,240,242,0.5);
+    font-weight: 600;
+  }
+  .chart-stat-value {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 21px;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-stat-change {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-stat-change.up { color: #4ADE80; }
+  .chart-stat-change.down { color: #FB7185; }
+
+  .chart-canvas-wrap { position: relative; width: 100%; min-height: 150px; cursor: crosshair; }
+  .chart-canvas-wrap svg { width: 100%; height: auto; display: block; }
+  .chart-empty {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: rgba(232,240,242,0.45);
+    text-align: center;
+    padding: 20px;
+  }
+  .chart-tip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    background: rgba(8, 14, 17, 0.96);
+    border: 1px solid rgba(150, 192, 206, 0.3);
+    border-radius: 10px;
+    padding: 9px 12px;
+    white-space: nowrap;
+    z-index: 5;
+    box-shadow: 0 12px 26px -10px rgba(0,0,0,0.75);
+  }
+  .chart-tip.show { opacity: 1; }
+  .chart-tip-date {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: rgba(232,240,242,0.6);
+    margin-bottom: 6px;
+  }
+  .chart-tip-head {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 8.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(232,240,242,0.35);
+    margin-bottom: 4px;
+  }
+  .chart-tip-head span:first-child { width: 64px; text-align: right; }
+  .chart-tip-head span:last-child { width: 72px; text-align: right; }
+  .chart-tip-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11.5px;
+    color: rgba(232,240,242,0.75);
+  }
+  .chart-tip-row + .chart-tip-row { margin-top: 3px; }
+  .chart-tip-day {
+    margin-left: auto;
+    width: 64px;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(232,240,242,0.55);
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-tip-row b {
+    width: 72px;
+    padding-left: 14px;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-tip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .chart-tip-none { font-size: 11.5px; color: rgba(232,240,242,0.4); }
+
+  .chart-line { fill: none; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
+  .chart-area { opacity: 0; transition: opacity 0.7s ease 0.25s; }
+  .chart-area.shown { opacity: 1; }
+  .chart-dot { opacity: 0; transition: opacity 0.4s ease; }
+  .chart-dot.shown { opacity: 1; }
 
   .brand-grid {
     display: grid;
@@ -1587,6 +1761,40 @@
 
                 <div class="tracker-save-status" id="cd-tracker-save-status"></div>
               </div>
+
+              <div class="tracker-card chart-card">
+                <div class="chart-head">
+                  <div class="card-title">Revenue &amp; cash collected</div>
+                  <div class="chart-range-group" id="chart-range-group">
+                    <button class="chart-range-btn" data-range="1w">1W</button>
+                    <button class="chart-range-btn" data-range="1">1M</button>
+                    <button class="chart-range-btn active" data-range="3">3M</button>
+                    <button class="chart-range-btn" data-range="6">6M</button>
+                    <button class="chart-range-btn" data-range="all">All</button>
+                  </div>
+                </div>
+
+                <div class="chart-stats-row">
+                  <div class="chart-stat">
+                    <span class="chart-stat-dot" style="background: var(--chart-revenue);"></span>
+                    <span class="chart-stat-label">Total revenue</span>
+                    <span class="chart-stat-value" id="chart-revenue-value">—</span>
+                    <span class="chart-stat-change" id="chart-revenue-change"></span>
+                  </div>
+                  <div class="chart-stat">
+                    <span class="chart-stat-dot" style="background: var(--chart-cash);"></span>
+                    <span class="chart-stat-label">Total cash collected</span>
+                    <span class="chart-stat-value" id="chart-cash-value">—</span>
+                    <span class="chart-stat-change" id="chart-cash-change"></span>
+                  </div>
+                </div>
+
+                <div class="chart-canvas-wrap">
+                  <svg id="chart-svg" viewBox="0 0 640 272" role="img" aria-label="Revenue and cash collected over time"></svg>
+                  <div class="chart-tip" id="chart-tip"></div>
+                  <div class="chart-empty" id="chart-empty">No data recorded yet.</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -2193,6 +2401,7 @@
 
     currentClient = data;
     loadTrackerMonth();
+    loadClientMetricsChart(true);
 
     document.getElementById('cd-client-name').textContent = data.full_name || '—';
     document.getElementById('cd-avatar-initial').textContent = (data.full_name || '?').trim().charAt(0).toUpperCase();
@@ -2472,10 +2681,408 @@
 
     trackerSaveStatus.textContent = 'Saved';
     trackerSaveStatus.className = 'tracker-save-status saved';
+    loadClientMetricsChart(false); // keep the read-only chart in sync after an edit
   }
 
   ['cd-tracker-revenue', 'cd-tracker-cash', 'cd-tracker-leads'].forEach(function (id) {
     document.getElementById(id).addEventListener('input', scheduleTrackerSave);
+  });
+
+  // ==================== CLIENT REVENUE / CASH CHART (read-only) ====================
+  let allMetricsRows = [];
+  let chartRange = 3;
+  const chartReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const CH_W = 640, CH_H = 272;
+  const CH_PAD_L = 64, CH_PAD_R = 18, CH_PAD_T = 20, CH_PAD_B = 46;
+  let chartState = null;
+
+  function chartStartOfDay(d) {
+    const x = new Date(d.getTime());
+    x.setHours(0, 0, 0, 0);
+    return x;
+  }
+  function chartYmd(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  async function loadClientMetricsChart(animate) {
+    if (!currentClient) { allMetricsRows = []; renderChart(false); return; }
+    const { data, error } = await supabaseClient
+      .from('client_metrics')
+      .select('month, entry_type, monthly_revenue, cash_collected')
+      .eq('client_id', currentClient.id)
+      .order('month', { ascending: true });
+
+    if (error) {
+      console.error('Could not load metrics history:', error.message);
+      allMetricsRows = [];
+    } else {
+      allMetricsRows = data || [];
+    }
+    renderChart(animate !== false);
+  }
+
+  // 1M is this month from the 1st to today, 3M/6M add the months before it.
+  // 1W is the last 7 days (not the calendar week) so it always shows a full week.
+  function chartRangeStart(range) {
+    const now = new Date();
+    if (range === 'all') {
+      if (!allMetricsRows.length) return new Date(now.getFullYear(), now.getMonth(), 1);
+      const first = new Date(allMetricsRows[0].month + 'T00:00:00');
+      return new Date(first.getFullYear(), first.getMonth(), 1);
+    }
+    if (range === '1w') {
+      const s = chartStartOfDay(now);
+      s.setDate(s.getDate() - 6);
+      return s;
+    }
+    return new Date(now.getFullYear(), now.getMonth() - (range - 1), 1);
+  }
+
+  // One slot per calendar day; entries on the same day are summed. cumRev/cumCash
+  // are the running totals the lines plot — they only ever climb.
+  function buildChartDays(range) {
+    const byDate = {};
+    allMetricsRows.forEach(function (r) {
+      if (!byDate[r.month]) byDate[r.month] = { rev: 0, cash: 0 };
+      byDate[r.month].rev += Number(r.monthly_revenue) || 0;
+      byDate[r.month].cash += Number(r.cash_collected) || 0;
+    });
+
+    const end = chartStartOfDay(new Date());
+    const cur = chartRangeStart(range);
+    const days = [];
+    while (cur <= end) {
+      const key = chartYmd(cur);
+      const e = byDate[key];
+      days.push({ date: new Date(cur.getTime()), key: key, rev: e ? e.rev : null, cash: e ? e.cash : null, has: !!e });
+      cur.setDate(cur.getDate() + 1);
+    }
+    let runRev = 0, runCash = 0;
+    days.forEach(function (d) {
+      runRev += d.rev || 0; runCash += d.cash || 0;
+      d.cumRev = runRev; d.cumCash = runCash;
+    });
+    return days;
+  }
+
+  function previousPeriodTotals() {
+    if (chartRange === 'all') return null;
+    const curStart = chartRangeStart(chartRange);
+    let prevStart;
+    if (chartRange === '1w') {
+      prevStart = new Date(curStart.getTime());
+      prevStart.setDate(prevStart.getDate() - 7);
+    } else {
+      prevStart = new Date(curStart.getFullYear(), curStart.getMonth() - chartRange, 1);
+    }
+    const prevEnd = new Date(curStart.getTime());
+    prevEnd.setDate(prevEnd.getDate() - 1);
+
+    let rev = 0, cash = 0, found = false;
+    allMetricsRows.forEach(function (r) {
+      const d = new Date(r.month + 'T00:00:00');
+      if (d >= prevStart && d <= prevEnd) {
+        rev += Number(r.monthly_revenue) || 0;
+        cash += Number(r.cash_collected) || 0;
+        found = true;
+      }
+    });
+    return found ? { rev: rev, cash: cash } : null;
+  }
+
+  function chartFormatMoney(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+  function chartFormatAxis(n) { return Math.round(n).toLocaleString('en-US'); }
+
+  function niceAxis(maxVal, ticks) {
+    if (!isFinite(maxVal) || maxVal <= 0) return { max: ticks * 25, step: 25 };
+    const target = maxVal * 1.08;
+    const raw = target / ticks;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const candidates = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 15, 20];
+    for (let i = 0; i < candidates.length; i++) {
+      const step = candidates[i] * mag;
+      if (step * ticks >= target) return { max: step * ticks, step: step };
+    }
+    const fb = 20 * mag;
+    return { max: fb * ticks, step: fb };
+  }
+
+  function chartAnimateCount(el, to, animate) {
+    const token = String(Date.now()) + Math.random();
+    el.dataset.animToken = token;
+    if (to == null) { el.textContent = '—'; return; }
+    if (!animate || chartReducedMotion) { el.textContent = chartFormatMoney(to); return; }
+    const start = performance.now(), dur = 900;
+    function tick(now) {
+      if (el.dataset.animToken !== token) return;
+      const p = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = chartFormatMoney(to * eased);
+      if (p < 1) requestAnimationFrame(tick); else el.textContent = chartFormatMoney(to);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function chartSetChange(id, last, prev) {
+    const el = document.getElementById(id);
+    if (last == null || prev == null || prev === 0) { el.textContent = ''; el.className = 'chart-stat-change'; return; }
+    const pct = ((last - prev) / Math.abs(prev)) * 100;
+    el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+    el.className = 'chart-stat-change ' + (pct >= 0 ? 'up' : 'down');
+  }
+
+  function updateChartStats(totalRev, totalCash, prev, animate) {
+    chartAnimateCount(document.getElementById('chart-revenue-value'), totalRev, animate);
+    chartAnimateCount(document.getElementById('chart-cash-value'), totalCash, animate);
+    chartSetChange('chart-revenue-change', prev ? totalRev : null, prev ? prev.rev : null);
+    chartSetChange('chart-cash-change', prev ? totalCash : null, prev ? prev.cash : null);
+  }
+
+  function renderChart(animate) {
+    const shouldAnimate = animate !== false && !chartReducedMotion;
+    const svg = document.getElementById('chart-svg');
+    const emptyEl = document.getElementById('chart-empty');
+    if (!svg || !emptyEl) return;
+
+    const days = buildChartDays(chartRange);
+    const n = days.length;
+    const entryIdx = [];
+    days.forEach(function (d, i) { if (d.has) entryIdx.push(i); });
+
+    const totalRev = days.reduce(function (s, d) { return s + (d.rev || 0); }, 0);
+    const totalCash = days.reduce(function (s, d) { return s + (d.cash || 0); }, 0);
+
+    updateChartStats(entryIdx.length ? totalRev : null, entryIdx.length ? totalCash : null, previousPeriodTotals(), shouldAnimate);
+
+    if (!entryIdx.length) {
+      svg.innerHTML = '';
+      chartState = null;
+      emptyEl.style.display = 'flex';
+      emptyEl.textContent = allMetricsRows.length ? 'No entries in this range yet.' : 'No data recorded yet.';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    const TICKS = 4;
+    const lastDay = days[n - 1];
+    const axis = niceAxis(Math.max(lastDay.cumRev, lastDay.cumCash), TICKS);
+    const yMax = axis.max;
+    const plotW = CH_W - CH_PAD_L - CH_PAD_R;
+    const plotH = CH_H - CH_PAD_T - CH_PAD_B;
+
+    const xAt = function (i) { return n > 1 ? CH_PAD_L + (i * plotW) / (n - 1) : CH_PAD_L + plotW / 2; };
+    const yAt = function (v) { return CH_PAD_T + (1 - v / yMax) * plotH; };
+
+    const styles = getComputedStyle(document.documentElement);
+    const revColor = styles.getPropertyValue('--chart-revenue').trim();
+    const cashColor = styles.getPropertyValue('--chart-cash').trim();
+
+    const defs =
+      '<defs>' +
+        '<linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="' + revColor + '" stop-opacity="0.38"/>' +
+          '<stop offset="100%" stop-color="' + revColor + '" stop-opacity="0"/>' +
+        '</linearGradient>' +
+        '<linearGradient id="cashGrad" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="' + cashColor + '" stop-opacity="0.34"/>' +
+          '<stop offset="100%" stop-color="' + cashColor + '" stop-opacity="0"/>' +
+        '</linearGradient>' +
+        '<filter id="chartGlow" x="-50%" y="-50%" width="200%" height="200%">' +
+          '<feGaussianBlur stdDeviation="3.2" result="blur"/>' +
+          '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+        '</filter>' +
+      '</defs>';
+
+    let grid = '';
+    for (let i = 0; i <= TICKS; i++) {
+      const y = CH_PAD_T + (i / TICKS) * plotH;
+      const val = axis.step * (TICKS - i);
+      const isBase = i === TICKS;
+      grid +=
+        '<line x1="' + CH_PAD_L + '" y1="' + y.toFixed(1) + '" x2="' + (CH_W - CH_PAD_R) + '" y2="' + y.toFixed(1) +
+        '" stroke="rgba(150,192,206,' + (isBase ? '0.28' : '0.10') + ')" stroke-width="1"/>' +
+        '<text x="' + (CH_PAD_L - 10) + '" y="' + (y + 3.5).toFixed(1) + '" text-anchor="end" font-size="10" ' +
+        'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">' + chartFormatAxis(val) + '</text>';
+    }
+
+    const baselineY = CH_PAD_T + plotH;
+    let ticks = '';
+    days.forEach(function (d, i) {
+      const x = xAt(i).toFixed(1);
+      ticks += '<line x1="' + x + '" y1="' + baselineY + '" x2="' + x + '" y2="' + (baselineY + (d.has ? 6 : 3)) +
+        '" stroke="rgba(150,192,206,' + (d.has ? '0.6' : '0.18') + ')" stroke-width="1"/>';
+    });
+
+    const placed = [];
+    const MIN_GAP = 15;
+    function canPlace(x) {
+      for (let k = 0; k < placed.length; k++) { if (Math.abs(placed[k] - x) < MIN_GAP) return false; }
+      return true;
+    }
+    const dayLabelY = baselineY + 20;
+    let dayLabels = '';
+    days.forEach(function (d, i) {
+      if (!d.has) return;
+      const x = xAt(i);
+      if (!canPlace(x)) return;
+      placed.push(x);
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY + '" text-anchor="middle" font-size="12" ' +
+        'font-weight="700" font-family="ui-monospace, monospace" fill="rgba(255,255,255,0.95)">' + d.date.getDate() + '</text>';
+    });
+    days.forEach(function (d, i) {
+      if (d.has) return;
+      const x = xAt(i);
+      if (!canPlace(x)) return;
+      placed.push(x);
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY + '" text-anchor="middle" font-size="8.5" ' +
+        'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.32)">' + d.date.getDate() + '</text>';
+    });
+
+    let monthLabels = '';
+    let mStart = 0;
+    for (let i = 1; i <= n; i++) {
+      if (i === n || days[i].date.getMonth() !== days[mStart].date.getMonth()) {
+        const cx = (xAt(mStart) + xAt(i - 1)) / 2;
+        const d0 = days[mStart].date;
+        monthLabels += '<text x="' + cx.toFixed(1) + '" y="' + (CH_H - 8) + '" text-anchor="middle" font-size="10" ' +
+          'font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">' +
+          d0.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() + '</text>';
+        mStart = i;
+      }
+    }
+
+    function linePath(field) {
+      return days.map(function (d, i) { return (i === 0 ? 'M' : 'L') + xAt(i).toFixed(1) + ',' + yAt(d[field]).toFixed(1); }).join(' ');
+    }
+    function areaPath(field) {
+      const base = yAt(0).toFixed(1);
+      return linePath(field) + ' L' + xAt(n - 1).toFixed(1) + ',' + base + ' L' + xAt(0).toFixed(1) + ',' + base + ' Z';
+    }
+    const showAllDots = entryIdx.length <= 14;
+    function dots(field, color) {
+      let out = '';
+      if (showAllDots) {
+        out += entryIdx.map(function (i) {
+          return '<circle class="chart-dot" cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(days[i][field]).toFixed(1) +
+            '" r="3.2" fill="' + color + '" stroke="#0A1013" stroke-width="1.5"/>';
+        }).join('');
+      }
+      const li = n - 1;
+      const lx = xAt(li).toFixed(1), ly = yAt(days[li][field]).toFixed(1);
+      out += '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="7" fill="' + color + '" opacity="0.18"/>' +
+             '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="3.6" fill="' + color +
+             '" stroke="#0A1013" stroke-width="1.5" filter="url(#chartGlow)"/>';
+      return out;
+    }
+
+    let body = '';
+    if (n > 1) {
+      body =
+        '<path class="chart-area" d="' + areaPath('cumRev') + '" fill="url(#revGrad)"/>' +
+        '<path class="chart-area" d="' + areaPath('cumCash') + '" fill="url(#cashGrad)"/>' +
+        '<path class="chart-line" id="chart-line-rev" d="' + linePath('cumRev') + '" stroke="' + revColor + '" filter="url(#chartGlow)"/>' +
+        '<path class="chart-line" id="chart-line-cash" d="' + linePath('cumCash') + '" stroke="' + cashColor + '" filter="url(#chartGlow)"/>';
+    }
+    body += dots('cumRev', revColor) + dots('cumCash', cashColor);
+
+    const hoverLayer =
+      '<line id="ch-cross" x1="0" y1="' + CH_PAD_T + '" x2="0" y2="' + baselineY +
+        '" stroke="rgba(150,192,206,0.55)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>' +
+      '<circle id="ch-hov-rev" r="4.6" fill="' + revColor + '" stroke="#0A1013" stroke-width="1.5" opacity="0"/>' +
+      '<circle id="ch-hov-cash" r="4.6" fill="' + cashColor + '" stroke="#0A1013" stroke-width="1.5" opacity="0"/>';
+
+    svg.innerHTML = defs + grid + ticks + dayLabels + monthLabels + body + hoverLayer;
+    chartState = { days: days, n: n, plotW: plotW, xAt: xAt, yAt: yAt };
+
+    const areas = svg.querySelectorAll('.chart-area');
+    const dotEls = svg.querySelectorAll('.chart-dot');
+    const lines = [svg.querySelector('#chart-line-rev'), svg.querySelector('#chart-line-cash')].filter(Boolean);
+
+    if (!shouldAnimate) {
+      areas.forEach(function (a) { a.classList.add('shown'); });
+      dotEls.forEach(function (d) { d.classList.add('shown'); });
+      return;
+    }
+    lines.forEach(function (path) {
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+      path.getBoundingClientRect();
+      path.style.transition = 'stroke-dashoffset 1.15s cubic-bezier(0.22, 1, 0.36, 1)';
+      path.style.strokeDashoffset = '0';
+    });
+    requestAnimationFrame(function () { areas.forEach(function (a) { a.classList.add('shown'); }); });
+    const dotSpread = Math.max(1, entryIdx.length);
+    dotEls.forEach(function (d, i) { setTimeout(function () { d.classList.add('shown'); }, 400 + (i % dotSpread) * (700 / dotSpread)); });
+  }
+
+  const chartWrapEl = document.querySelector('.chart-canvas-wrap');
+  const chartTipEl = document.getElementById('chart-tip');
+
+  function hideChartHover() {
+    ['ch-cross', 'ch-hov-rev', 'ch-hov-cash'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.setAttribute('opacity', '0');
+    });
+    if (chartTipEl) chartTipEl.classList.remove('show');
+  }
+
+  function onChartHover(e) {
+    if (!chartState || !chartTipEl) return;
+    const svg = document.getElementById('chart-svg');
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width) return;
+
+    const svgX = (e.clientX - rect.left) * (CH_W / rect.width);
+    const t = Math.max(0, Math.min(1, (svgX - CH_PAD_L) / chartState.plotW));
+    const idx = chartState.n > 1 ? Math.round(t * (chartState.n - 1)) : 0;
+    const day = chartState.days[idx];
+    if (!day) return;
+
+    const x = chartState.xAt(idx);
+    const cross = document.getElementById('ch-cross');
+    const hr = document.getElementById('ch-hov-rev');
+    const hc = document.getElementById('ch-hov-cash');
+    if (cross) { cross.setAttribute('x1', x); cross.setAttribute('x2', x); cross.setAttribute('opacity', '1'); }
+    if (hr) { hr.setAttribute('cx', x); hr.setAttribute('cy', chartState.yAt(day.cumRev)); hr.setAttribute('opacity', '1'); }
+    if (hc) { hc.setAttribute('cx', x); hc.setAttribute('cy', chartState.yAt(day.cumCash)); hc.setAttribute('opacity', '1'); }
+
+    const dateTxt = day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    function tipRow(label, colorVar, dayAmt, total) {
+      return '<div class="chart-tip-row">' +
+        '<span class="chart-tip-dot" style="background:var(' + colorVar + ')"></span>' + label +
+        '<span class="chart-tip-day">' + (dayAmt == null ? '—' : '+' + chartFormatMoney(dayAmt)) + '</span>' +
+        '<b>' + chartFormatMoney(total) + '</b></div>';
+    }
+    chartTipEl.innerHTML =
+      '<div class="chart-tip-date">' + dateTxt + (day.has ? '' : ' · no entry') + '</div>' +
+      '<div class="chart-tip-head"><span>that day</span><span>total</span></div>' +
+      tipRow('Revenue', '--chart-revenue', day.has ? (day.rev || 0) : null, day.cumRev) +
+      tipRow('Cash', '--chart-cash', day.has ? (day.cash || 0) : null, day.cumCash);
+
+    const leftPx = (x / CH_W) * rect.width;
+    const halfW = (chartTipEl.offsetWidth || 120) / 2;
+    chartTipEl.style.left = Math.max(halfW + 4, Math.min(rect.width - halfW - 4, leftPx)) + 'px';
+    const yTop = Math.min(chartState.yAt(day.cumRev), chartState.yAt(day.cumCash));
+    chartTipEl.style.top = ((yTop / CH_H) * rect.height - 12) + 'px';
+    chartTipEl.classList.add('show');
+  }
+
+  if (chartWrapEl) {
+    chartWrapEl.addEventListener('mousemove', onChartHover);
+    chartWrapEl.addEventListener('mouseleave', hideChartHover);
+  }
+
+  document.querySelectorAll('.chart-range-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.chart-range-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      const r = btn.getAttribute('data-range');
+      chartRange = (r === 'all' || r === '1w') ? r : parseInt(r, 10);
+      renderChart(true);
+    });
   });
 
   // ---------------- AUTH GATE ----------------
