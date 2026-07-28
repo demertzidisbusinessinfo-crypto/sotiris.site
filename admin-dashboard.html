@@ -963,20 +963,31 @@
   }
 
   .dashboard-columns {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-areas:
+      "frame    counters"
+      "chart    chart"
+      "brand    .";
     gap: 28px;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    align-items: start;
   }
-  .col-main { flex: 1 1 560px; min-width: 0; }
-  .col-side {
-    flex: 0 0 320px;
-    min-width: 280px;
-    position: sticky;
-    top: 24px;
-  }
+  .dashboard-columns > .frame-card    { grid-area: frame; }
+  .dashboard-columns > .counter-row   { grid-area: counters; }
+  .dashboard-columns > .chart-card    { grid-area: chart; min-width: 0; }
+  .dashboard-columns > .brand-section { grid-area: brand; min-width: 0; }
+  /* The chart is a full-width band, so its bottom margin would double up the grid
+     gap — drop it and let the grid gap do the spacing. */
+  .dashboard-columns > .chart-card { margin-bottom: 0; }
   @media (max-width: 900px) {
-    .col-side { position: static; flex: 1 1 100%; }
+    .dashboard-columns {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "frame"
+        "counters"
+        "chart"
+        "brand";
+    }
   }
 
   .info-card {
@@ -1682,17 +1693,41 @@
           </div>
 
           <div class="dashboard-columns">
-            <div class="col-main">
-              <div class="frame-card">
-                <div class="card-title">Frame.io link</div>
-                <div class="card-subtitle">The client's editing review link. They can submit or update this from their side.</div>
-                <div class="frame-link-row">
-                  <div class="frame-link-display empty" id="cd-frame-link-display">No link submitted yet</div>
-                  <button class="btn-frame-open" id="cd-frame-open-btn" disabled>Open in Frame.io</button>
+            <div class="frame-card">
+              <div class="card-title">Frame.io link</div>
+              <div class="card-subtitle">The client's editing review link. They can submit or update this from their side.</div>
+              <div class="frame-link-row">
+                <div class="frame-link-display empty" id="cd-frame-link-display">No link submitted yet</div>
+                <button class="btn-frame-open" id="cd-frame-open-btn" disabled>Open in Frame.io</button>
+              </div>
+            </div>
+
+            <div class="counter-row">
+              <div class="counter-card counter-card--compact">
+                <div>
+                  <div class="card-title">Videos done</div>
+                  <div class="counter-sub">Editable only by you</div>
+                </div>
+                <div class="counter-control">
+                  <button class="counter-btn" id="cd-counter-minus">−</button>
+                  <div class="counter-value" id="cd-counter-value">0</div>
+                  <button class="counter-btn" id="cd-counter-plus">+</button>
                 </div>
               </div>
+              <div class="counter-card counter-card--compact">
+                <div>
+                  <div class="card-title">Leads from content</div>
+                  <div class="counter-sub" id="cd-leads-month">—</div>
+                </div>
+                <div class="counter-control">
+                  <button class="counter-btn" id="cd-leads-minus">−</button>
+                  <div class="counter-value" id="cd-leads-value">0</div>
+                  <button class="counter-btn" id="cd-leads-plus">+</button>
+                </div>
+              </div>
+            </div>
 
-              <div class="tracker-card chart-card">
+            <div class="tracker-card chart-card">
                 <div class="chart-head">
                   <div class="card-title">Revenue &amp; cash collected</div>
                   <div class="chart-range-group" id="chart-range-group">
@@ -1726,6 +1761,7 @@
                 </div>
               </div>
 
+            <div class="brand-section">
               <div class="luxury-section-head">
                 <h2>Brand Identity</h2>
                 <span class="section-note">can also help</span>
@@ -1763,33 +1799,6 @@
                   <div class="info-field">
                     <label>Signed up</label>
                     <div class="value" id="cd-client-created">—</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-side">
-              <div class="counter-row">
-                <div class="counter-card counter-card--compact">
-                  <div>
-                    <div class="card-title">Videos done</div>
-                    <div class="counter-sub">Editable only by you</div>
-                  </div>
-                  <div class="counter-control">
-                    <button class="counter-btn" id="cd-counter-minus">−</button>
-                    <div class="counter-value" id="cd-counter-value">0</div>
-                    <button class="counter-btn" id="cd-counter-plus">+</button>
-                  </div>
-                </div>
-                <div class="counter-card counter-card--compact">
-                  <div>
-                    <div class="card-title">Leads from content</div>
-                    <div class="counter-sub" id="cd-leads-month">—</div>
-                  </div>
-                  <div class="counter-control">
-                    <button class="counter-btn" id="cd-leads-minus">−</button>
-                    <div class="counter-value" id="cd-leads-value">0</div>
-                    <button class="counter-btn" id="cd-leads-plus">+</button>
                   </div>
                 </div>
               </div>
