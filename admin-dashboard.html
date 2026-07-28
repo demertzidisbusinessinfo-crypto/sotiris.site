@@ -1306,6 +1306,15 @@
   .cal-day.missed .check-icon { color: rgba(127,3,3,0.35); }
   .cal-day.clickable { cursor: pointer; }
   .cal-day.clickable:hover { border-color: var(--midnight); }
+  .cal-day.has-eod {
+    background: var(--green-dim);
+    border-color: rgba(46,107,79,0.3);
+    color: var(--green);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .cal-day.has-eod:hover { background: rgba(46,107,79,0.18); }
+  .cal-day.today { box-shadow: inset 0 0 0 1.5px var(--midnight); }
 
   .eod-log-table th, .eod-log-table td { font-size: 13px; }
   .eod-log-empty {
