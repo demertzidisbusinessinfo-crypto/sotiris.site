@@ -1415,8 +1415,9 @@
 
     <div class="tm-grid reveal">
       <!-- Video: unlisted YouTube, click-to-play facade. Paste the video ID into data-yt below. -->
-      <div class="tm-video" id="tm-video" data-yt="">
-        <img class="tm-video-poster" src="assets/snapshot.jpg" alt="Matthew's testimonial video" loading="lazy">
+      <div class="tm-video" id="tm-video" data-yt="" data-poster="">
+        <img class="tm-video-poster" id="tm-poster" alt="Matthew's testimonial video" loading="lazy"
+             onerror="this.style.display='none'">
         <button class="tm-play" type="button" aria-label="Play Matthew's testimonial">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </button>
@@ -1702,6 +1703,21 @@
 
     var video = document.getElementById('tm-video');
     if (video) {
+      var ytId = (video.getAttribute('data-yt') || '').trim();
+      var customPoster = (video.getAttribute('data-poster') || '').trim();
+      var poster = document.getElementById('tm-poster');
+      // Poster: a custom image if given, else the video's own YouTube thumbnail.
+      if (poster) {
+        if (customPoster) {
+          poster.src = customPoster;
+        } else if (ytId) {
+          poster.src = 'https://img.youtube.com/vi/' + ytId + '/maxresdefault.jpg';
+          poster.onerror = function () { poster.src = 'https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg'; };
+        } else {
+          poster.style.display = 'none'; // nothing to show yet — dark card + play button
+        }
+      }
+
       video.addEventListener('click', function () {
         var id = (video.getAttribute('data-yt') || '').trim();
         if (!id) return; // no video linked yet — paste the unlisted YouTube ID into data-yt
