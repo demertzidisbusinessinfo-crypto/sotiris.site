@@ -1099,6 +1099,38 @@
   }
   .stat-pill strong { color: var(--ink); }
 
+  /* ---------- AGGREGATE METRICS ---------- */
+  .agg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin: 8px 0 28px;
+  }
+  .agg-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    backdrop-filter: blur(16px);
+  }
+  .agg-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .agg-value {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 27px;
+    color: var(--ink);
+    margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .agg-sub { font-size: 11px; color: var(--ink-faint); margin-top: 4px; }
+
   /* ---------- TABLE ---------- */
   .luxury-section-head {
     display: flex;
@@ -1559,6 +1591,34 @@
       </div>
 
       <div class="tab-panel active" id="tab-overview">
+        <div class="agg-grid" id="agg-grid">
+          <div class="agg-card">
+            <div class="agg-label">Active clients</div>
+            <div class="agg-value" id="agg-clients">—</div>
+            <div class="agg-sub" id="agg-clients-sub">verified</div>
+          </div>
+          <div class="agg-card">
+            <div class="agg-label">Revenue tracked</div>
+            <div class="agg-value" id="agg-revenue">—</div>
+            <div class="agg-sub">across all clients</div>
+          </div>
+          <div class="agg-card">
+            <div class="agg-label">Cash collected</div>
+            <div class="agg-value" id="agg-cash">—</div>
+            <div class="agg-sub">across all clients</div>
+          </div>
+          <div class="agg-card">
+            <div class="agg-label">Videos delivered</div>
+            <div class="agg-value" id="agg-videos">—</div>
+            <div class="agg-sub">total completed</div>
+          </div>
+          <div class="agg-card">
+            <div class="agg-label">Leads from content</div>
+            <div class="agg-value" id="agg-leads">—</div>
+            <div class="agg-sub">total tracked</div>
+          </div>
+        </div>
+
         <div class="section-head">
           <h2>Clients</h2>
         </div>
@@ -2014,12 +2074,48 @@
     document.getElementById('stat-total').textContent = accounts.length;
     document.getElementById('stat-pending').textContent = pendingCount;
     document.getElementById('stat-verified').textContent = verifiedCount;
+
+    // Aggregate: client + video totals come straight from the accounts list
+    const verifiedClients = clients.filter(function (c) { return c.status === 'verified'; });
+    const videosTotal = clients.reduce(function (sum, c) { return sum + (parseInt(c.videos_done, 10) || 0); }, 0);
+    document.getElementById('agg-clients').textContent = verifiedClients.length;
+    document.getElementById('agg-clients-sub').textContent = clients.length + ' total · ' + verifiedClients.length + ' verified';
+    document.getElementById('agg-videos').textContent = videosTotal.toLocaleString('en-US');
+  }
+
+  function formatAggMoney(n) {
+    n = n || 0;
+    if (n >= 1000000) return '$' + (n / 1000000).toFixed(n >= 10000000 ? 0 : 1) + 'M';
+    if (n >= 1000) return '$' + (n / 1000).toFixed(n >= 100000 ? 0 : 1) + 'k';
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+
+  async function loadAggregateMetrics() {
+    const { data, error } = await supabaseClient
+      .from('client_metrics')
+      .select('monthly_revenue, cash_collected, leads_from_content');
+
+    if (error) {
+      console.error('Could not load aggregate metrics:', error.message);
+      return;
+    }
+
+    let revenue = 0, cash = 0, leads = 0;
+    (data || []).forEach(function (row) {
+      revenue += parseFloat(row.monthly_revenue) || 0;
+      cash += parseFloat(row.cash_collected) || 0;
+      leads += parseInt(row.leads_from_content, 10) || 0;
+    });
+
+    document.getElementById('agg-revenue').textContent = formatAggMoney(revenue);
+    document.getElementById('agg-cash').textContent = formatAggMoney(cash);
+    document.getElementById('agg-leads').textContent = leads.toLocaleString('en-US');
   }
 
   async function loadAccounts() {
     const { data, error } = await supabaseClient
       .from('profiles')
-      .select('id, full_name, email, ig_name, account_type, status, created_at')
+      .select('id, full_name, email, ig_name, account_type, status, created_at, videos_done')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -2033,6 +2129,7 @@
     }
 
     renderAccounts(data || []);
+    loadAggregateMetrics();
   }
 
   async function approveAccount(id, btn) {

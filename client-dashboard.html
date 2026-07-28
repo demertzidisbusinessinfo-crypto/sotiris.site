@@ -347,6 +347,82 @@
     color: var(--maroon);
   }
 
+  /* ---------- ONBOARDING CHECKLIST ---------- */
+  .onb-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 22px 26px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 26px;
+  }
+  .onb-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .onb-title { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+  .onb-sub { font-size: 12.5px; color: var(--ink-dim); margin-top: 2px; }
+  .onb-pct { font-family: var(--font-mono); font-weight: 600; font-size: 22px; color: var(--midnight); font-variant-numeric: tabular-nums; }
+  .onb-bar { height: 8px; border-radius: 100px; background: rgba(15,65,74,0.10); overflow: hidden; margin-bottom: 18px; }
+  .onb-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--midnight), var(--skyblue)); width: 0%; transition: width 0.8s cubic-bezier(0.22,1,0.36,1); }
+  .onb-list { display: grid; gap: 10px; }
+  .onb-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: 12px;
+    background: rgba(255,255,255,0.5); border: 1px solid var(--glass-border);
+    cursor: pointer; width: 100%; text-align: left; font: inherit; color: inherit;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  }
+  .onb-item:hover { border-color: var(--midnight); transform: translateX(2px); }
+  .onb-check {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid rgba(15,65,74,0.3); display: flex; align-items: center; justify-content: center; color: #fff;
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+  .onb-check svg { width: 13px; height: 13px; opacity: 0; transition: opacity 0.2s ease; }
+  .onb-item.done .onb-check { background: #2E9E5B; border-color: #2E9E5B; }
+  .onb-item.done .onb-check svg { opacity: 1; }
+  .onb-label { font-size: 14px; font-weight: 500; }
+  .onb-item.done .onb-label { color: var(--ink-faint); text-decoration: line-through; }
+  .onb-arrow { margin-left: auto; color: var(--ink-faint); display: flex; }
+  .onb-arrow svg { width: 16px; height: 16px; }
+
+  /* ---------- MONTHLY GOAL ---------- */
+  .goal-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 22px 26px;
+    backdrop-filter: blur(16px);
+    margin-bottom: 26px;
+  }
+  .goal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .goal-title { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+  .goal-title-sub { font-size: 11.5px; color: var(--ink-faint); font-weight: 400; margin-left: 8px; }
+  .goal-edit-btn {
+    font-family: var(--font-mono); font-size: 11px; padding: 6px 12px; border-radius: 8px;
+    border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); color: var(--ink-dim); cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .goal-edit-btn:hover { border-color: var(--midnight); color: var(--ink); }
+  .goal-rows { display: grid; gap: 16px; }
+  .goal-row-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .goal-metric { font-size: 11.5px; font-weight: 600; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .goal-figures { font-family: var(--font-mono); font-size: 13.5px; }
+  .goal-actual { font-weight: 600; color: var(--ink); }
+  .goal-target { color: var(--ink-faint); }
+  .goal-pct { font-weight: 600; margin-left: 8px; }
+  .goal-pct.rev { color: #A3132A; }
+  .goal-pct.cash { color: #6B3FD4; }
+  .goal-bar { height: 10px; border-radius: 100px; overflow: hidden; }
+  .goal-bar-rev { background: rgba(196,32,50,0.14); }
+  .goal-bar-cash { background: rgba(123,71,224,0.14); }
+  .goal-bar-fill { height: 100%; border-radius: 100px; width: 0%; transition: width 0.9s cubic-bezier(0.22,1,0.36,1); }
+  .goal-bar-fill-rev { background: linear-gradient(90deg, #E6394E, #A3132A); }
+  .goal-bar-fill-cash { background: linear-gradient(90deg, #A279F2, #6B3FD4); }
+  .goal-empty { font-size: 13px; color: var(--ink-dim); }
+  .goal-form { display: grid; gap: 12px; }
+  .goal-form.hidden { display: none; }
+  .goal-form-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .goal-form-row label { font-size: 12.5px; color: var(--ink-dim); min-width: 150px; }
+
   /* ---------- AT-A-GLANCE STAT BOARDS ---------- */
   .stat-boards-head {
     display: flex;
@@ -999,6 +1075,39 @@
       </div>
 
       <div class="tab-panel active" id="tab-overview">
+        <div class="onb-card" id="onb-card">
+          <div class="onb-head">
+            <div>
+              <div class="onb-title">Get set up</div>
+              <div class="onb-sub" id="onb-sub">Finish these to get the most out of your dashboard.</div>
+            </div>
+            <div class="onb-pct" id="onb-pct">0%</div>
+          </div>
+          <div class="onb-bar"><div class="onb-bar-fill" id="onb-bar-fill"></div></div>
+          <div class="onb-list" id="onb-list">
+            <button class="onb-item" type="button" data-onb="frame" data-goto="tab-overview">
+              <span class="onb-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="onb-label">Add your Frame.io review link</span>
+              <span class="onb-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <button class="onb-item" type="button" data-onb="brand" data-goto="tab-brand">
+              <span class="onb-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="onb-label">Complete your brand identity <span id="onb-brand-count"></span></span>
+              <span class="onb-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <button class="onb-item" type="button" data-onb="goal" data-goto="tab-overview">
+              <span class="onb-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="onb-label">Set your monthly goal</span>
+              <span class="onb-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <button class="onb-item" type="button" data-onb="tracker" data-goto="tab-tracker">
+              <span class="onb-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="onb-label">Log your first tracker entry</span>
+              <span class="onb-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+          </div>
+        </div>
+
         <div class="stat-boards-head">
           <div class="card-title">At a glance</div>
           <div class="stat-range-group" id="stat-range-group">
@@ -1017,6 +1126,48 @@
             <span class="stat-board-metric">Cash collected</span>
             <div class="stat-board-value" id="board-cash-value">—</div>
             <div class="stat-board-line" id="board-cash-line"></div>
+          </div>
+        </div>
+
+        <div class="goal-card" id="goal-card">
+          <div class="goal-head">
+            <div class="goal-title">Monthly goal<span class="goal-title-sub" id="goal-month-label"></span></div>
+            <button class="goal-edit-btn" id="goal-edit-btn" type="button">Set goal</button>
+          </div>
+
+          <div id="goal-display">
+            <div class="goal-empty" id="goal-empty">Set a monthly revenue or cash-collected goal to track your progress here.</div>
+            <div class="goal-rows">
+              <div class="goal-row" id="goal-row-rev" style="display:none;">
+                <div class="goal-row-top">
+                  <span class="goal-metric">Revenue</span>
+                  <span class="goal-figures"><span class="goal-actual" id="goal-rev-actual">$0</span> <span class="goal-target" id="goal-rev-target"></span><span class="goal-pct rev" id="goal-rev-pct"></span></span>
+                </div>
+                <div class="goal-bar goal-bar-rev"><div class="goal-bar-fill goal-bar-fill-rev" id="goal-rev-fill"></div></div>
+              </div>
+              <div class="goal-row" id="goal-row-cash" style="display:none;">
+                <div class="goal-row-top">
+                  <span class="goal-metric">Cash collected</span>
+                  <span class="goal-figures"><span class="goal-actual" id="goal-cash-actual">$0</span> <span class="goal-target" id="goal-cash-target"></span><span class="goal-pct cash" id="goal-cash-pct"></span></span>
+                </div>
+                <div class="goal-bar goal-bar-cash"><div class="goal-bar-fill goal-bar-fill-cash" id="goal-cash-fill"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="goal-form hidden" id="goal-form">
+            <div class="goal-form-row">
+              <label for="goal-rev-input">Revenue goal ($ / month)</label>
+              <div class="tracker-dollar-input"><span>$</span><input type="number" id="goal-rev-input" min="0" step="0.01" placeholder="0"></div>
+            </div>
+            <div class="goal-form-row">
+              <label for="goal-cash-input">Cash collected goal ($ / month)</label>
+              <div class="tracker-dollar-input"><span>$</span><input type="number" id="goal-cash-input" min="0" step="0.01" placeholder="0"></div>
+            </div>
+            <div class="goal-form-row">
+              <button class="btn-save" id="goal-save-btn" type="button">Save goal</button>
+              <button class="goal-edit-btn" id="goal-cancel-btn" type="button">Cancel</button>
+            </div>
           </div>
         </div>
 
@@ -1213,7 +1364,143 @@
     }
 
     renderBrandGrid(profile);
+    updateOnboarding();
+    updateGoals();
   }
+
+  // ---------------- ONBOARDING CHECKLIST + MONTHLY GOAL ----------------
+  function gMoney(n) { return '$' + Math.round(n || 0).toLocaleString(); }
+
+  function currentMonthTotals() {
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth();
+    let rev = 0, cash = 0;
+    (allMetricsRows || []).forEach(function (r) {
+      const d = new Date(r.month + 'T00:00:00');
+      if (d.getFullYear() === y && d.getMonth() === m) {
+        rev += parseFloat(r.monthly_revenue) || 0;
+        cash += parseFloat(r.cash_collected) || 0;
+      }
+    });
+    return { rev: rev, cash: cash };
+  }
+
+  function setGoalRow(kind, actual, target) {
+    const row = document.getElementById('goal-row-' + kind);
+    if (target > 0) {
+      row.style.display = 'block';
+      const pct = Math.min(100, Math.round((actual / target) * 100));
+      document.getElementById('goal-' + kind + '-actual').textContent = gMoney(actual);
+      document.getElementById('goal-' + kind + '-target').textContent = '/ ' + gMoney(target) + ' goal';
+      document.getElementById('goal-' + kind + '-pct').textContent = pct + '%';
+      document.getElementById('goal-' + kind + '-fill').style.width = pct + '%';
+    } else {
+      row.style.display = 'none';
+    }
+  }
+
+  function updateGoals() {
+    if (!currentProfile) return;
+    const revGoal = parseFloat(currentProfile.revenue_goal) || 0;
+    const cashGoal = parseFloat(currentProfile.cash_goal) || 0;
+    const t = currentMonthTotals();
+    setGoalRow('rev', t.rev, revGoal);
+    setGoalRow('cash', t.cash, cashGoal);
+    const anyGoal = revGoal > 0 || cashGoal > 0;
+    document.getElementById('goal-empty').style.display = anyGoal ? 'none' : 'block';
+    document.getElementById('goal-edit-btn').textContent = anyGoal ? 'Edit goal' : 'Set goal';
+    const mLabel = new Date().toLocaleDateString('en-US', { month: 'long' });
+    document.getElementById('goal-month-label').textContent = anyGoal ? '· ' + mLabel : '';
+  }
+
+  function updateOnboarding() {
+    if (!currentProfile) return;
+    const p = currentProfile;
+    const frameDone = !!(p.frame_link && String(p.frame_link).trim());
+    let brandCount = 0;
+    BRAND_SECTIONS.forEach(function (s) {
+      if ((p[s.linkField] && String(p[s.linkField]).trim()) || p[s.fileField]) brandCount++;
+    });
+    const brandDone = brandCount === BRAND_SECTIONS.length;
+    const goalDone = (parseFloat(p.revenue_goal) || 0) > 0 || (parseFloat(p.cash_goal) || 0) > 0;
+    const trackerDone = (allMetricsRows || []).length > 0;
+
+    const states = { frame: frameDone, brand: brandDone, goal: goalDone, tracker: trackerDone };
+    let done = 0, total = 0;
+    Object.keys(states).forEach(function (k) {
+      total++;
+      if (states[k]) done++;
+      const el = document.querySelector('.onb-item[data-onb="' + k + '"]');
+      if (el) el.classList.toggle('done', states[k]);
+    });
+
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    document.getElementById('onb-pct').textContent = pct + '%';
+    document.getElementById('onb-bar-fill').style.width = pct + '%';
+    document.getElementById('onb-brand-count').textContent = brandDone ? '' : '(' + brandCount + '/' + BRAND_SECTIONS.length + ')';
+    document.getElementById('onb-sub').textContent = pct === 100
+      ? "You're all set — nice work. Everything's in place."
+      : 'Finish these to get the most out of your dashboard.';
+  }
+
+  function openGoalForm() {
+    document.getElementById('goal-rev-input').value = (currentProfile && currentProfile.revenue_goal) || '';
+    document.getElementById('goal-cash-input').value = (currentProfile && currentProfile.cash_goal) || '';
+    document.getElementById('goal-display').style.display = 'none';
+    document.getElementById('goal-form').classList.remove('hidden');
+    document.getElementById('goal-edit-btn').style.display = 'none';
+  }
+  function closeGoalForm() {
+    document.getElementById('goal-form').classList.add('hidden');
+    document.getElementById('goal-display').style.display = 'block';
+    document.getElementById('goal-edit-btn').style.display = '';
+  }
+
+  document.getElementById('goal-edit-btn').addEventListener('click', openGoalForm);
+  document.getElementById('goal-cancel-btn').addEventListener('click', closeGoalForm);
+  document.getElementById('goal-save-btn').addEventListener('click', async function () {
+    const btn = this;
+    const revGoal = parseFloat(document.getElementById('goal-rev-input').value) || 0;
+    const cashGoal = parseFloat(document.getElementById('goal-cash-input').value) || 0;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ revenue_goal: revGoal || null, cash_goal: cashGoal || null })
+      .eq('id', currentUserId);
+
+    btn.disabled = false;
+    btn.textContent = 'Save goal';
+
+    if (error) {
+      alert('Could not save goal: ' + error.message);
+      return;
+    }
+
+    currentProfile.revenue_goal = revGoal;
+    currentProfile.cash_goal = cashGoal;
+    closeGoalForm();
+    updateGoals();
+    updateOnboarding();
+    showToast('Monthly goal saved');
+  });
+
+  document.querySelectorAll('.onb-item').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const goto = btn.getAttribute('data-goto');
+      const tabBtn = document.querySelector('.tab-btn[data-tab="' + goto + '"]');
+      if (tabBtn) tabBtn.click();
+      const kind = btn.getAttribute('data-onb');
+      if (kind === 'frame') {
+        const f = document.getElementById('frame-link-input');
+        if (f) f.focus();
+      } else if (kind === 'goal') {
+        openGoalForm();
+        document.getElementById('goal-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
 
   function renderBrandGrid(profile) {
     const grid = document.getElementById('brand-grid');
@@ -1308,6 +1595,7 @@
 
     Object.assign(currentProfile, updates);
     renderBrandGrid(currentProfile);
+    updateOnboarding();
     showToast('Saved');
   }
 
@@ -1570,6 +1858,8 @@
     }
     renderChart(animate !== false);
     renderStatBoards(animate !== false);
+    updateGoals();
+    updateOnboarding();
   }
 
   const chartReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
