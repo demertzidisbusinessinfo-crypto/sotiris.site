@@ -506,6 +506,118 @@
   }
   .section-sub { color: var(--ink-dim); font-size: 15.5px; }
 
+  /* ---------- TRACKING DASHBOARD PREVIEW (partner demo, non-interactive) ---------- */
+  :root { --dp-rev: #C42032; --dp-cash: #7B47E0; --dp-panel-ink: #E8F0F2; }
+
+  .dp-wrap { display: grid; gap: 22px; }
+  .dp-grid-2 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 22px; align-items: stretch; }
+  @media (max-width: 860px) { .dp-grid-2 { grid-template-columns: 1fr; } }
+
+  /* Shared dark "device" panel — same look as the live dashboard chart */
+  .dp-panel {
+    position: relative;
+    border-radius: 18px;
+    background: linear-gradient(160deg, #111C21 0%, #0A1013 100%);
+    border: 1px solid rgba(150,192,206,0.18);
+    box-shadow: 0 26px 60px -26px rgba(0,0,0,0.7);
+    color: var(--dp-panel-ink);
+    overflow: hidden;
+  }
+  .dp-panel::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 420px 220px at 12% -10%, rgba(196,32,50,0.16), transparent 65%),
+      radial-gradient(ellipse 400px 220px at 88% 110%, rgba(123,71,224,0.16), transparent 65%);
+  }
+  .dp-panel > * { position: relative; z-index: 1; }
+  /* futuristic scanning sheen */
+  .dp-panel::after {
+    content: ''; position: absolute; top: 0; left: -60%; width: 45%; height: 100%; z-index: 2;
+    background: linear-gradient(100deg, transparent, rgba(150,192,206,0.10), transparent);
+    transform: skewX(-18deg); pointer-events: none;
+    animation: dp-sheen 7.5s ease-in-out infinite;
+  }
+  @keyframes dp-sheen { 0%, 55% { left: -60%; } 100% { left: 135%; } }
+
+  .dp-chart-card { padding: 26px 30px; }
+  .dp-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(150,192,206,0.9); border: 1px solid rgba(150,192,206,0.3); border-radius: 999px;
+    padding: 4px 11px; margin-bottom: 18px;
+  }
+  .dp-live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; animation: dp-pulse 2s infinite; }
+  @keyframes dp-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
+    70% { box-shadow: 0 0 0 7px rgba(74,222,128,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+  }
+
+  .dp-chart-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .dp-chart-title { font-family: var(--font-display); font-weight: 600; font-size: 16px; color: #F4F9FA; }
+  .dp-range-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .dp-range-btn {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04); color: rgba(232,240,242,0.62); cursor: default;
+  }
+  .dp-range-btn.active { background: rgba(150,192,206,0.18); border-color: rgba(150,192,206,0.6); color: #fff; }
+
+  .dp-stats-row { display: flex; gap: 34px; flex-wrap: wrap; margin-bottom: 16px; }
+  .dp-stat { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .dp-stat-dot { width: 8px; height: 8px; border-radius: 50%; align-self: center; }
+  .dp-stat-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em; color: rgba(232,240,242,0.5); font-weight: 600; }
+  .dp-stat-value { font-family: var(--font-mono); font-weight: 600; font-size: 21px; color: #fff; font-variant-numeric: tabular-nums; }
+  .dp-stat-change { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: #4ADE80; }
+
+  .dp-canvas-wrap { position: relative; width: 100%; }
+  .dp-canvas-wrap svg { width: 100%; height: auto; display: block; }
+  .dp-line { fill: none; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+  .dp-area { opacity: 0; transition: opacity 0.7s ease 0.35s; }
+  .dp-dot { opacity: 0; transition: opacity 0.45s ease 0.5s; }
+  #dashboard-preview.dp-play .dp-line { stroke-dashoffset: 0; transition: stroke-dashoffset 1.35s cubic-bezier(0.22,1,0.36,1); }
+  #dashboard-preview.dp-play #dp-line-cash { transition-delay: 0.18s; }
+  #dashboard-preview.dp-play .dp-area,
+  #dashboard-preview.dp-play .dp-dot { opacity: 1; }
+
+  /* brand identity files panel */
+  .dp-brand-panel { padding: 24px 26px; }
+  .dp-brand-title { font-family: var(--font-display); font-weight: 600; font-size: 14px; color: #F4F9FA; margin-bottom: 16px; display: flex; align-items: center; gap: 9px; }
+  .dp-brand-title svg { width: 17px; height: 17px; color: var(--skyblue); flex-shrink: 0; }
+  .dp-file-list { display: grid; gap: 9px; }
+  .dp-file-row {
+    display: flex; align-items: center; gap: 11px;
+    padding: 12px 14px; border-radius: 11px;
+    background: rgba(255,255,255,0.045); border: 1px solid rgba(150,192,206,0.14);
+    font-size: 13px; color: rgba(232,240,242,0.88);
+    opacity: 0; transform: translateY(9px);
+  }
+  .dp-file-row > svg { width: 16px; height: 16px; color: var(--skyblue); flex-shrink: 0; }
+  #dashboard-preview.dp-play .dp-file-row { opacity: 1; transform: none; transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1); }
+  #dashboard-preview.dp-play .dp-file-row:nth-child(1) { transition-delay: 0.15s; }
+  #dashboard-preview.dp-play .dp-file-row:nth-child(2) { transition-delay: 0.28s; }
+  #dashboard-preview.dp-play .dp-file-row:nth-child(3) { transition-delay: 0.41s; }
+  #dashboard-preview.dp-play .dp-file-row:nth-child(4) { transition-delay: 0.54s; }
+  .dp-file-check { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: #4ADE80; }
+  .dp-file-check svg { width: 14px; height: 14px; color: #4ADE80; }
+
+  /* counters panel */
+  .dp-counter-panel { padding: 24px 24px; display: flex; align-items: center; }
+  .dp-counter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+  @media (max-width: 420px) { .dp-counter-row { grid-template-columns: 1fr; } }
+  .dp-counter { background: rgba(255,255,255,0.04); border: 1px solid rgba(150,192,206,0.16); border-radius: 14px; padding: 20px 16px; text-align: center; }
+  .dp-counter-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(232,240,242,0.58); }
+  .dp-counter-sub { font-size: 10.5px; color: rgba(150,192,206,0.7); margin-top: 3px; }
+  .dp-counter-value { font-family: var(--font-mono); font-weight: 600; font-size: 40px; line-height: 1; color: #fff; margin-top: 12px; font-variant-numeric: tabular-nums; }
+
+  .dp-caption { font-size: 12.5px; color: var(--ink-faint); text-align: center; margin-top: 2px; font-style: italic; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dp-panel::after, .dp-live-dot { animation: none; }
+    #dashboard-preview .dp-line { stroke-dashoffset: 0; }
+    .dp-area, .dp-dot, .dp-file-row { opacity: 1 !important; transform: none !important; }
+  }
+
   /* Process */
   .process-grid {
     display: grid;
@@ -1087,6 +1199,168 @@
     </div>
   </section>
 
+  <!-- TRACKING DASHBOARD PREVIEW -->
+  <section id="dashboard-preview">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">WHEN WE PARTNER UP</span>
+      <h2>Have your own <span class="accent-italic">Tracking Dashboard</span>.</h2>
+      <p class="section-sub">The moment we align on a partnership, a private dashboard becomes yours — watch revenue and cash collected climb day by day, keep count of the leads your content pulls in, and hold every brand asset in one place. Here's a look at what's waiting for you.</p>
+    </div>
+
+    <div class="dp-wrap reveal">
+      <!-- Tracker graph — shown first -->
+      <div class="dp-panel dp-chart-card">
+        <span class="dp-badge"><span class="dp-live-dot"></span> Live preview</span>
+        <div class="dp-chart-head">
+          <div class="dp-chart-title">Revenue &amp; cash collected</div>
+          <div class="dp-range-group" aria-hidden="true">
+            <span class="dp-range-btn">1W</span>
+            <span class="dp-range-btn">1M</span>
+            <span class="dp-range-btn active">3M</span>
+            <span class="dp-range-btn">6M</span>
+            <span class="dp-range-btn">All</span>
+          </div>
+        </div>
+
+        <div class="dp-stats-row">
+          <div class="dp-stat">
+            <span class="dp-stat-dot" style="background: var(--dp-rev);"></span>
+            <span class="dp-stat-label">Total revenue</span>
+            <span class="dp-stat-value" data-count="112" data-prefix="$" data-suffix="k">$0k</span>
+            <span class="dp-stat-change">&#9650; 23%</span>
+          </div>
+          <div class="dp-stat">
+            <span class="dp-stat-dot" style="background: var(--dp-cash);"></span>
+            <span class="dp-stat-label">Total cash collected</span>
+            <span class="dp-stat-value" data-count="88" data-prefix="$" data-suffix="k">$0k</span>
+            <span class="dp-stat-change">&#9650; 19%</span>
+          </div>
+        </div>
+
+        <div class="dp-canvas-wrap">
+          <svg viewBox="0 0 640 272" role="img" aria-label="Sample revenue and cash collected climbing over eight months">
+            <defs>
+              <linearGradient id="dpRevGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#C42032" stop-opacity="0.38"/>
+                <stop offset="100%" stop-color="#C42032" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="dpCashGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7B47E0" stop-opacity="0.34"/>
+                <stop offset="100%" stop-color="#7B47E0" stop-opacity="0"/>
+              </linearGradient>
+              <filter id="dpGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3.2" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- grid -->
+            <line x1="64" y1="20" x2="622" y2="20" stroke="rgba(150,192,206,0.10)" stroke-width="1"/>
+            <text x="54" y="23.5" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$120k</text>
+            <line x1="64" y1="71.5" x2="622" y2="71.5" stroke="rgba(150,192,206,0.10)" stroke-width="1"/>
+            <text x="54" y="75" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$90k</text>
+            <line x1="64" y1="123" x2="622" y2="123" stroke="rgba(150,192,206,0.10)" stroke-width="1"/>
+            <text x="54" y="126.5" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$60k</text>
+            <line x1="64" y1="174.5" x2="622" y2="174.5" stroke="rgba(150,192,206,0.10)" stroke-width="1"/>
+            <text x="54" y="178" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$30k</text>
+            <line x1="64" y1="226" x2="622" y2="226" stroke="rgba(150,192,206,0.28)" stroke-width="1"/>
+            <text x="54" y="229.5" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$0</text>
+
+            <!-- month labels -->
+            <text x="64" y="246" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">JAN</text>
+            <text x="143.7" y="246" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">FEB</text>
+            <text x="223.4" y="246" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">MAR</text>
+            <text x="303.1" y="246" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">APR</text>
+            <text x="382.9" y="246" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">MAY</text>
+            <text x="462.6" y="246" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">JUN</text>
+            <text x="542.3" y="246" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">JUL</text>
+            <text x="622" y="246" text-anchor="middle" font-size="10" font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">AUG</text>
+
+            <!-- areas -->
+            <path class="dp-area" fill="url(#dpRevGrad)" d="M64,212.3 L143.7,193.4 L223.4,179.7 L303.1,155.6 L382.9,126.4 L462.6,102.4 L542.3,69.8 L622,33.7 L622,226 L64,226 Z"/>
+            <path class="dp-area" fill="url(#dpCashGrad)" d="M64,217.4 L143.7,203.7 L223.4,191.7 L303.1,172.8 L382.9,150.5 L462.6,131.6 L542.3,105.8 L622,74.9 L622,226 L64,226 Z"/>
+
+            <!-- lines -->
+            <path class="dp-line" id="dp-line-rev" stroke="#C42032" filter="url(#dpGlow)" d="M64,212.3 L143.7,193.4 L223.4,179.7 L303.1,155.6 L382.9,126.4 L462.6,102.4 L542.3,69.8 L622,33.7"/>
+            <path class="dp-line" id="dp-line-cash" stroke="#7B47E0" filter="url(#dpGlow)" d="M64,217.4 L143.7,203.7 L223.4,191.7 L303.1,172.8 L382.9,150.5 L462.6,131.6 L542.3,105.8 L622,74.9"/>
+
+            <!-- revenue dots -->
+            <circle class="dp-dot" cx="64" cy="212.3" r="3.2" fill="#C42032" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="143.7" cy="193.4" r="3.2" fill="#C42032" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="223.4" cy="179.7" r="3.2" fill="#C42032" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="303.1" cy="155.6" r="3.2" fill="#C42032" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="382.9" cy="126.4" r="3.2" fill="#C42032" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="462.6" cy="102.4" r="3.2" fill="#C42032" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="542.3" cy="69.8" r="3.2" fill="#C42032" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="622" cy="33.7" r="7" fill="#C42032" opacity="0.18"/>
+            <circle class="dp-dot" cx="622" cy="33.7" r="3.6" fill="#C42032" stroke="#0A1013" stroke-width="1.5" filter="url(#dpGlow)"/>
+
+            <!-- cash dots -->
+            <circle class="dp-dot" cx="64" cy="217.4" r="3.2" fill="#7B47E0" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="143.7" cy="203.7" r="3.2" fill="#7B47E0" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="223.4" cy="191.7" r="3.2" fill="#7B47E0" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="303.1" cy="172.8" r="3.2" fill="#7B47E0" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="382.9" cy="150.5" r="3.2" fill="#7B47E0" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="462.6" cy="131.6" r="3.2" fill="#7B47E0" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="542.3" cy="105.8" r="3.2" fill="#7B47E0" stroke="#0A1013" stroke-width="1.5"/>
+            <circle class="dp-dot" cx="622" cy="74.9" r="7" fill="#7B47E0" opacity="0.18"/>
+            <circle class="dp-dot" cx="622" cy="74.9" r="3.6" fill="#7B47E0" stroke="#0A1013" stroke-width="1.5" filter="url(#dpGlow)"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="dp-grid-2">
+        <!-- Brand identity files -->
+        <div class="dp-panel dp-brand-panel">
+          <div class="dp-brand-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Brand identity — all in one place
+          </div>
+          <div class="dp-file-list">
+            <div class="dp-file-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Dream Follower / ICP
+              <span class="dp-file-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved</span>
+            </div>
+            <div class="dp-file-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Brand Identity
+              <span class="dp-file-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved</span>
+            </div>
+            <div class="dp-file-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Competitor Research
+              <span class="dp-file-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved</span>
+            </div>
+            <div class="dp-file-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Style / Inspiration
+              <span class="dp-file-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leads + videos counters -->
+        <div class="dp-panel dp-counter-panel">
+          <div class="dp-counter-row">
+            <div class="dp-counter">
+              <div class="dp-counter-label">Videos completed</div>
+              <div class="dp-counter-sub">this month</div>
+              <div class="dp-counter-value" data-count="96">0</div>
+            </div>
+            <div class="dp-counter">
+              <div class="dp-counter-label">Leads from content</div>
+              <div class="dp-counter-sub">this month</div>
+              <div class="dp-counter-value" data-count="214">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dp-caption">Preview only — sample numbers. Your real figures fill in as we work together.</div>
+    </div>
+  </section>
+
   <!-- ABOUT -->
   <section class="about-section">
     <div class="about-card reveal">
@@ -1124,6 +1398,47 @@
 
 <script>
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Tracking dashboard preview: draw lines, count up numbers, stagger files when in view
+  (function () {
+    var dpSection = document.getElementById('dashboard-preview');
+    if (!dpSection) return;
+    var countEls = dpSection.querySelectorAll('[data-count]');
+    var counted = false;
+
+    function runCounts() {
+      if (counted) return;
+      counted = true;
+      countEls.forEach(function (el) {
+        var target = parseFloat(el.getAttribute('data-count')) || 0;
+        var prefix = el.getAttribute('data-prefix') || '';
+        var suffix = el.getAttribute('data-suffix') || '';
+        if (prefersReducedMotion) { el.textContent = prefix + target + suffix; return; }
+        var duration = 1400, startTime = null;
+        function tick(ts) {
+          if (startTime === null) startTime = ts;
+          var p = Math.min((ts - startTime) / duration, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = prefix + Math.round(target * eased) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    function play() { dpSection.classList.add('dp-play'); runCounts(); }
+
+    if ('IntersectionObserver' in window && !prefersReducedMotion) {
+      var dpObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { play(); dpObserver.disconnect(); }
+        });
+      }, { threshold: 0.25 });
+      dpObserver.observe(dpSection);
+    } else {
+      play();
+    }
+  })();
 
   // Nav hairline: fills left-to-right as a scroll progress bar
   var navEl = document.querySelector('nav');
