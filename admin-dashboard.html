@@ -790,31 +790,6 @@
     color: #fff;
   }
 
-  .chart-head-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .chart-export-btn {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.04);
-    color: rgba(232,240,242,0.62);
-    cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
-  }
-  .chart-export-btn:hover:not(:disabled) {
-    border-color: rgba(150,192,206,0.55);
-    color: var(--chart-panel-ink);
-  }
-  .chart-export-btn:disabled { opacity: 0.4; cursor: default; }
-
   .chart-stats-row {
     display: flex;
     gap: 34px;
@@ -1865,15 +1840,12 @@
             <div class="tracker-card chart-card">
                 <div class="chart-head">
                   <div class="card-title">Revenue &amp; cash collected</div>
-                  <div class="chart-head-actions">
-                    <div class="chart-range-group" id="chart-range-group">
-                      <button class="chart-range-btn" data-range="1w">1W</button>
-                      <button class="chart-range-btn" data-range="1">1M</button>
-                      <button class="chart-range-btn active" data-range="3">3M</button>
-                      <button class="chart-range-btn" data-range="6">6M</button>
-                      <button class="chart-range-btn" data-range="all">All</button>
-                    </div>
-                    <button class="chart-export-btn" id="chart-export-btn" disabled>Export CSV</button>
+                  <div class="chart-range-group" id="chart-range-group">
+                    <button class="chart-range-btn" data-range="1w">1W</button>
+                    <button class="chart-range-btn" data-range="1">1M</button>
+                    <button class="chart-range-btn active" data-range="3">3M</button>
+                    <button class="chart-range-btn" data-range="6">6M</button>
+                    <button class="chart-range-btn" data-range="all">All</button>
                   </div>
                 </div>
 
@@ -2939,11 +2911,10 @@
   }
 
   async function loadClientMetricsChart(animate) {
-    if (!currentClient) { allMetricsRows = []; renderChart(false); syncExportBtn(); return; }
-    // leads_from_content isn't plotted, but it rides along so the CSV export is complete.
+    if (!currentClient) { allMetricsRows = []; renderChart(false); return; }
     const { data, error } = await supabaseClient
       .from('client_metrics')
-      .select('month, entry_type, monthly_revenue, cash_collected, leads_from_content')
+      .select('month, entry_type, monthly_revenue, cash_collected')
       .eq('client_id', currentClient.id)
       .order('month', { ascending: true });
 
@@ -2954,63 +2925,7 @@
       allMetricsRows = data || [];
     }
     renderChart(animate !== false);
-    syncExportBtn();
   }
-
-  // ---------------- CSV EXPORT ----------------
-
-  const chartExportBtn = document.getElementById('chart-export-btn');
-
-  function syncExportBtn() {
-    chartExportBtn.disabled = !allMetricsRows.length;
-  }
-
-  // Wraps a value in quotes and doubles any internal quote, so commas, quotes and
-  // newlines inside a field can't break the column layout when Excel reads it back.
-  function csvCell(value) {
-    if (value === null || value === undefined) return '""';
-    return '"' + String(value).replace(/"/g, '""') + '"';
-  }
-
-  function slugify(name) {
-    return String(name || 'client')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') || 'client';
-  }
-
-  function exportMetricsCsv() {
-    if (!currentClient || !allMetricsRows.length) return;
-
-    const header = ['Date', 'Entry type', 'Revenue', 'Cash collected', 'Leads from content'];
-    const lines = [header.map(csvCell).join(',')];
-
-    allMetricsRows.forEach(function (r) {
-      lines.push([
-        csvCell(r.month),
-        csvCell(r.entry_type),
-        csvCell(Number(r.monthly_revenue) || 0),
-        csvCell(Number(r.cash_collected) || 0),
-        csvCell(Number(r.leads_from_content) || 0)
-      ].join(','));
-    });
-
-    // The BOM makes Excel open the file as UTF-8 instead of the local codepage.
-    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const today = new Date();
-    const stamp = formatDateISO(today.getFullYear(), today.getMonth(), today.getDate());
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = slugify(currentClient.full_name) + '-metrics-' + stamp + '.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  chartExportBtn.addEventListener('click', exportMetricsCsv);
 
   // 1M is this month from the 1st to today, 3M/6M add the months before it.
   // 1W is the last 7 days (not the calendar week) so it always shows a full week.
