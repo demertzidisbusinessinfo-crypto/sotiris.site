@@ -185,6 +185,42 @@
   }
   .page-head p { font-size: 14.5px; color: var(--ink-dim); }
 
+  /* Nudge shown when today's EOD hasn't been submitted yet. Hidden entirely
+     once it has, rather than swapped for a redundant confirmation. */
+  .eod-nudge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    border: 1px solid rgba(127,3,3,0.22);
+    background: rgba(127,3,3,0.06);
+  }
+  .eod-nudge-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .eod-nudge-text strong { font-weight: 600; }
+  .eod-nudge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--maroon);
+    flex-shrink: 0;
+  }
+  .eod-nudge-sub {
+    display: block;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    margin-top: 2px;
+  }
+
   .tabs {
     display: flex;
     gap: 8px;
@@ -634,6 +670,17 @@
         <p>Submit your end-of-day reports and view the clients assigned to you.</p>
       </div>
 
+      <div class="eod-nudge" id="eod-nudge" style="display:none;">
+        <div class="eod-nudge-text">
+          <span class="eod-nudge-dot"></span>
+          <span>
+            <strong>You haven't submitted today's EOD yet.</strong>
+            <span class="eod-nudge-sub" id="eod-nudge-date">—</span>
+          </span>
+        </div>
+        <button class="btn-eod-nav" id="eod-nudge-btn">Submit it now</button>
+      </div>
+
       <div class="tabs">
         <button class="tab-btn active" data-tab="eods-tab">My EODs</button>
         <button class="tab-btn" data-tab="clients-tab">My Clients</button>
@@ -891,6 +938,35 @@
   let currentPartnerEods = [];
   let calViewYear, calViewMonth;
 
+  // Local calendar date, not UTC. toISOString() would roll to the previous or
+  // next day for anyone whose offset crosses midnight, which would both mis-date
+  // a submission and leave the nudge stuck on after they'd already submitted.
+  function todayISO() {
+    const d = new Date();
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  }
+
+  const eodNudge = document.getElementById('eod-nudge');
+  const eodNudgeDate = document.getElementById('eod-nudge-date');
+
+  function syncEodNudge() {
+    const iso = todayISO();
+    const submittedToday = currentPartnerEods.some(function (e) { return e.report_date === iso; });
+
+    if (submittedToday) {
+      eodNudge.style.display = 'none';
+      return;
+    }
+
+    eodNudgeDate.textContent = new Date(iso + 'T00:00:00')
+      .toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+    eodNudge.style.display = 'flex';
+  }
+
+  document.getElementById('eod-nudge-btn').addEventListener('click', function () { openEodModal(); });
+
   function renderCalendar() {
     const today = new Date();
     if (calViewYear === undefined) {
@@ -980,12 +1056,15 @@
       eodsEmpty.textContent = 'Could not load EODs: ' + error.message;
       currentPartnerEods = [];
       renderCalendar();
+      // Don't nudge off a failed load — we can't tell whether today was submitted.
+      eodNudge.style.display = 'none';
       return;
     }
 
     currentPartnerEods = data || [];
     renderCalendar();
     renderEodsLog();
+    syncEodNudge();
   }
 
   document.getElementById('cal-prev').addEventListener('click', function () {
@@ -1025,7 +1104,7 @@
     eodFormPanel.style.display = 'block';
     eodSuccessPanel.style.display = 'none';
     myEodForm.reset();
-    document.getElementById('eod-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('eod-date').value = todayISO();
     eodModalOverlay.classList.add('open');
   }
   function closeEodModal() { eodModalOverlay.classList.remove('open'); }
