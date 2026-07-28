@@ -1692,40 +1692,38 @@
                 </div>
               </div>
 
-              <div class="tracker-card">
-                <div class="tracker-month-row">
-                  <div>
-                    <div class="card-title">Tracker</div>
-                    <div class="tracker-month-label" id="cd-tracker-month-label">—</div>
-                  </div>
-                  <div class="tracker-nav-group">
-                    <button class="tracker-nav-btn" id="cd-tracker-prev">
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    </button>
-                    <button class="tracker-nav-btn" id="cd-tracker-next">
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </button>
+              <div class="tracker-card chart-card">
+                <div class="chart-head">
+                  <div class="card-title">Revenue &amp; cash collected</div>
+                  <div class="chart-range-group" id="chart-range-group">
+                    <button class="chart-range-btn" data-range="1w">1W</button>
+                    <button class="chart-range-btn" data-range="1">1M</button>
+                    <button class="chart-range-btn active" data-range="3">3M</button>
+                    <button class="chart-range-btn" data-range="6">6M</button>
+                    <button class="chart-range-btn" data-range="all">All</button>
                   </div>
                 </div>
 
-                <div class="tracker-grid">
-                  <div class="tracker-field">
-                    <label>Monthly revenue</label>
-                    <div class="tracker-dollar-input">
-                      <span>$</span>
-                      <input type="number" id="cd-tracker-revenue" min="0" step="0.01" placeholder="0">
-                    </div>
+                <div class="chart-stats-row">
+                  <div class="chart-stat">
+                    <span class="chart-stat-dot" style="background: var(--chart-revenue);"></span>
+                    <span class="chart-stat-label">Total revenue</span>
+                    <span class="chart-stat-value" id="chart-revenue-value">—</span>
+                    <span class="chart-stat-change" id="chart-revenue-change"></span>
                   </div>
-                  <div class="tracker-field">
-                    <label>Monthly cash collected</label>
-                    <div class="tracker-dollar-input">
-                      <span>$</span>
-                      <input type="number" id="cd-tracker-cash" min="0" step="0.01" placeholder="0">
-                    </div>
+                  <div class="chart-stat">
+                    <span class="chart-stat-dot" style="background: var(--chart-cash);"></span>
+                    <span class="chart-stat-label">Total cash collected</span>
+                    <span class="chart-stat-value" id="chart-cash-value">—</span>
+                    <span class="chart-stat-change" id="chart-cash-change"></span>
                   </div>
                 </div>
 
-                <div class="tracker-save-status" id="cd-tracker-save-status"></div>
+                <div class="chart-canvas-wrap">
+                  <svg id="chart-svg" viewBox="0 0 640 272" role="img" aria-label="Revenue and cash collected over time"></svg>
+                  <div class="chart-tip" id="chart-tip"></div>
+                  <div class="chart-empty" id="chart-empty">No data recorded yet.</div>
+                </div>
               </div>
 
               <div class="luxury-section-head">
@@ -1793,40 +1791,6 @@
                     <div class="counter-value" id="cd-leads-value">0</div>
                     <button class="counter-btn" id="cd-leads-plus">+</button>
                   </div>
-                </div>
-              </div>
-
-              <div class="tracker-card chart-card">
-                <div class="chart-head">
-                  <div class="card-title">Revenue &amp; cash collected</div>
-                  <div class="chart-range-group" id="chart-range-group">
-                    <button class="chart-range-btn" data-range="1w">1W</button>
-                    <button class="chart-range-btn" data-range="1">1M</button>
-                    <button class="chart-range-btn active" data-range="3">3M</button>
-                    <button class="chart-range-btn" data-range="6">6M</button>
-                    <button class="chart-range-btn" data-range="all">All</button>
-                  </div>
-                </div>
-
-                <div class="chart-stats-row">
-                  <div class="chart-stat">
-                    <span class="chart-stat-dot" style="background: var(--chart-revenue);"></span>
-                    <span class="chart-stat-label">Total revenue</span>
-                    <span class="chart-stat-value" id="chart-revenue-value">—</span>
-                    <span class="chart-stat-change" id="chart-revenue-change"></span>
-                  </div>
-                  <div class="chart-stat">
-                    <span class="chart-stat-dot" style="background: var(--chart-cash);"></span>
-                    <span class="chart-stat-label">Total cash collected</span>
-                    <span class="chart-stat-value" id="chart-cash-value">—</span>
-                    <span class="chart-stat-change" id="chart-cash-change"></span>
-                  </div>
-                </div>
-
-                <div class="chart-canvas-wrap">
-                  <svg id="chart-svg" viewBox="0 0 640 272" role="img" aria-label="Revenue and cash collected over time"></svg>
-                  <div class="chart-tip" id="chart-tip"></div>
-                  <div class="chart-empty" id="chart-empty">No data recorded yet.</div>
                 </div>
               </div>
             </div>
@@ -2614,6 +2578,11 @@
 
   let trackerViewYear = new Date().getFullYear();
   let trackerViewMonth = new Date().getMonth();
+  // Revenue/cash are no longer edited from the admin view (the tracker board was
+  // removed), but we keep the last-loaded values so saving the leads counter does
+  // not clobber them on upsert.
+  let trackerRevenue = 0;
+  let trackerCash = 0;
 
   function trackerMonthDateStr(year, month) {
     return year + '-' + String(month + 1).padStart(2, '0') + '-01';
@@ -2622,8 +2591,7 @@
   function renderTrackerMonthLabel() {
     const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const label = monthNames[trackerViewMonth] + ' ' + trackerViewYear;
-    document.getElementById('cd-tracker-month-label').textContent = label;
-    // The leads counter (next to Videos done) tracks the same month as the tracker.
+    // The leads counter (next to Videos done) tracks the current month.
     document.getElementById('cd-leads-month').textContent = label;
   }
 
@@ -2647,26 +2615,15 @@
     }
 
     if (data) {
-      document.getElementById('cd-tracker-revenue').value = data.monthly_revenue || 0;
-      document.getElementById('cd-tracker-cash').value = data.cash_collected || 0;
+      trackerRevenue = data.monthly_revenue || 0;
+      trackerCash = data.cash_collected || 0;
       document.getElementById('cd-leads-value').textContent = data.leads_from_content || 0;
     } else {
-      document.getElementById('cd-tracker-revenue').value = '';
-      document.getElementById('cd-tracker-cash').value = '';
+      trackerRevenue = 0;
+      trackerCash = 0;
       document.getElementById('cd-leads-value').textContent = 0;
     }
   }
-
-  document.getElementById('cd-tracker-prev').addEventListener('click', function () {
-    trackerViewMonth--;
-    if (trackerViewMonth < 0) { trackerViewMonth = 11; trackerViewYear--; }
-    loadTrackerMonth();
-  });
-  document.getElementById('cd-tracker-next').addEventListener('click', function () {
-    trackerViewMonth++;
-    if (trackerViewMonth > 11) { trackerViewMonth = 0; trackerViewYear++; }
-    loadTrackerMonth();
-  });
 
   document.getElementById('cd-leads-minus').addEventListener('click', function () {
     const el = document.getElementById('cd-leads-value');
@@ -2679,12 +2636,9 @@
     scheduleTrackerSave();
   });
 
-  const trackerSaveStatus = document.getElementById('cd-tracker-save-status');
   let trackerSaveTimeout = null;
 
   function scheduleTrackerSave() {
-    trackerSaveStatus.textContent = 'Editing…';
-    trackerSaveStatus.className = 'tracker-save-status';
     if (trackerSaveTimeout) clearTimeout(trackerSaveTimeout);
     trackerSaveTimeout = setTimeout(saveTrackerNow, 700);
   }
@@ -2692,15 +2646,13 @@
   async function saveTrackerNow() {
     if (!currentClient) return;
 
-    trackerSaveStatus.textContent = 'Saving…';
-    trackerSaveStatus.className = 'tracker-save-status saving';
-
     const payload = {
       client_id: currentClient.id,
       month: trackerMonthDateStr(trackerViewYear, trackerViewMonth),
       entry_type: 'monthly',
-      monthly_revenue: parseFloat(document.getElementById('cd-tracker-revenue').value) || 0,
-      cash_collected: parseFloat(document.getElementById('cd-tracker-cash').value) || 0,
+      // Revenue/cash are preserved from the last load — they are no longer editable here.
+      monthly_revenue: trackerRevenue,
+      cash_collected: trackerCash,
       leads_from_content: parseInt(document.getElementById('cd-leads-value').textContent, 10) || 0
     };
 
@@ -2709,19 +2661,12 @@
       .upsert(payload, { onConflict: 'client_id,month,entry_type' });
 
     if (error) {
-      trackerSaveStatus.textContent = 'Could not save';
-      trackerSaveStatus.className = 'tracker-save-status';
+      showToast('Could not save');
       return;
     }
 
-    trackerSaveStatus.textContent = 'Saved';
-    trackerSaveStatus.className = 'tracker-save-status saved';
     loadClientMetricsChart(false); // keep the read-only chart in sync after an edit
   }
-
-  ['cd-tracker-revenue', 'cd-tracker-cash'].forEach(function (id) {
-    document.getElementById(id).addEventListener('input', scheduleTrackerSave);
-  });
 
   // ==================== CLIENT REVENUE / CASH CHART (read-only) ====================
   let allMetricsRows = [];
