@@ -1633,6 +1633,36 @@
   }
   .fin-settings-bar .fin-input-group { flex: 0 0 auto; }
   .fin-settings-note { font-size: 12px; color: var(--ink-faint); flex: 1 1 200px; line-height: 1.5; }
+  .fin-rate-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--ink-dim);
+    white-space: nowrap;
+  }
+  .fin-rate-wrap .fin-input { width: 84px; }
+  .fin-rate-cur { color: var(--ink); font-weight: 600; }
+
+  .fin-setup-notice {
+    border: 1px solid var(--glass-border);
+    border-left: 3px solid var(--maroon);
+    border-radius: 0 12px 12px 0;
+    background: var(--accent-dim);
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--ink-dim);
+  }
+  .fin-setup-notice strong { color: var(--ink); display: block; margin-bottom: 5px; font-size: 14px; }
+  .fin-setup-notice code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    background: rgba(15, 65, 74, 0.08);
+    padding: 2px 6px;
+    border-radius: 5px;
+  }
 
   /* ---------- TABS ---------- */
   .tabs {
@@ -2178,19 +2208,25 @@
 
       <div class="tab-panel" id="tab-finances">
 
+        <div class="fin-setup-notice" id="fin-setup-notice" style="display: none;"></div>
+
         <div class="fin-settings-bar">
           <div class="fin-input-group">
-            <label class="fin-label" for="fin-display-cur">Show everything in</label>
+            <label class="fin-label" for="fin-display-cur">Show all totals in</label>
             <select class="fin-input" id="fin-display-cur" style="width: 104px;">
               <option value="EUR">€ EUR</option>
               <option value="USD">$ USD</option>
             </select>
           </div>
           <div class="fin-input-group">
-            <label class="fin-label" for="fin-rate">€1 buys</label>
-            <input class="fin-input" id="fin-rate" type="number" step="0.0001" min="0.0001" style="width: 116px;">
+            <label class="fin-label" for="fin-rate">Exchange rate</label>
+            <div class="fin-rate-wrap">
+              <span>€1 =</span>
+              <span class="fin-rate-cur">$</span>
+              <input class="fin-input" id="fin-rate" type="number" step="0.0001" min="0.0001" value="1.08">
+            </div>
           </div>
-          <div class="fin-settings-note">Log each entry in the currency you actually paid in. Everything is converted to your display currency with this rate.</div>
+          <div class="fin-settings-note">Some clients pay you in dollars, some of your costs are in euros. Log every entry in the currency you actually paid or got paid in — this rate is what lets the dashboard add them into one total.</div>
         </div>
 
         <div class="agg-grid">
@@ -4364,8 +4400,22 @@
         .maybeSingle()
     ]);
 
-    if (catRes.error) { console.error('Could not load categories:', catRes.error.message); return; }
-    if (entryRes.error) { console.error('Could not load entries:', entryRes.error.message); return; }
+    // Until finances.sql has been run the tables do not exist, and every query
+    // here fails. Say so on the page rather than leaving a tab that looks
+    // broken for no visible reason.
+    const loadError = catRes.error || entryRes.error;
+    if (loadError) {
+      console.error('Could not load finances:', loadError.message);
+      const notice = document.getElementById('fin-setup-notice');
+      const missingTable = loadError.code === '42P01' || /does not exist|schema cache/i.test(loadError.message || '');
+      notice.innerHTML = missingTable
+        ? '<strong>This tab needs its database tables first.</strong>' +
+          'Open your Supabase project, go to the SQL editor, and run the contents of ' +
+          '<code>supabase/finances.sql</code> from the repo. Then reload this page and the tab will start working.'
+        : '<strong>Could not load your finances.</strong>' + escapeHtml(loadError.message);
+      notice.style.display = 'block';
+      return;
+    }
 
     finCategories = catRes.data || [];
     finEntries = entryRes.data || [];
