@@ -1380,8 +1380,13 @@
   }
 
   /* ---------- FINANCES ---------- */
-  .fin-canvas-wrap { position: relative; width: 100%; min-height: 150px; cursor: crosshair; }
-  .fin-canvas-wrap svg { width: 100%; height: auto; display: block; }
+  .fin-canvas-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 640 / 272;
+    cursor: crosshair;
+  }
+  .fin-canvas-wrap svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
   .fin-bar-list { display: flex; flex-direction: column; gap: 12px; }
   .fin-bar-row {
@@ -1452,10 +1457,17 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
     gap: 24px;
-    align-items: start;
+    align-items: stretch;
   }
   @media (max-width: 1080px) {
     .fin-top { grid-template-columns: minmax(0, 1fr); }
+  }
+  /* Side by side, the form is the taller of the two. Let the chart card match
+     it and hand the leftover room to the plot area, rather than stopping short
+     and leaving a hole under the graph. */
+  @media (min-width: 1081px) {
+    .fin-top .chart-card { display: flex; flex-direction: column; }
+    .fin-top .fin-canvas-wrap { aspect-ratio: auto; flex: 1; min-height: 260px; }
   }
   .fin-form-card { padding: 24px 26px; margin-bottom: 24px; }
   .fin-form-card .fin-row > .fin-input-group { flex: 1 1 120px; }
@@ -2497,6 +2509,9 @@
       document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
       btn.classList.add('active');
       document.getElementById(btn.dataset.tab).classList.add('active');
+      // The chart sizes itself from its container, which has no size while the
+      // panel is hidden — so it has to be drawn once the tab is actually shown.
+      if (btn.dataset.tab === 'tab-finances') finRenderAll(false);
     });
   });
 
@@ -4061,8 +4076,24 @@
     });
   }
 
-  const FIN_W = 640, FIN_H = 272;
+  const FIN_W = 640;
   const FIN_PAD_L = 64, FIN_PAD_R = 18, FIN_PAD_T = 20, FIN_PAD_B = 46;
+
+  // The wrapper stretches to match the form card beside it, so the drawing
+  // space is whatever height that works out to. Matching the viewBox to the
+  // box's real proportions is what keeps the chart from being stretched.
+  let FIN_H = 272;
+
+  function finSyncViewBox(svg) {
+    const wrap = document.getElementById('fin-canvas-wrap');
+    if (wrap) {
+      const r = wrap.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        FIN_H = Math.max(200, Math.round((r.height / r.width) * FIN_W));
+      }
+    }
+    if (svg) svg.setAttribute('viewBox', '0 0 ' + FIN_W + ' ' + FIN_H);
+  }
 
   function finRenderChart(range, animate) {
     const shouldAnimate = animate !== false && !chartReducedMotion;
@@ -4070,6 +4101,8 @@
     const emptyEl = document.getElementById('fin-chart-empty');
     const days = range.days;
     const n = days.length;
+
+    finSyncViewBox(svg);
 
     document.getElementById('fin-chart-in').textContent = finFormatMoney(range.totalIn);
     document.getElementById('fin-chart-out').textContent = finFormatMoney(range.business + range.personal);
@@ -4410,6 +4443,15 @@
   });
 
   document.getElementById('fin-add-btn').addEventListener('click', finAddEntry);
+
+  let finResizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(finResizeTimer);
+    finResizeTimer = setTimeout(function () {
+      const panel = document.getElementById('tab-finances');
+      if (panel && panel.classList.contains('active')) finRenderAll(false);
+    }, 180);
+  });
 
   function finRenderAll(animate) {
     const range = finBuildRange();
