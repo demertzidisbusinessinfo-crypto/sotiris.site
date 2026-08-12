@@ -343,7 +343,7 @@
 <nav>
   <div class="nav-inner">
     <div class="logo">Sotiris <span>Demertzidis</span></div>
-    <a href="index.html" class="nav-back">← Back</a>
+    <a href="/" class="nav-back">← Back</a>
   </div>
 </nav>
 
@@ -373,7 +373,7 @@
 
           <div class="signup-prompt">
             <p>Don't have an account yet?</p>
-            <a href="signup.html" class="btn-signup">Sign up</a>
+            <a href="signup" class="btn-signup">Sign up</a>
           </div>
         </div>
 
@@ -439,7 +439,7 @@
 
     // Admin shortcut — skip profile/status checks entirely.
     if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      window.location.href = 'admin-dashboard.html';
+      window.location.href = 'admin-dashboard';
       return;
     }
 
@@ -466,9 +466,9 @@
     }
 
     if (profile.account_type === 'partner') {
-      window.location.href = 'partner-dashboard.html';
+      window.location.href = 'partner-dashboard';
     } else {
-      window.location.href = 'client-dashboard.html';
+      window.location.href = 'client-dashboard';
     }
   });
 </script>

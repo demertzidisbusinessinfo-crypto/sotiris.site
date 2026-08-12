@@ -3299,7 +3299,7 @@
     if (!session || !session.user || session.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
       gateMessage.textContent = 'You must be logged in as the admin to view this page.';
       setTimeout(function () {
-        window.location.href = 'login.html';
+        window.location.href = 'login';
       }, 1800);
       return;
     }
@@ -3316,7 +3316,7 @@
 
   logoutBtn.addEventListener('click', async function () {
     await supabaseClient.auth.signOut();
-    window.location.href = 'login.html';
+    window.location.href = 'login';
   });
 
   // ---------------- MY EOD MODAL (admin submitting their own EOD) ----------------

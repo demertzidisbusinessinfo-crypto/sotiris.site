@@ -880,12 +880,12 @@
 
     if (!session || !session.user) {
       gateMessage.textContent = 'You must be logged in to view this page.';
-      setTimeout(function () { window.location.href = 'login.html'; }, 1500);
+      setTimeout(function () { window.location.href = 'login'; }, 1500);
       return;
     }
 
     if (session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      window.location.href = 'admin-dashboard.html';
+      window.location.href = 'admin-dashboard';
       return;
     }
 
@@ -901,7 +901,7 @@
     }
 
     if (profile.account_type !== 'partner') {
-      window.location.href = 'client-dashboard.html';
+      window.location.href = 'client-dashboard';
       return;
     }
 
@@ -927,7 +927,7 @@
 
   logoutBtn.addEventListener('click', async function () {
     await supabaseClient.auth.signOut();
-    window.location.href = 'login.html';
+    window.location.href = 'login';
   });
 
   const calendarMonthLabel = document.getElementById('cal-month-label');
