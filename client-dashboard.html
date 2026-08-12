@@ -28,6 +28,8 @@
     --green-dim: rgba(46, 107, 79, 0.1);
     --chart-revenue: #C42032;
     --chart-cash: #7B47E0;
+    --chart-in: #4ADE80;
+    --chart-out: #FB7185;
     --chart-panel-ink: #E8F0F2;
     --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     --font-serif: 'Playfair Display', Georgia, serif;
@@ -754,6 +756,373 @@
     padding: 20px;
   }
 
+  /* ================= FINANCES (own money, separate from the revenue tracker) ================= */
+  /* ---------- AGGREGATE METRICS ---------- */
+  .agg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin: 8px 0 28px;
+  }
+  .agg-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    backdrop-filter: blur(16px);
+  }
+  .agg-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .agg-value {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 27px;
+    color: var(--ink);
+    margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .agg-sub { font-size: 11px; color: var(--ink-faint); margin-top: 4px; }
+
+  .section-head {
+    margin: 40px 0 12px;
+  }
+  .section-head:first-of-type { margin-top: 8px; }
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .table-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+    margin-top: 24px;
+  }
+
+  .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 14px;
+  }
+  /* ---------- FINANCES ---------- */
+  .fin-canvas-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 640 / 272;
+    cursor: crosshair;
+  }
+  .fin-canvas-wrap svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  .fin-bar-list { display: flex; flex-direction: column; gap: 12px; }
+  .fin-bar-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 168px) minmax(0, 1fr) minmax(120px, auto);
+    align-items: center;
+    gap: 14px;
+  }
+  .fin-bar-name {
+    font-size: 13px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+  }
+  .fin-bar-name span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fin-kind-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--maroon);
+  }
+  .fin-kind-dot.personal { background: var(--ink-faint); }
+  .fin-bar-track {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(15, 65, 74, 0.09);
+    overflow: hidden;
+  }
+  .fin-bar-fill {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--maroon);
+    width: 0;
+    transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .fin-bar-fill.personal { background: var(--ink-faint); }
+  .fin-bar-amount {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--ink);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .fin-bar-amount i { font-style: normal; color: var(--ink-faint); margin-left: 6px; }
+  .fin-bar-legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .fin-bar-legend span { display: flex; align-items: center; gap: 7px; }
+
+  /* On a wide screen the entry form sits beside the chart, so logging
+     something and watching the line move happen in one glance. Below that
+     there is no room for two columns, so it drops underneath. */
+  .fin-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 24px;
+    align-items: stretch;
+  }
+  @media (max-width: 1080px) {
+    .fin-top { grid-template-columns: minmax(0, 1fr); }
+  }
+  /* Side by side, the form is the taller of the two. Let the chart card match
+     it and hand the leftover room to the plot area, rather than stopping short
+     and leaving a hole under the graph. */
+  @media (min-width: 1081px) {
+    .fin-top .chart-card { display: flex; flex-direction: column; }
+    .fin-top .fin-canvas-wrap { aspect-ratio: auto; flex: 1; min-height: 260px; }
+  }
+  .fin-form-card { padding: 24px 26px; margin-bottom: 24px; }
+  .fin-form-card .fin-row > .fin-input-group { flex: 1 1 120px; }
+
+  .fin-seg {
+    display: inline-flex;
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .fin-seg-btn {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border: none;
+    background: transparent;
+    color: var(--ink-dim);
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+  .fin-seg-btn:hover { color: var(--ink); }
+  .fin-seg-btn.active { background: var(--midnight); color: #F4F9FA; }
+  .fin-seg-btn.active.out { background: var(--maroon); }
+
+  .fin-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .fin-row > .fin-input-group { flex: 1 1 130px; min-width: 0; }
+  .fin-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    margin-bottom: 9px;
+  }
+  .fin-label em { font-style: normal; text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .fin-input {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink);
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.18s ease;
+  }
+  .fin-input:focus { border-color: var(--midnight); }
+  .fin-input::placeholder { color: var(--ink-faint); }
+  .fin-amount-wrap { display: flex; align-items: stretch; gap: 8px; }
+  .fin-amount-wrap .fin-input { flex: 1; min-width: 0; }
+  .fin-cur-select { flex: 0 0 76px; }
+
+  .fin-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+  .fin-chip {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.4);
+    color: var(--ink-dim);
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+  .fin-chip:hover { border-color: var(--midnight); color: var(--ink); }
+  .fin-chip.active { background: var(--maroon); border-color: var(--maroon); color: #fff; }
+  .fin-chip.personal.active { background: var(--midnight); border-color: var(--midnight); }
+  .fin-chip.add { color: var(--ink-faint); border-style: dashed; }
+
+  .fin-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 13px;
+    color: var(--ink-dim);
+    margin-bottom: 20px;
+    cursor: pointer;
+    line-height: 1.45;
+  }
+  .fin-check input { margin: 2px 0 0; accent-color: var(--maroon); flex-shrink: 0; }
+
+  .fin-submit {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    background: var(--maroon);
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+  .fin-submit:hover { transform: translateY(-1px); }
+  .fin-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .fin-form-msg { font-size: 12.5px; margin-top: 12px; min-height: 16px; color: var(--ink-faint); }
+  .fin-form-msg.error { color: var(--maroon-soft); }
+  .fin-form-msg.ok { color: var(--green); }
+
+  .fin-ledger-row {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .fin-ledger-row:last-child { border-bottom: none; }
+  .fin-ledger-date {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+  .fin-ledger-what { min-width: 0; }
+  .fin-ledger-note {
+    font-size: 13.5px;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fin-ledger-cat {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .fin-repeat-tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(15, 65, 74, 0.09);
+    color: var(--midnight);
+  }
+  .fin-ledger-amount {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    white-space: nowrap;
+    color: var(--maroon);
+  }
+  .fin-ledger-amount.in { color: var(--green); }
+  .fin-ledger-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    display: block;
+    text-align: right;
+    margin-top: 1px;
+  }
+  .fin-del {
+    border: none;
+    background: transparent;
+    color: var(--ink-faint);
+    font-size: 16px;
+    line-height: 1;
+    padding: 4px 6px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: color 0.18s ease, background 0.18s ease;
+  }
+  .fin-del:hover { color: var(--maroon); background: var(--accent-dim); }
+
+  .fin-settings-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .fin-settings-bar .fin-input-group { flex: 0 0 auto; }
+  .fin-settings-note { font-size: 12px; color: var(--ink-faint); flex: 1 1 200px; line-height: 1.5; }
+  .fin-rate-live {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink);
+    padding: 10px 0;
+    white-space: nowrap;
+  }
+  .fin-rate-live em {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-left: 6px;
+  }
+
+  .fin-setup-notice {
+    border: 1px solid var(--glass-border);
+    border-left: 3px solid var(--maroon);
+    border-radius: 0 12px 12px 0;
+    background: var(--accent-dim);
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--ink-dim);
+  }
+  .fin-setup-notice strong { color: var(--ink); display: block; margin-bottom: 5px; font-size: 14px; }
+  .fin-setup-notice code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    background: rgba(15, 65, 74, 0.08);
+    padding: 2px 6px;
+    border-radius: 5px;
+  }
+
+
   .chart-canvas-wrap { cursor: crosshair; }
   .chart-tip {
     position: absolute;
@@ -1037,6 +1406,55 @@
     footer { flex-direction: column; gap: 10px; text-align: center; }
     .frame-card, .counter-card, .info-card, .brand-subcard { padding: 20px; }
   }
+
+  /* ---------- PHONE: the Finances tab ----------
+     Scoped to what this tab adds. A fourth tab is more than the row can hold
+     at phone widths, so the tab strip is tightened and given a scroll
+     fallback; everything else here is the finances panel itself. */
+  @media (max-width: 640px) {
+    .tabs {
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn { font-size: 12.5px; padding: 10px 0; white-space: nowrap; }
+    .tab-btn + .tab-btn { margin-left: 15px; }
+
+    .section-head { margin: 28px 0 10px; }
+    .section-head h2 { font-size: 15px; }
+
+    .agg-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+    .agg-card { padding: 14px 15px; border-radius: 12px; }
+    .agg-value { font-size: 21px; }
+    .table-card { border-radius: 14px; }
+
+    /* A chart 120px tall is a smear — the plot reads its own proportions, so
+       a taller box stays undistorted. */
+    .fin-canvas-wrap { aspect-ratio: 640 / 430; }
+
+    .fin-settings-bar { align-items: flex-start; gap: 12px 18px; margin-bottom: 20px; }
+    .fin-settings-note { font-size: 11.5px; flex-basis: 100%; }
+    .fin-rate-live { font-size: 13px; padding: 9px 0; }
+
+    .fin-form-card { padding: 20px 17px; }
+    .fin-form-card .fin-row > .fin-input-group { flex: 1 1 100%; }
+    .fin-chip { font-size: 12px; padding: 7px 12px; }
+    .fin-seg-btn { padding: 9px 14px; font-size: 12.5px; }
+    .fin-del { font-size: 20px; padding: 8px 10px; }
+
+    /* Name and amount on one line, bar across the full width beneath. */
+    .fin-bar-row { grid-template-columns: minmax(0, 1fr) auto; gap: 5px 10px; }
+    .fin-bar-name { grid-row: 1; grid-column: 1; font-size: 12.5px; }
+    .fin-bar-amount { grid-row: 1; grid-column: 2; font-size: 11.5px; }
+    .fin-bar-track { grid-row: 2; grid-column: 1 / -1; }
+    .fin-bar-legend { gap: 8px; font-size: 11px; }
+    .fin-bar-legend span { flex-basis: 100%; }
+
+    .fin-ledger-row { grid-template-columns: 58px minmax(0, 1fr) auto auto; gap: 10px; padding: 12px 14px; }
+    .fin-ledger-note { font-size: 13px; }
+    .fin-ledger-amount { font-size: 12.5px; }
+  }
 </style>
 </head>
 <body>
@@ -1072,6 +1490,7 @@
         <button class="tab-btn active" data-tab="tab-overview">Overview</button>
         <button class="tab-btn" data-tab="tab-brand">Brand Identity</button>
         <button class="tab-btn" data-tab="tab-tracker">Tracker</button>
+        <button class="tab-btn" data-tab="tab-finances">Finances</button>
       </div>
 
       <div class="tab-panel active" id="tab-overview">
@@ -1296,6 +1715,155 @@
             <div class="chart-empty" id="chart-empty">No data recorded yet.</div>
           </div>
         </div>
+      </div>
+
+      <div class="tab-panel" id="tab-finances">
+
+        <div class="fin-setup-notice" id="fin-setup-notice" style="display: none;"></div>
+
+        <div class="fin-settings-bar">
+          <div class="fin-input-group">
+            <label class="fin-label" for="fin-display-cur">Show all totals in</label>
+            <select class="fin-input" id="fin-display-cur" style="width: 104px;">
+              <option value="EUR">€ EUR</option>
+              <option value="USD">$ USD</option>
+            </select>
+          </div>
+          <div class="fin-input-group">
+            <span class="fin-label">Exchange rate</span>
+            <div class="fin-rate-live" id="fin-rate-live">€1 = $1.1545 <em>checking…</em></div>
+          </div>
+          <div class="fin-settings-note">Log every entry in the currency you actually paid or got paid in — the rate above is fetched from the European Central Bank, so you never have to set it.</div>
+        </div>
+
+        <div class="agg-grid">
+          <div class="agg-card">
+            <div class="agg-label">Money in</div>
+            <div class="agg-value" id="fin-agg-in">—</div>
+            <div class="agg-sub" id="fin-agg-in-sub">this range</div>
+          </div>
+          <div class="agg-card">
+            <div class="agg-label">Business costs</div>
+            <div class="agg-value" id="fin-agg-business">—</div>
+            <div class="agg-sub">off the top</div>
+          </div>
+          <div class="agg-card">
+            <div class="agg-label">Business profit</div>
+            <div class="agg-value" id="fin-agg-profit">—</div>
+            <div class="agg-sub" id="fin-agg-margin">—</div>
+          </div>
+          <div class="agg-card">
+            <div class="agg-label">Personal spend</div>
+            <div class="agg-value" id="fin-agg-personal">—</div>
+            <div class="agg-sub">out of profit</div>
+          </div>
+          <div class="agg-card">
+            <div class="agg-label">What's left</div>
+            <div class="agg-value" id="fin-agg-kept">—</div>
+            <div class="agg-sub">after everything</div>
+          </div>
+        </div>
+
+        <div class="fin-top">
+        <div class="tracker-card chart-card">
+          <div class="chart-head">
+            <div class="card-title">Money in vs money out</div>
+            <div class="chart-range-group" id="fin-range-group">
+              <button class="chart-range-btn" data-range="1w">1W</button>
+              <button class="chart-range-btn" data-range="1">1M</button>
+              <button class="chart-range-btn active" data-range="3">3M</button>
+              <button class="chart-range-btn" data-range="6">6M</button>
+              <button class="chart-range-btn" data-range="all">All</button>
+            </div>
+          </div>
+
+          <div class="chart-stats-row">
+            <div class="chart-stat">
+              <span class="chart-stat-dot" style="background: var(--chart-in);"></span>
+              <span class="chart-stat-label">In</span>
+              <span class="chart-stat-value" id="fin-chart-in">—</span>
+            </div>
+            <div class="chart-stat">
+              <span class="chart-stat-dot" style="background: var(--chart-out);"></span>
+              <span class="chart-stat-label">Out</span>
+              <span class="chart-stat-value" id="fin-chart-out">—</span>
+            </div>
+            <div class="chart-stat">
+              <span class="chart-stat-dot" style="background: rgba(74,222,128,0.32);"></span>
+              <span class="chart-stat-label">Kept</span>
+              <span class="chart-stat-value" id="fin-chart-kept">—</span>
+            </div>
+          </div>
+
+          <div class="fin-canvas-wrap" id="fin-canvas-wrap">
+            <svg id="fin-chart-svg" viewBox="0 0 640 272" role="img" aria-label="Money in and money out over time, with the gap between them shaded as what you kept"></svg>
+            <div class="chart-tip" id="fin-chart-tip"></div>
+            <div class="chart-empty" id="fin-chart-empty">Nothing logged yet.</div>
+          </div>
+        </div>
+
+          <div class="tracker-card fin-form-card">
+            <div class="card-title" style="margin-bottom: 20px;">Log an entry</div>
+            <div class="fin-seg" id="fin-direction">
+              <button class="fin-seg-btn" type="button" data-direction="in">Money in</button>
+              <button class="fin-seg-btn out active" type="button" data-direction="out">Money out</button>
+            </div>
+
+            <div class="fin-row">
+              <div class="fin-input-group">
+                <label class="fin-label" for="fin-amount">Amount</label>
+                <div class="fin-amount-wrap">
+                  <input class="fin-input" id="fin-amount" type="number" step="0.01" min="0" placeholder="0">
+                  <select class="fin-input fin-cur-select" id="fin-currency">
+                    <option value="EUR">€</option>
+                    <option value="USD">$</option>
+                  </select>
+                </div>
+              </div>
+              <div class="fin-input-group">
+                <label class="fin-label" for="fin-date">Date</label>
+                <input class="fin-input" id="fin-date" type="date">
+              </div>
+            </div>
+
+            <div id="fin-category-block">
+              <label class="fin-label">Category</label>
+              <div class="fin-chips" id="fin-chips"></div>
+            </div>
+
+            <label class="fin-check" id="fin-recurring-wrap">
+              <input type="checkbox" id="fin-recurring">
+              <span>Repeats every month — log it once and it fills itself in each month until you end it.</span>
+            </label>
+
+            <label class="fin-label" for="fin-note">Note <em>— optional</em></label>
+            <input class="fin-input" id="fin-note" type="text" placeholder="Adobe Creative Cloud" style="margin-bottom: 20px;">
+
+            <button class="fin-submit" id="fin-add-btn" type="button">Add entry</button>
+            <div class="fin-form-msg" id="fin-form-msg"></div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>Where it went</h2>
+        </div>
+        <div class="table-card" style="padding: 24px 26px;">
+          <div class="fin-bar-list" id="fin-bar-list"></div>
+          <div class="empty-state" id="fin-bars-empty" style="display: none;">No expenses in this range.</div>
+          <div class="fin-bar-legend">
+            <span><i class="fin-kind-dot"></i> Business — comes off revenue before profit</span>
+            <span><i class="fin-kind-dot personal"></i> Personal — comes out of profit you already made</span>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>Recent entries</h2>
+        </div>
+        <div class="table-card">
+          <div id="fin-ledger"></div>
+          <div class="empty-state" id="fin-ledger-empty" style="display: none;">Nothing logged in this range yet.</div>
+        </div>
+
       </div>
 
     </div>
@@ -2378,9 +2946,9 @@
     });
   });
 
-  document.querySelectorAll('.chart-range-btn').forEach(function (btn) {
+  document.querySelectorAll('#chart-range-group .chart-range-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      document.querySelectorAll('.chart-range-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('#chart-range-group .chart-range-btn').forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
       const r = btn.getAttribute('data-range');
       chartRange = (r === 'all' || r === '1w') ? r : parseInt(r, 10);
@@ -2398,8 +2966,802 @@
       document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
       btn.classList.add('active');
       document.getElementById(btn.dataset.tab).classList.add('active');
+      // The finances chart sizes itself from its container, which has no size
+      // while the panel is hidden — so it has to be drawn once the tab shows.
+      if (btn.dataset.tab === 'tab-finances') finRenderAll(false);
     });
   });
+
+  // ---------------- FINANCES ----------------
+
+  // Money in and money out, in whichever currency it was actually paid, with
+  // expense categories split into business (comes off revenue before profit)
+  // and personal (comes out of profit you already made).
+
+  const DEFAULT_FIN_CATEGORIES = [
+    { name: 'Subscriptions',    kind: 'business', sort_order: 0 },
+    { name: 'Mentors, courses', kind: 'business', sort_order: 1 },
+    { name: 'Personal',         kind: 'personal', sort_order: 2 },
+    { name: 'Vacation',         kind: 'personal', sort_order: 3 },
+    { name: 'Gifts',            kind: 'personal', sort_order: 4 }
+  ];
+
+  const FIN_SYMBOL = { EUR: '€', USD: '$' };
+
+  let finEntries = [];
+  let finCategories = [];
+  // Last known good rate, used until the live one lands and if the fetch ever
+  // fails. ECB reference rate for 12 Aug 2026.
+  const FIN_FALLBACK_RATE = 1.1545;
+  const FIN_RATE_URL = 'https://api.frankfurter.dev/v1/latest?from=EUR&to=USD';
+
+  let finSettings = { display_currency: 'EUR', eur_usd_rate: FIN_FALLBACK_RATE };
+  let finRange = 3;
+  let finDirection = 'out';
+  let finCategoryId = null;
+  let finChartState = null;
+
+  function finRate() {
+    const r = parseFloat(finSettings.eur_usd_rate);
+    return isFinite(r) && r > 0 ? r : FIN_FALLBACK_RATE;
+  }
+
+  function finShowRate(note) {
+    const el = document.getElementById('fin-rate-live');
+    if (!el) return;
+    el.innerHTML = '€1 = $' + finRate().toFixed(4) +
+      (note ? ' <em>' + escapeHtml(note) + '</em>' : '');
+  }
+
+  // The rate comes from the ECB via Frankfurter, so it is never something to
+  // keep up to date by hand. Whatever was last saved keeps the page usable
+  // until this lands, and covers the case where the request fails entirely.
+  async function finFetchRate() {
+    try {
+      const res = await fetch(FIN_RATE_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      const rate = json && json.rates && parseFloat(json.rates.USD);
+      if (!isFinite(rate) || rate <= 0) throw new Error('no usable rate in response');
+
+      const changed = Math.abs(rate - finRate()) > 0.00001;
+      finSettings.eur_usd_rate = rate;
+
+      const on = json.date ? new Date(json.date + 'T00:00:00') : null;
+      const today = on && finISO(on) === finISO(new Date());
+      finShowRate(on ? (today ? 'live today' : 'as of ' + on.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : 'live');
+
+      if (changed) {
+        finRenderAll(false);
+        finSaveSettings();
+      }
+    } catch (err) {
+      console.error('Could not fetch the exchange rate:', err.message);
+      finShowRate('saved rate — could not reach the bank');
+    }
+  }
+
+  // Everything is stored in the currency it was paid in, and converted only
+  // when it reaches the screen — so changing the rate never rewrites history.
+  function finToDisplay(amount, currency) {
+    const amt = parseFloat(amount) || 0;
+    const display = finSettings.display_currency;
+    if (currency === display) return amt;
+    if (currency === 'EUR' && display === 'USD') return amt * finRate();
+    if (currency === 'USD' && display === 'EUR') return amt / finRate();
+    return amt;
+  }
+
+  function finFormatMoney(n) {
+    const sym = FIN_SYMBOL[finSettings.display_currency] || '€';
+    const rounded = Math.round(n);
+    return (rounded < 0 ? '-' : '') + sym + Math.abs(rounded).toLocaleString('en-US');
+  }
+
+  function finFormatAxis(n) { return Math.round(n).toLocaleString('en-US'); }
+
+  function finStartOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function finISO(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  // A recurring entry is a template, not a row per month. Expanding it here
+  // means no cron job to keep alive, and editing the template fixes every
+  // month at once.
+  function finOccurrences() {
+    const out = [];
+    const today = finStartOfDay(new Date());
+
+    finEntries.forEach(function (row) {
+      const start = new Date(row.entry_date + 'T00:00:00');
+      if (isNaN(start)) return;
+
+      if (!row.recurring) {
+        out.push({
+          id: row.id, date: finStartOfDay(start), direction: row.direction,
+          amount: row.amount, currency: row.currency, category_id: row.category_id,
+          note: row.note, repeat: false
+        });
+        return;
+      }
+
+      const stop = row.recurring_until ? new Date(row.recurring_until + 'T00:00:00') : today;
+      const last = stop < today ? stop : today;
+      const dayOfMonth = start.getDate();
+
+      let y = start.getFullYear();
+      let m = start.getMonth();
+      let guard = 0;
+      while (guard++ < 600) {
+        // Clamp to the month's length so a 31st subscription still lands in February.
+        const lastDayOfMonth = new Date(y, m + 1, 0).getDate();
+        const d = new Date(y, m, Math.min(dayOfMonth, lastDayOfMonth));
+        if (d > last) break;
+        if (d >= finStartOfDay(start)) {
+          out.push({
+            id: row.id, date: d, direction: row.direction,
+            amount: row.amount, currency: row.currency, category_id: row.category_id,
+            note: row.note, repeat: true
+          });
+        }
+        m++;
+        if (m > 11) { m = 0; y++; }
+      }
+    });
+
+    out.sort(function (a, b) { return a.date - b.date; });
+    return out;
+  }
+
+  function finRangeStart(occurrences) {
+    const now = new Date();
+    if (finRange === 'all') {
+      if (!occurrences.length) return new Date(now.getFullYear(), now.getMonth(), 1);
+      const first = occurrences[0].date;
+      return new Date(first.getFullYear(), first.getMonth(), 1);
+    }
+    if (finRange === '1w') {
+      const s = finStartOfDay(now);
+      s.setDate(s.getDate() - 6);
+      return s;
+    }
+    return new Date(now.getFullYear(), now.getMonth() - (finRange - 1), 1);
+  }
+
+  function finCategoryById(id) {
+    for (let i = 0; i < finCategories.length; i++) {
+      if (finCategories[i].id === id) return finCategories[i];
+    }
+    return null;
+  }
+
+  // One pass over the range that everything else reads from: the per-day
+  // series for the chart, the totals for the cards, and the per-category
+  // buckets for the bars.
+  function finBuildRange() {
+    const occurrences = finOccurrences();
+    const start = finStartOfDay(finRangeStart(occurrences));
+    const end = finStartOfDay(new Date());
+
+    const byDay = {};
+    const inRange = [];
+    let totalIn = 0, business = 0, personal = 0;
+    const byCategory = {};
+
+    occurrences.forEach(function (o) {
+      if (o.date < start || o.date > end) return;
+      inRange.push(o);
+
+      const amt = finToDisplay(o.amount, o.currency);
+      const key = finISO(o.date);
+      if (!byDay[key]) byDay[key] = { in: 0, out: 0 };
+
+      if (o.direction === 'in') {
+        byDay[key].in += amt;
+        totalIn += amt;
+      } else {
+        byDay[key].out += amt;
+        const cat = finCategoryById(o.category_id);
+        const kind = cat ? cat.kind : 'business';
+        if (kind === 'personal') personal += amt; else business += amt;
+
+        const label = cat ? cat.name : 'Uncategorised';
+        if (!byCategory[label]) byCategory[label] = { amount: 0, kind: kind };
+        byCategory[label].amount += amt;
+      }
+    });
+
+    const days = [];
+    let cumIn = 0, cumOut = 0;
+    const cursor = new Date(start);
+    while (cursor <= end) {
+      const key = finISO(cursor);
+      const hit = byDay[key];
+      cumIn += hit ? hit.in : 0;
+      cumOut += hit ? hit.out : 0;
+      days.push({
+        date: new Date(cursor),
+        has: !!hit,
+        in: hit ? hit.in : 0,
+        out: hit ? hit.out : 0,
+        cumIn: cumIn,
+        cumOut: cumOut
+      });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    const categories = Object.keys(byCategory).map(function (name) {
+      return { name: name, amount: byCategory[name].amount, kind: byCategory[name].kind };
+    }).sort(function (a, b) { return b.amount - a.amount; });
+
+    return {
+      days: days,
+      entries: inRange,
+      totalIn: totalIn,
+      business: business,
+      personal: personal,
+      categories: categories
+    };
+  }
+
+  function finRenderCards(range) {
+    const profit = range.totalIn - range.business;
+    const kept = profit - range.personal;
+    const margin = range.totalIn > 0 ? (profit / range.totalIn) * 100 : null;
+
+    document.getElementById('fin-agg-in').textContent = finFormatMoney(range.totalIn);
+    document.getElementById('fin-agg-business').textContent = finFormatMoney(range.business);
+    document.getElementById('fin-agg-profit').textContent = finFormatMoney(profit);
+    document.getElementById('fin-agg-personal').textContent = finFormatMoney(range.personal);
+    document.getElementById('fin-agg-kept').textContent = finFormatMoney(kept);
+    document.getElementById('fin-agg-margin').textContent =
+      margin == null ? 'no revenue yet' : margin.toFixed(0) + '% margin';
+
+    const label = finRange === 'all' ? 'all time'
+      : finRange === '1w' ? 'last 7 days'
+      : finRange === 1 ? 'this month'
+      : 'last ' + finRange + ' months';
+    document.getElementById('fin-agg-in-sub').textContent = label;
+  }
+
+  function finRenderBars(range) {
+    const list = document.getElementById('fin-bar-list');
+    const empty = document.getElementById('fin-bars-empty');
+    const total = range.categories.reduce(function (s, c) { return s + c.amount; }, 0);
+
+    if (!range.categories.length || total <= 0) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    const biggest = range.categories[0].amount;
+    list.innerHTML = range.categories.map(function (c) {
+      const pct = (c.amount / total) * 100;
+      const width = biggest > 0 ? (c.amount / biggest) * 100 : 0;
+      const personal = c.kind === 'personal' ? ' personal' : '';
+      return '<div class="fin-bar-row">' +
+        '<div class="fin-bar-name"><i class="fin-kind-dot' + personal + '"></i><span>' + escapeHtml(c.name) + '</span></div>' +
+        '<div class="fin-bar-track"><span class="fin-bar-fill' + personal + '" data-width="' + width.toFixed(1) + '"></span></div>' +
+        '<div class="fin-bar-amount">' + finFormatMoney(c.amount) + '<i>' + pct.toFixed(0) + '%</i></div>' +
+        '</div>';
+    }).join('');
+
+    requestAnimationFrame(function () {
+      list.querySelectorAll('.fin-bar-fill').forEach(function (el) {
+        el.style.width = el.dataset.width + '%';
+      });
+    });
+  }
+
+  function finRenderLedger(range) {
+    const wrap = document.getElementById('fin-ledger');
+    const empty = document.getElementById('fin-ledger-empty');
+    const rows = range.entries.slice().sort(function (a, b) { return b.date - a.date; }).slice(0, 40);
+
+    if (!rows.length) {
+      wrap.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    wrap.innerHTML = rows.map(function (o) {
+      const cat = finCategoryById(o.category_id);
+      const shown = finToDisplay(o.amount, o.currency);
+      const isIn = o.direction === 'in';
+      const paidIn = (FIN_SYMBOL[o.currency] || '') + Math.round(parseFloat(o.amount) || 0).toLocaleString('en-US');
+      const differs = o.currency !== finSettings.display_currency;
+
+      const meta = [];
+      if (!isIn) meta.push(escapeHtml(cat ? cat.name : 'Uncategorised'));
+      if (o.repeat) meta.push('<span class="fin-repeat-tag">monthly</span>');
+
+      return '<div class="fin-ledger-row">' +
+        '<div class="fin-ledger-date">' + o.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</div>' +
+        '<div class="fin-ledger-what">' +
+          '<div class="fin-ledger-note">' + escapeHtml(o.note || (isIn ? 'Income' : 'Expense')) + '</div>' +
+          (meta.length ? '<div class="fin-ledger-cat">' + meta.join(' · ') + '</div>' : '') +
+        '</div>' +
+        '<div>' +
+          '<div class="fin-ledger-amount' + (isIn ? ' in' : '') + '">' + (isIn ? '+' : '−') + finFormatMoney(shown).replace('-', '') + '</div>' +
+          (differs ? '<span class="fin-ledger-sub">paid ' + paidIn + '</span>' : '') +
+        '</div>' +
+        '<button class="fin-del" type="button" data-id="' + o.id + '" data-repeat="' + (o.repeat ? '1' : '') + '" ' +
+          'aria-label="Delete entry">×</button>' +
+        '</div>';
+    }).join('');
+
+    wrap.querySelectorAll('.fin-del').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        finDeleteEntry(btn.dataset.id, btn.dataset.repeat === '1');
+      });
+    });
+  }
+
+  const FIN_W = 640;
+  const FIN_PAD_L = 64, FIN_PAD_R = 18, FIN_PAD_T = 20, FIN_PAD_B = 46;
+
+  // The wrapper stretches to match the form card beside it, so the drawing
+  // space is whatever height that works out to. Matching the viewBox to the
+  // box's real proportions is what keeps the chart from being stretched.
+  let FIN_H = 272;
+
+  function finSyncViewBox(svg) {
+    const wrap = document.getElementById('fin-canvas-wrap');
+    if (wrap) {
+      const r = wrap.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        FIN_H = Math.max(200, Math.round((r.height / r.width) * FIN_W));
+      }
+    }
+    if (svg) svg.setAttribute('viewBox', '0 0 ' + FIN_W + ' ' + FIN_H);
+  }
+
+  function finRenderChart(range, animate) {
+    const shouldAnimate = animate !== false && !chartReducedMotion;
+    const svg = document.getElementById('fin-chart-svg');
+    const emptyEl = document.getElementById('fin-chart-empty');
+    const days = range.days;
+    const n = days.length;
+
+    finSyncViewBox(svg);
+
+    document.getElementById('fin-chart-in').textContent = finFormatMoney(range.totalIn);
+    document.getElementById('fin-chart-out').textContent = finFormatMoney(range.business + range.personal);
+    document.getElementById('fin-chart-kept').textContent =
+      finFormatMoney(range.totalIn - range.business - range.personal);
+
+    const hasData = days.some(function (d) { return d.has; });
+    if (!n || !hasData) {
+      svg.innerHTML = '';
+      finChartState = null;
+      emptyEl.style.display = 'flex';
+      emptyEl.textContent = finEntries.length ? 'Nothing in this range yet.' : 'Nothing logged yet.';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    const TICKS = 4;
+    const last = days[n - 1];
+    const axis = niceAxis(Math.max(last.cumIn, last.cumOut), TICKS);
+    const yMax = axis.max;
+
+    // On a phone the box is drawn far narrower than the 640-unit viewBox, so
+    // everything inside is scaled down — including the type, which ends up
+    // around 5px and unreadable. Scaling text and the gutters that hold it by
+    // the same factor puts them back at their intended size. A desktop renders
+    // at or above 640px, where s is 1 and nothing changes.
+    const wrapW = (document.getElementById('fin-canvas-wrap') || {}).clientWidth || FIN_W;
+    const s = Math.max(1, FIN_W / wrapW);
+
+    const padL = FIN_PAD_L * s, padR = FIN_PAD_R * s, padT = FIN_PAD_T, padB = FIN_PAD_B * s;
+    const fAxis = 10 * s, fDay = 12 * s, fDim = 10 * s, fMonth = 10 * s;
+    const dotR = 4.6 * s, lineW = 2.4 * s;
+
+    const plotW = FIN_W - padL - padR;
+    const plotH = FIN_H - padT - padB;
+
+    const xAt = function (i) {
+      return n > 1 ? padL + (i * plotW) / (n - 1) : padL + plotW / 2;
+    };
+    const yAt = function (v) { return padT + (1 - v / yMax) * plotH; };
+
+    const styles = getComputedStyle(document.documentElement);
+    const inColor = styles.getPropertyValue('--chart-in').trim() || '#4ADE80';
+    const outColor = styles.getPropertyValue('--chart-out').trim() || '#FB7185';
+
+    let grid = '';
+    for (let i = 0; i <= TICKS; i++) {
+      const y = padT + (i / TICKS) * plotH;
+      const val = axis.step * (TICKS - i);
+      const isBase = i === TICKS;
+      grid +=
+        '<line x1="' + padL.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + (FIN_W - padR).toFixed(1) + '" y2="' + y.toFixed(1) +
+        '" stroke="rgba(150,192,206,' + (isBase ? '0.28' : '0.10') + ')" stroke-width="' + s.toFixed(2) + '"/>' +
+        '<text x="' + (padL - 10 * s).toFixed(1) + '" y="' + (y + 3.5 * s).toFixed(1) + '" text-anchor="end" font-size="' + fAxis.toFixed(1) + '" ' +
+        'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">' + finFormatAxis(val) + '</text>';
+    }
+
+    const baselineY = padT + plotH;
+    let ticks = '';
+    days.forEach(function (d, i) {
+      const x = xAt(i).toFixed(1);
+      ticks += '<line x1="' + x + '" y1="' + baselineY.toFixed(1) + '" x2="' + x + '" y2="' + (baselineY + (d.has ? 6 : 3) * s).toFixed(1) +
+        '" stroke="rgba(150,192,206,' + (d.has ? '0.6' : '0.18') + ')" stroke-width="' + s.toFixed(2) + '"/>';
+    });
+
+    const placed = [];
+    const MIN_GAP = 15 * s;
+    function canPlace(x) {
+      for (let k = 0; k < placed.length; k++) {
+        if (Math.abs(placed[k] - x) < MIN_GAP) return false;
+      }
+      return true;
+    }
+
+    const dayLabelY = baselineY + 20 * s;
+    let dayLabels = '';
+    days.forEach(function (d, i) {
+      if (!d.has) return;
+      const x = xAt(i);
+      if (!canPlace(x)) return;
+      placed.push(x);
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY.toFixed(1) + '" text-anchor="middle" font-size="' + fDay.toFixed(1) + '" ' +
+        'font-weight="700" font-family="ui-monospace, monospace" fill="rgba(255,255,255,0.95)">' + d.date.getDate() + '</text>';
+    });
+    days.forEach(function (d, i) {
+      if (d.has) return;
+      const x = xAt(i);
+      if (!canPlace(x)) return;
+      placed.push(x);
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY.toFixed(1) + '" text-anchor="middle" font-size="' + fDim.toFixed(1) + '" ' +
+        'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.35)">' + d.date.getDate() + '</text>';
+    });
+
+    let monthLabels = '';
+    let lastMonth = null;
+    days.forEach(function (d, i) {
+      const key = d.date.getFullYear() + '-' + d.date.getMonth();
+      if (key === lastMonth) return;
+      lastMonth = key;
+      monthLabels += '<text x="' + xAt(i).toFixed(1) + '" y="' + (baselineY + 36 * s).toFixed(1) + '" text-anchor="middle" font-size="' + fMonth.toFixed(1) + '" ' +
+        'letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.4)">' +
+        d.date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() + '</text>';
+    });
+
+    const inPts = days.map(function (d, i) { return xAt(i).toFixed(1) + ',' + yAt(d.cumIn).toFixed(1); });
+    const outPts = days.map(function (d, i) { return xAt(i).toFixed(1) + ',' + yAt(d.cumOut).toFixed(1); });
+
+    // The shaded wedge between the two lines is the money you actually kept.
+    const keptArea = 'M' + inPts.join(' L') + ' L' + outPts.slice().reverse().join(' L') + ' Z';
+
+    const body =
+      '<path class="chart-area shown" d="' + keptArea + '" fill="' + inColor + '" fill-opacity="0.16"/>' +
+      '<path id="fin-line-out" d="M' + outPts.join(' L') + '" fill="none" stroke="' + outColor +
+        '" stroke-width="' + lineW.toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<path id="fin-line-in" d="M' + inPts.join(' L') + '" fill="none" stroke="' + inColor +
+        '" stroke-width="' + lineW.toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + xAt(n - 1).toFixed(1) + '" cy="' + yAt(last.cumOut).toFixed(1) + '" r="' + dotR.toFixed(2) + '" fill="' + outColor +
+        '" stroke="#0A1013" stroke-width="' + (1.5 * s).toFixed(2) + '"/>' +
+      '<circle cx="' + xAt(n - 1).toFixed(1) + '" cy="' + yAt(last.cumIn).toFixed(1) + '" r="' + dotR.toFixed(2) + '" fill="' + inColor +
+        '" stroke="#0A1013" stroke-width="' + (1.5 * s).toFixed(2) + '"/>';
+
+    const hoverLayer =
+      '<line id="fin-cross" y1="' + padT + '" y2="' + baselineY.toFixed(1) +
+        '" stroke="rgba(150,192,206,0.55)" stroke-width="' + s.toFixed(2) + '" stroke-dasharray="' + (3 * s).toFixed(1) + ' ' + (3 * s).toFixed(1) + '" opacity="0"/>' +
+      '<circle id="fin-hov-in" r="' + dotR.toFixed(2) + '" fill="' + inColor + '" stroke="#0A1013" stroke-width="' + (1.5 * s).toFixed(2) + '" opacity="0"/>' +
+      '<circle id="fin-hov-out" r="' + dotR.toFixed(2) + '" fill="' + outColor + '" stroke="#0A1013" stroke-width="' + (1.5 * s).toFixed(2) + '" opacity="0"/>';
+
+    svg.innerHTML = grid + ticks + dayLabels + monthLabels + body + hoverLayer;
+    finChartState = { days: days, n: n, plotW: plotW, padL: padL, xAt: xAt, yAt: yAt };
+
+    if (!shouldAnimate) return;
+    [svg.querySelector('#fin-line-in'), svg.querySelector('#fin-line-out')].forEach(function (path) {
+      if (!path) return;
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+      path.getBoundingClientRect();
+      path.style.transition = 'stroke-dashoffset 1.15s cubic-bezier(0.22, 1, 0.36, 1)';
+      path.style.strokeDashoffset = '0';
+    });
+  }
+
+  const finWrapEl = document.getElementById('fin-canvas-wrap');
+  const finTipEl = document.getElementById('fin-chart-tip');
+
+  function finHideHover() {
+    ['fin-cross', 'fin-hov-in', 'fin-hov-out'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.setAttribute('opacity', '0');
+    });
+    if (finTipEl) finTipEl.classList.remove('show');
+  }
+
+  function finOnHover(e) {
+    if (!finChartState || !finTipEl) return;
+    const svg = document.getElementById('fin-chart-svg');
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width) return;
+
+    const svgX = (e.clientX - rect.left) * (FIN_W / rect.width);
+    const t = Math.max(0, Math.min(1, (svgX - finChartState.padL) / finChartState.plotW));
+    const idx = finChartState.n > 1 ? Math.round(t * (finChartState.n - 1)) : 0;
+    const day = finChartState.days[idx];
+    if (!day) return;
+
+    const x = finChartState.xAt(idx);
+    const cross = document.getElementById('fin-cross');
+    const hi = document.getElementById('fin-hov-in');
+    const ho = document.getElementById('fin-hov-out');
+    if (cross) { cross.setAttribute('x1', x); cross.setAttribute('x2', x); cross.setAttribute('opacity', '1'); }
+    if (hi) { hi.setAttribute('cx', x); hi.setAttribute('cy', finChartState.yAt(day.cumIn)); hi.setAttribute('opacity', '1'); }
+    if (ho) { ho.setAttribute('cx', x); ho.setAttribute('cy', finChartState.yAt(day.cumOut)); ho.setAttribute('opacity', '1'); }
+
+    function tipRow(label, color, dayAmt, total) {
+      return '<div class="chart-tip-row">' +
+        '<span class="chart-tip-dot" style="background:' + color + '"></span>' + label +
+        '<span class="chart-tip-day">' + (dayAmt ? '+' + finFormatMoney(dayAmt) : '—') + '</span>' +
+        '<b>' + finFormatMoney(total) + '</b></div>';
+    }
+    finTipEl.innerHTML =
+      '<div class="chart-tip-date">' + day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) +
+        (day.has ? '' : ' · no entry') + '</div>' +
+      '<div class="chart-tip-head"><span>that day</span><span>total</span></div>' +
+      tipRow('In', 'var(--chart-in)', day.in, day.cumIn) +
+      tipRow('Out', 'var(--chart-out)', day.out, day.cumOut) +
+      '<div class="chart-tip-row"><span class="chart-tip-dot" style="background:rgba(74,222,128,0.4)"></span>Kept' +
+        '<span class="chart-tip-day"></span><b>' + finFormatMoney(day.cumIn - day.cumOut) + '</b></div>';
+
+    const leftPx = (x / FIN_W) * rect.width;
+    const halfW = (finTipEl.offsetWidth || 120) / 2;
+    finTipEl.style.left = Math.max(halfW + 4, Math.min(rect.width - halfW - 4, leftPx)) + 'px';
+    const yTop = Math.min(finChartState.yAt(day.cumIn), finChartState.yAt(day.cumOut));
+    finTipEl.style.top = ((yTop / FIN_H) * rect.height - 12) + 'px';
+    finTipEl.classList.add('show');
+  }
+
+  if (finWrapEl) {
+    finWrapEl.addEventListener('mousemove', finOnHover);
+    finWrapEl.addEventListener('mouseleave', finHideHover);
+  }
+
+  function finRenderChips() {
+    const wrap = document.getElementById('fin-chips');
+    wrap.innerHTML = finCategories.map(function (c) {
+      const personal = c.kind === 'personal' ? ' personal' : '';
+      const active = c.id === finCategoryId ? ' active' : '';
+      return '<button class="fin-chip' + personal + active + '" type="button" data-id="' + c.id + '">' +
+        escapeHtml(c.name) + '</button>';
+    }).join('') + '<button class="fin-chip add" type="button" id="fin-add-category">+ new</button>';
+
+    wrap.querySelectorAll('.fin-chip[data-id]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        finCategoryId = btn.dataset.id;
+        finRenderChips();
+      });
+    });
+    document.getElementById('fin-add-category').addEventListener('click', finCreateCategory);
+  }
+
+  async function finCreateCategory() {
+    const name = (window.prompt('Name the category') || '').trim();
+    if (!name) return;
+    const answer = (window.prompt(
+      'Is "' + name + '" a business cost or personal spending?\n\n' +
+      'Type B for business (comes off revenue before profit)\n' +
+      'Type P for personal (comes out of profit you already made)', 'B') || '').trim().toUpperCase();
+    const kind = answer.charAt(0) === 'P' ? 'personal' : 'business';
+
+    const { data, error } = await supabaseClient
+      .from('finance_categories')
+      .insert({
+        user_id: currentUserId,
+        name: name,
+        kind: kind,
+        sort_order: finCategories.length
+      })
+      .select()
+      .single();
+
+    if (error) { window.alert('Could not add the category: ' + error.message); return; }
+    finCategories.push(data);
+    finCategoryId = data.id;
+    finRenderChips();
+  }
+
+  function finRenderDirection() {
+    document.querySelectorAll('#fin-direction .fin-seg-btn').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.direction === finDirection);
+    });
+    // Income has no category and does not repeat monthly the way a subscription does.
+    document.getElementById('fin-category-block').style.display = finDirection === 'out' ? 'block' : 'none';
+    const submit = document.getElementById('fin-add-btn');
+    submit.textContent = finDirection === 'in' ? 'Add income' : 'Add expense';
+    submit.style.background = finDirection === 'in' ? 'var(--green)' : 'var(--maroon)';
+  }
+
+  document.querySelectorAll('#fin-direction .fin-seg-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      finDirection = btn.dataset.direction;
+      finRenderDirection();
+    });
+  });
+
+  document.querySelectorAll('#fin-range-group .chart-range-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#fin-range-group .chart-range-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      const r = btn.getAttribute('data-range');
+      finRange = (r === 'all' || r === '1w') ? r : parseInt(r, 10);
+      finRenderAll(true);
+    });
+  });
+
+  function finSetMessage(text, kind) {
+    const el = document.getElementById('fin-form-msg');
+    el.textContent = text || '';
+    el.className = 'fin-form-msg' + (kind ? ' ' + kind : '');
+  }
+
+  async function finAddEntry() {
+    const amount = parseFloat(document.getElementById('fin-amount').value);
+    const date = document.getElementById('fin-date').value;
+    const currency = document.getElementById('fin-currency').value;
+    const note = document.getElementById('fin-note').value.trim();
+    const recurring = document.getElementById('fin-recurring').checked;
+
+    if (!isFinite(amount) || amount <= 0) { finSetMessage('Enter an amount above zero.', 'error'); return; }
+    if (!date) { finSetMessage('Pick a date.', 'error'); return; }
+    if (finDirection === 'out' && !finCategoryId) { finSetMessage('Pick a category.', 'error'); return; }
+
+    const btn = document.getElementById('fin-add-btn');
+    btn.disabled = true;
+    finSetMessage('Saving…');
+
+    const { data, error } = await supabaseClient
+      .from('finance_entries')
+      .insert({
+        user_id: currentUserId,
+        direction: finDirection,
+        amount: amount,
+        currency: currency,
+        category_id: finDirection === 'out' ? finCategoryId : null,
+        note: note || null,
+        entry_date: date,
+        recurring: recurring
+      })
+      .select()
+      .single();
+
+    btn.disabled = false;
+
+    if (error) { finSetMessage('Could not save: ' + error.message, 'error'); return; }
+
+    finEntries.push(data);
+    document.getElementById('fin-amount').value = '';
+    document.getElementById('fin-note').value = '';
+    document.getElementById('fin-recurring').checked = false;
+    finSetMessage(recurring ? 'Saved — it will repeat every month.' : 'Saved.', 'ok');
+    finRenderAll(true);
+  }
+
+  async function finDeleteEntry(id, isRepeat) {
+    const message = isRepeat
+      ? 'This is a monthly entry. Deleting it removes every month it covers. Delete it?'
+      : 'Delete this entry?';
+    if (!window.confirm(message)) return;
+
+    const { error } = await supabaseClient.from('finance_entries').delete().eq('id', id);
+    if (error) { window.alert('Could not delete: ' + error.message); return; }
+
+    finEntries = finEntries.filter(function (r) { return r.id !== id; });
+    finRenderAll(false);
+  }
+
+  async function finSaveSettings() {
+    const { error } = await supabaseClient
+      .from('finance_settings')
+      .upsert({
+        user_id: currentUserId,
+        display_currency: finSettings.display_currency,
+        eur_usd_rate: finSettings.eur_usd_rate,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+    if (error) console.error('Could not save finance settings:', error.message);
+  }
+
+  document.getElementById('fin-display-cur').addEventListener('change', function () {
+    finSettings.display_currency = this.value;
+    finRenderAll(false);
+    finSaveSettings();
+  });
+
+  document.getElementById('fin-add-btn').addEventListener('click', finAddEntry);
+
+  let finResizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(finResizeTimer);
+    finResizeTimer = setTimeout(function () {
+      const panel = document.getElementById('tab-finances');
+      if (panel && panel.classList.contains('active')) finRenderAll(false);
+    }, 180);
+  });
+
+  function finRenderAll(animate) {
+    const range = finBuildRange();
+    finRenderCards(range);
+    finRenderChart(range, animate);
+    finRenderBars(range);
+    finRenderLedger(range);
+  }
+
+  async function loadFinances() {
+    document.getElementById('fin-date').value = new Date().toISOString().slice(0, 10);
+
+    const [catRes, entryRes, setRes] = await Promise.all([
+      supabaseClient.from('finance_categories')
+        .select('id, name, kind, sort_order')
+        .eq('user_id', currentUserId)
+        .eq('archived', false)
+        .order('sort_order', { ascending: true }),
+      supabaseClient.from('finance_entries')
+        .select('id, direction, amount, currency, category_id, note, entry_date, recurring, recurring_until')
+        .eq('user_id', currentUserId)
+        .order('entry_date', { ascending: true }),
+      supabaseClient.from('finance_settings')
+        .select('display_currency, eur_usd_rate')
+        .eq('user_id', currentUserId)
+        .maybeSingle()
+    ]);
+
+    // Until finances.sql has been run the tables do not exist, and every query
+    // here fails. Say so on the page rather than leaving a tab that looks
+    // broken for no visible reason.
+    const loadError = catRes.error || entryRes.error;
+    if (loadError) {
+      console.error('Could not load finances:', loadError.message);
+      const notice = document.getElementById('fin-setup-notice');
+      const missingTable = loadError.code === '42P01' || /does not exist|schema cache/i.test(loadError.message || '');
+      notice.innerHTML = missingTable
+        ? '<strong>This tab needs its database tables first.</strong>' +
+          'Open your Supabase project, go to the SQL editor, and run the contents of ' +
+          '<code>supabase/finances.sql</code> from the repo. Then reload this page and the tab will start working.'
+        : '<strong>Could not load your finances.</strong>' + escapeHtml(loadError.message);
+      notice.style.display = 'block';
+      finShowRate('');
+      return;
+    }
+
+    finCategories = catRes.data || [];
+    finEntries = entryRes.data || [];
+
+    if (setRes && setRes.data) {
+      finSettings.display_currency = setRes.data.display_currency || 'EUR';
+      finSettings.eur_usd_rate = parseFloat(setRes.data.eur_usd_rate) || FIN_FALLBACK_RATE;
+    }
+
+    // First run on a fresh account — give it the buckets to start from.
+    if (!finCategories.length) {
+      const seed = DEFAULT_FIN_CATEGORIES.map(function (c) {
+        return { user_id: currentUserId, name: c.name, kind: c.kind, sort_order: c.sort_order };
+      });
+      const { data, error } = await supabaseClient.from('finance_categories').insert(seed).select();
+      if (error) console.error('Could not seed categories:', error.message);
+      else finCategories = data || [];
+    }
+
+    document.getElementById('fin-display-cur').value = finSettings.display_currency;
+    finShowRate('checking…');
+
+    finCategoryId = finCategories.length ? finCategories[0].id : null;
+    finRenderChips();
+    finRenderDirection();
+    finRenderAll(true);
+    finFetchRate();
+  }
 
   async function init() {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -2414,6 +3776,7 @@
 
     currentUserId = session.user.id;
     loadProfile();
+    loadFinances();
   }
 
   logoutBtn.addEventListener('click', async function () {
