@@ -958,8 +958,15 @@
   }
   .fin-input:focus { border-color: var(--midnight); }
   .fin-input::placeholder { color: var(--ink-faint); }
-  .fin-amount-wrap { display: flex; align-items: stretch; gap: 8px; }
+  .fin-amount-wrap { display: flex; align-items: center; gap: 8px; }
   .fin-amount-wrap .fin-input { flex: 1; min-width: 0; }
+  .fin-cur-fixed {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink-dim);
+    flex: 0 0 auto;
+  }
   .fin-cur-select { flex: 0 0 76px; }
 
   .fin-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
@@ -1721,21 +1728,6 @@
 
         <div class="fin-setup-notice" id="fin-setup-notice" style="display: none;"></div>
 
-        <div class="fin-settings-bar">
-          <div class="fin-input-group">
-            <label class="fin-label" for="fin-display-cur">Show all totals in</label>
-            <select class="fin-input" id="fin-display-cur" style="width: 104px;">
-              <option value="EUR">€ EUR</option>
-              <option value="USD">$ USD</option>
-            </select>
-          </div>
-          <div class="fin-input-group">
-            <span class="fin-label">Exchange rate</span>
-            <div class="fin-rate-live" id="fin-rate-live">€1 = $1.1545 <em>checking…</em></div>
-          </div>
-          <div class="fin-settings-note">Log every entry in the currency you actually paid or got paid in — the rate above is fetched from the European Central Bank, so you never have to set it.</div>
-        </div>
-
         <div class="agg-grid">
           <div class="agg-card">
             <div class="agg-label">Money in</div>
@@ -1813,11 +1805,8 @@
               <div class="fin-input-group">
                 <label class="fin-label" for="fin-amount">Amount</label>
                 <div class="fin-amount-wrap">
+                  <span class="fin-cur-fixed">$</span>
                   <input class="fin-input" id="fin-amount" type="number" step="0.01" min="0" placeholder="0">
-                  <select class="fin-input fin-cur-select" id="fin-currency">
-                    <option value="EUR">€</option>
-                    <option value="USD">$</option>
-                  </select>
                 </div>
               </div>
               <div class="fin-input-group">
@@ -2990,12 +2979,13 @@
 
   let finEntries = [];
   let finCategories = [];
-  // Last known good rate, used until the live one lands and if the fetch ever
-  // fails. ECB reference rate for 12 Aug 2026.
+  // Clients work in dollars only — there is no currency picker and no rate to
+  // fetch. The rate below is kept solely so a stray non-USD row, if one ever
+  // reached the table, would still be shown as a sensible dollar figure.
   const FIN_FALLBACK_RATE = 1.1545;
-  const FIN_RATE_URL = 'https://api.frankfurter.dev/v1/latest?from=EUR&to=USD';
+  const FIN_CURRENCY = 'USD';
 
-  let finSettings = { display_currency: 'EUR', eur_usd_rate: FIN_FALLBACK_RATE };
+  let finSettings = { display_currency: FIN_CURRENCY, eur_usd_rate: FIN_FALLBACK_RATE };
   let finRange = 3;
   let finDirection = 'out';
   let finCategoryId = null;
@@ -3006,43 +2996,9 @@
     return isFinite(r) && r > 0 ? r : FIN_FALLBACK_RATE;
   }
 
-  function finShowRate(note) {
-    const el = document.getElementById('fin-rate-live');
-    if (!el) return;
-    el.innerHTML = '€1 = $' + finRate().toFixed(4) +
-      (note ? ' <em>' + escapeHtml(note) + '</em>' : '');
-  }
-
-  // The rate comes from the ECB via Frankfurter, so it is never something to
-  // keep up to date by hand. Whatever was last saved keeps the page usable
-  // until this lands, and covers the case where the request fails entirely.
-  async function finFetchRate() {
-    try {
-      const res = await fetch(FIN_RATE_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const json = await res.json();
-      const rate = json && json.rates && parseFloat(json.rates.USD);
-      if (!isFinite(rate) || rate <= 0) throw new Error('no usable rate in response');
-
-      const changed = Math.abs(rate - finRate()) > 0.00001;
-      finSettings.eur_usd_rate = rate;
-
-      const on = json.date ? new Date(json.date + 'T00:00:00') : null;
-      const today = on && finISO(on) === finISO(new Date());
-      finShowRate(on ? (today ? 'live today' : 'as of ' + on.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : 'live');
-
-      if (changed) {
-        finRenderAll(false);
-        finSaveSettings();
-      }
-    } catch (err) {
-      console.error('Could not fetch the exchange rate:', err.message);
-      finShowRate('saved rate — could not reach the bank');
-    }
-  }
-
-  // Everything is stored in the currency it was paid in, and converted only
-  // when it reaches the screen — so changing the rate never rewrites history.
+  // Amounts are stored with the currency they were entered in, and converted
+  // only on the way to the screen. Everything a client logs is USD, so this is
+  // a straight pass-through unless an odd row turns up.
   function finToDisplay(amount, currency) {
     const amt = parseFloat(amount) || 0;
     const display = finSettings.display_currency;
@@ -3053,7 +3009,7 @@
   }
 
   function finFormatMoney(n) {
-    const sym = FIN_SYMBOL[finSettings.display_currency] || '€';
+    const sym = FIN_SYMBOL[finSettings.display_currency] || '$';
     const rounded = Math.round(n);
     return (rounded < 0 ? '-' : '') + sym + Math.abs(rounded).toLocaleString('en-US');
   }
@@ -3609,7 +3565,7 @@
   async function finAddEntry() {
     const amount = parseFloat(document.getElementById('fin-amount').value);
     const date = document.getElementById('fin-date').value;
-    const currency = document.getElementById('fin-currency').value;
+    const currency = FIN_CURRENCY;
     const note = document.getElementById('fin-note').value.trim();
     const recurring = document.getElementById('fin-recurring').checked;
 
@@ -3673,12 +3629,6 @@
     if (error) console.error('Could not save finance settings:', error.message);
   }
 
-  document.getElementById('fin-display-cur').addEventListener('change', function () {
-    finSettings.display_currency = this.value;
-    finRenderAll(false);
-    finSaveSettings();
-  });
-
   document.getElementById('fin-add-btn').addEventListener('click', finAddEntry);
 
   let finResizeTimer = null;
@@ -3731,15 +3681,15 @@
           '<code>supabase/finances.sql</code> from the repo. Then reload this page and the tab will start working.'
         : '<strong>Could not load your finances.</strong>' + escapeHtml(loadError.message);
       notice.style.display = 'block';
-      finShowRate('');
       return;
     }
 
     finCategories = catRes.data || [];
     finEntries = entryRes.data || [];
 
+    // display_currency is deliberately not read back — this page is dollars
+    // only, and a saved preference from elsewhere must not flip it.
     if (setRes && setRes.data) {
-      finSettings.display_currency = setRes.data.display_currency || 'EUR';
       finSettings.eur_usd_rate = parseFloat(setRes.data.eur_usd_rate) || FIN_FALLBACK_RATE;
     }
 
@@ -3753,14 +3703,10 @@
       else finCategories = data || [];
     }
 
-    document.getElementById('fin-display-cur').value = finSettings.display_currency;
-    finShowRate('checking…');
-
     finCategoryId = finCategories.length ? finCategories[0].id : null;
     finRenderChips();
     finRenderDirection();
     finRenderAll(true);
-    finFetchRate();
   }
 
   async function init() {
