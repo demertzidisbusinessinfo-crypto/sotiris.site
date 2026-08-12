@@ -65,14 +65,32 @@ alter table public.finance_categories enable row level security;
 alter table public.finance_entries    enable row level security;
 alter table public.finance_settings   enable row level security;
 
-drop policy if exists "own categories" on public.finance_categories;
-create policy "own categories" on public.finance_categories
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+-- Each policy is created only if it is not already there, so this file can be
+-- run more than once without erroring and without dropping anything.
 
-drop policy if exists "own entries" on public.finance_entries;
-create policy "own entries" on public.finance_entries
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'finance_categories' and policyname = 'own categories'
+  ) then
+    create policy "own categories" on public.finance_categories
+      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  end if;
 
-drop policy if exists "own settings" on public.finance_settings;
-create policy "own settings" on public.finance_settings
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'finance_entries' and policyname = 'own entries'
+  ) then
+    create policy "own entries" on public.finance_entries
+      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'finance_settings' and policyname = 'own settings'
+  ) then
+    create policy "own settings" on public.finance_settings
+      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  end if;
+end $$;
