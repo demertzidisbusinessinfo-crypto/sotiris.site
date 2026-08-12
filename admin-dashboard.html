@@ -1898,6 +1898,108 @@
   @media (max-width: 500px) {
     footer { flex-direction: column; gap: 10px; text-align: center; }
   }
+
+  /* ---------- PHONE ----------
+     Everything below only applies at phone widths. The desktop layout above
+     is untouched: these rules exist because the page was built for a 1180px
+     canvas and the 32px gutters, 17px chrome and four-across tab row do not
+     survive a 390px screen. */
+  @media (max-width: 640px) {
+
+    /* Gutters. 64px of padding out of 390 is a sixth of the screen. */
+    .wrap { padding: 0 16px; }
+    .nav-inner { padding: 13px 16px; gap: 10px; }
+
+    .logo { font-size: 15px; line-height: 1.25; }
+    .nav-actions { gap: 7px; flex-shrink: 0; }
+    .btn-eod-nav { font-size: 12px; padding: 9px 12px; white-space: nowrap; }
+    .btn-logout { font-size: 12px; padding: 8px 12px; white-space: nowrap; }
+
+    /* The four tabs did not fit, which is what was pushing the whole page
+       sideways. Tighter, and scrollable if a fifth ever shows up. */
+    .tabs {
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 24px;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn { font-size: 12.5px; padding: 10px 0; white-space: nowrap; }
+    .tab-btn + .tab-btn { margin-left: 15px; }
+
+    .page-head { margin-bottom: 22px; }
+    .page-head h1 { font-size: 1.55rem; }
+    .page-head p { font-size: 13.5px; }
+    .eyebrow { font-size: 13px; padding: 5px 11px; margin-bottom: 14px; }
+    .stats-row { gap: 8px; margin: 18px 0 8px; }
+    .stat-pill { font-size: 11.5px; padding: 6px 11px; }
+
+    .section-head { margin: 28px 0 10px; }
+    .section-head h2 { font-size: 15px; }
+
+    /* Two up rather than one long column of near-empty cards. */
+    .agg-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+    .agg-card { padding: 14px 15px; border-radius: 12px; }
+    .agg-value { font-size: 21px; }
+
+    .tracker-card, .info-card { padding: 20px 17px; border-radius: 14px; margin-bottom: 18px; }
+    .table-card { border-radius: 14px; }
+
+    .chart-head { gap: 12px; }
+    .chart-range-group { gap: 5px; }
+    .chart-range-btn { padding: 7px 11px; font-size: 11px; }
+    .chart-stats-row { gap: 14px; }
+    .chart-stat-value { font-size: 17px; }
+
+    /* A chart 100px tall is a smear. Give it a taller box — the plot area
+       reads its own proportions, so this stays undistorted. */
+    .fin-canvas-wrap { aspect-ratio: 640 / 430; }
+
+    /* flex-end lined the two groups up by their bottoms, which staggered the
+       labels once the select got taller than the rate text. */
+    .fin-settings-bar { align-items: flex-start; gap: 12px 18px; margin-bottom: 20px; }
+    .fin-settings-note { font-size: 11.5px; flex-basis: 100%; }
+    .fin-rate-live { font-size: 13px; padding: 9px 0; }
+
+    /* Amount and date each get their own row — a 70px amount box is a poor
+       target when the keyboard is about to cover half the screen. */
+    .fin-form-card .fin-row > .fin-input-group { flex: 1 1 100%; }
+    .fin-del { font-size: 20px; padding: 8px 10px; }
+
+    /* Name and amount on one line, the bar across the full width under them,
+       instead of three columns fighting over 270px. */
+    .fin-bar-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 5px 10px;
+    }
+    .fin-bar-name { grid-row: 1; grid-column: 1; font-size: 12.5px; }
+    .fin-bar-amount { grid-row: 1; grid-column: 2; font-size: 11.5px; }
+    .fin-bar-track { grid-row: 2; grid-column: 1 / -1; }
+    .fin-bar-legend { gap: 8px; font-size: 11px; }
+    .fin-bar-legend span { flex-basis: 100%; }
+
+    .fin-form-card { padding: 20px 17px; }
+    .fin-chip { font-size: 12px; padding: 7px 12px; }
+    .fin-seg-btn { padding: 9px 14px; font-size: 12.5px; }
+
+    .fin-ledger-row { grid-template-columns: 58px minmax(0, 1fr) auto auto; gap: 10px; padding: 12px 14px; }
+    .fin-ledger-note { font-size: 13px; }
+    .fin-ledger-amount { font-size: 12.5px; }
+
+    /* Tables keep their own sideways scroll; just stop them eating the gutter. */
+    .table-scroll { margin: 0 -1px; }
+
+    .luxury-section-head h2 { font-size: 16px; }
+    .counter-card { padding: 18px 16px; }
+  }
+
+  /* Very small phones — the two-up metric grid stops being readable. */
+  @media (max-width: 380px) {
+    .agg-grid { grid-template-columns: 1fr; }
+    .logo { font-size: 14px; }
+    .btn-eod-nav, .btn-logout { font-size: 11.5px; padding: 8px 10px; }
+    .tab-btn + .tab-btn { margin-left: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -3358,7 +3460,10 @@
   let chartRange = 3;
   const chartReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const CH_W = 640, CH_H = 272;
+  const CH_W = 640;
+  // Taller drawing space on a phone, so the plot is not a 120px smear. The
+  // svg is width:100% height:auto, so the box follows the viewBox on its own.
+  let CH_H = 272;
   const CH_PAD_L = 64, CH_PAD_R = 18, CH_PAD_T = 20, CH_PAD_B = 46;
   let chartState = null;
 
@@ -3534,11 +3639,26 @@
     const lastDay = days[n - 1];
     const axis = niceAxis(Math.max(lastDay.cumRev, lastDay.cumCash), TICKS);
     const yMax = axis.max;
-    const plotW = CH_W - CH_PAD_L - CH_PAD_R;
-    const plotH = CH_H - CH_PAD_T - CH_PAD_B;
 
-    const xAt = function (i) { return n > 1 ? CH_PAD_L + (i * plotW) / (n - 1) : CH_PAD_L + plotW / 2; };
-    const yAt = function (v) { return CH_PAD_T + (1 - v / yMax) * plotH; };
+    // Same story as the finances chart: on a phone the box is drawn about half
+    // the viewBox width, which halves the type along with it. Give the plot a
+    // taller box and scale the text and its gutters back up. Desktop keeps
+    // 272 units and a scale of 1, so it renders exactly as before.
+    const chIsPhone = window.matchMedia('(max-width: 640px)').matches;
+    CH_H = chIsPhone ? 430 : 272;
+    svg.setAttribute('viewBox', '0 0 ' + CH_W + ' ' + CH_H);
+
+    const chWrapW = (svg.parentElement && svg.parentElement.clientWidth) || CH_W;
+    const cs = Math.max(1, CH_W / chWrapW);
+
+    const cPadL = CH_PAD_L * cs, cPadR = CH_PAD_R * cs, cPadT = CH_PAD_T, cPadB = CH_PAD_B * cs;
+    const cfAxis = 10 * cs, cfDay = 12 * cs, cfDim = 10 * cs, cfMonth = 10 * cs;
+
+    const plotW = CH_W - cPadL - cPadR;
+    const plotH = CH_H - cPadT - cPadB;
+
+    const xAt = function (i) { return n > 1 ? cPadL + (i * plotW) / (n - 1) : cPadL + plotW / 2; };
+    const yAt = function (v) { return cPadT + (1 - v / yMax) * plotH; };
 
     const styles = getComputedStyle(document.documentElement);
     const revColor = styles.getPropertyValue('--chart-revenue').trim();
@@ -3562,38 +3682,38 @@
 
     let grid = '';
     for (let i = 0; i <= TICKS; i++) {
-      const y = CH_PAD_T + (i / TICKS) * plotH;
+      const y = cPadT + (i / TICKS) * plotH;
       const val = axis.step * (TICKS - i);
       const isBase = i === TICKS;
       grid +=
-        '<line x1="' + CH_PAD_L + '" y1="' + y.toFixed(1) + '" x2="' + (CH_W - CH_PAD_R) + '" y2="' + y.toFixed(1) +
-        '" stroke="rgba(150,192,206,' + (isBase ? '0.28' : '0.10') + ')" stroke-width="1"/>' +
-        '<text x="' + (CH_PAD_L - 10) + '" y="' + (y + 3.5).toFixed(1) + '" text-anchor="end" font-size="10" ' +
+        '<line x1="' + cPadL.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + (CH_W - cPadR).toFixed(1) + '" y2="' + y.toFixed(1) +
+        '" stroke="rgba(150,192,206,' + (isBase ? '0.28' : '0.10') + ')" stroke-width="' + cs.toFixed(2) + '"/>' +
+        '<text x="' + (cPadL - 10 * cs).toFixed(1) + '" y="' + (y + 3.5 * cs).toFixed(1) + '" text-anchor="end" font-size="' + cfAxis.toFixed(1) + '" ' +
         'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">' + chartFormatAxis(val) + '</text>';
     }
 
-    const baselineY = CH_PAD_T + plotH;
+    const baselineY = cPadT + plotH;
     let ticks = '';
     days.forEach(function (d, i) {
       const x = xAt(i).toFixed(1);
-      ticks += '<line x1="' + x + '" y1="' + baselineY + '" x2="' + x + '" y2="' + (baselineY + (d.has ? 6 : 3)) +
-        '" stroke="rgba(150,192,206,' + (d.has ? '0.6' : '0.18') + ')" stroke-width="1"/>';
+      ticks += '<line x1="' + x + '" y1="' + baselineY.toFixed(1) + '" x2="' + x + '" y2="' + (baselineY + (d.has ? 6 : 3) * cs).toFixed(1) +
+        '" stroke="rgba(150,192,206,' + (d.has ? '0.6' : '0.18') + ')" stroke-width="' + cs.toFixed(2) + '"/>';
     });
 
     const placed = [];
-    const MIN_GAP = 15;
+    const MIN_GAP = 15 * cs;
     function canPlace(x) {
       for (let k = 0; k < placed.length; k++) { if (Math.abs(placed[k] - x) < MIN_GAP) return false; }
       return true;
     }
-    const dayLabelY = baselineY + 20;
+    const dayLabelY = baselineY + 20 * cs;
     let dayLabels = '';
     days.forEach(function (d, i) {
       if (!d.has) return;
       const x = xAt(i);
       if (!canPlace(x)) return;
       placed.push(x);
-      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY + '" text-anchor="middle" font-size="12" ' +
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY.toFixed(1) + '" text-anchor="middle" font-size="' + cfDay.toFixed(1) + '" ' +
         'font-weight="700" font-family="ui-monospace, monospace" fill="rgba(255,255,255,0.95)">' + d.date.getDate() + '</text>';
     });
     days.forEach(function (d, i) {
@@ -3601,7 +3721,7 @@
       const x = xAt(i);
       if (!canPlace(x)) return;
       placed.push(x);
-      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY + '" text-anchor="middle" font-size="8.5" ' +
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY.toFixed(1) + '" text-anchor="middle" font-size="' + (8.5 * cs).toFixed(1) + '" ' +
         'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.32)">' + d.date.getDate() + '</text>';
     });
 
@@ -3611,7 +3731,7 @@
       if (i === n || days[i].date.getMonth() !== days[mStart].date.getMonth()) {
         const cx = (xAt(mStart) + xAt(i - 1)) / 2;
         const d0 = days[mStart].date;
-        monthLabels += '<text x="' + cx.toFixed(1) + '" y="' + (CH_H - 8) + '" text-anchor="middle" font-size="10" ' +
+        monthLabels += '<text x="' + cx.toFixed(1) + '" y="' + (CH_H - 8 * cs).toFixed(1) + '" text-anchor="middle" font-size="' + cfMonth.toFixed(1) + '" ' +
           'font-weight="600" letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">' +
           d0.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() + '</text>';
         mStart = i;
@@ -3631,14 +3751,14 @@
       if (showAllDots) {
         out += entryIdx.map(function (i) {
           return '<circle class="chart-dot" cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(days[i][field]).toFixed(1) +
-            '" r="3.2" fill="' + color + '" stroke="#0A1013" stroke-width="1.5"/>';
+            '" r="' + (3.2 * cs).toFixed(2) + '" fill="' + color + '" stroke="#0A1013" stroke-width="' + (1.5 * cs).toFixed(2) + '"/>';
         }).join('');
       }
       const li = n - 1;
       const lx = xAt(li).toFixed(1), ly = yAt(days[li][field]).toFixed(1);
-      out += '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="7" fill="' + color + '" opacity="0.18"/>' +
-             '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="3.6" fill="' + color +
-             '" stroke="#0A1013" stroke-width="1.5" filter="url(#chartGlow)"/>';
+      out += '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="' + (7 * cs).toFixed(2) + '" fill="' + color + '" opacity="0.18"/>' +
+             '<circle class="chart-dot" cx="' + lx + '" cy="' + ly + '" r="' + (3.6 * cs).toFixed(2) + '" fill="' + color +
+             '" stroke="#0A1013" stroke-width="' + (1.5 * cs).toFixed(2) + '" filter="url(#chartGlow)"/>';
       return out;
     }
 
@@ -3653,13 +3773,13 @@
     body += dots('cumRev', revColor) + dots('cumCash', cashColor);
 
     const hoverLayer =
-      '<line id="ch-cross" x1="0" y1="' + CH_PAD_T + '" x2="0" y2="' + baselineY +
-        '" stroke="rgba(150,192,206,0.55)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>' +
-      '<circle id="ch-hov-rev" r="4.6" fill="' + revColor + '" stroke="#0A1013" stroke-width="1.5" opacity="0"/>' +
-      '<circle id="ch-hov-cash" r="4.6" fill="' + cashColor + '" stroke="#0A1013" stroke-width="1.5" opacity="0"/>';
+      '<line id="ch-cross" x1="0" y1="' + cPadT + '" x2="0" y2="' + baselineY.toFixed(1) +
+        '" stroke="rgba(150,192,206,0.55)" stroke-width="' + cs.toFixed(2) + '" stroke-dasharray="' + (3 * cs).toFixed(1) + ' ' + (3 * cs).toFixed(1) + '" opacity="0"/>' +
+      '<circle id="ch-hov-rev" r="' + (4.6 * cs).toFixed(2) + '" fill="' + revColor + '" stroke="#0A1013" stroke-width="' + (1.5 * cs).toFixed(2) + '" opacity="0"/>' +
+      '<circle id="ch-hov-cash" r="' + (4.6 * cs).toFixed(2) + '" fill="' + cashColor + '" stroke="#0A1013" stroke-width="' + (1.5 * cs).toFixed(2) + '" opacity="0"/>';
 
     svg.innerHTML = defs + grid + ticks + dayLabels + monthLabels + body + hoverLayer;
-    chartState = { days: days, n: n, plotW: plotW, xAt: xAt, yAt: yAt };
+    chartState = { days: days, n: n, plotW: plotW, padL: cPadL, xAt: xAt, yAt: yAt };
 
     const areas = svg.querySelectorAll('.chart-area');
     const dotEls = svg.querySelectorAll('.chart-dot');
@@ -3701,7 +3821,7 @@
     if (!rect.width) return;
 
     const svgX = (e.clientX - rect.left) * (CH_W / rect.width);
-    const t = Math.max(0, Math.min(1, (svgX - CH_PAD_L) / chartState.plotW));
+    const t = Math.max(0, Math.min(1, (svgX - chartState.padL) / chartState.plotW));
     const idx = chartState.n > 1 ? Math.round(t * (chartState.n - 1)) : 0;
     const day = chartState.days[idx];
     if (!day) return;
@@ -4123,13 +4243,26 @@
     const last = days[n - 1];
     const axis = niceAxis(Math.max(last.cumIn, last.cumOut), TICKS);
     const yMax = axis.max;
-    const plotW = FIN_W - FIN_PAD_L - FIN_PAD_R;
-    const plotH = FIN_H - FIN_PAD_T - FIN_PAD_B;
+
+    // On a phone the box is drawn far narrower than the 640-unit viewBox, so
+    // everything inside is scaled down — including the type, which ends up
+    // around 5px and unreadable. Scaling text and the gutters that hold it by
+    // the same factor puts them back at their intended size. A desktop renders
+    // at or above 640px, where s is 1 and nothing changes.
+    const wrapW = (document.getElementById('fin-canvas-wrap') || {}).clientWidth || FIN_W;
+    const s = Math.max(1, FIN_W / wrapW);
+
+    const padL = FIN_PAD_L * s, padR = FIN_PAD_R * s, padT = FIN_PAD_T, padB = FIN_PAD_B * s;
+    const fAxis = 10 * s, fDay = 12 * s, fDim = 10 * s, fMonth = 10 * s;
+    const dotR = 4.6 * s, lineW = 2.4 * s;
+
+    const plotW = FIN_W - padL - padR;
+    const plotH = FIN_H - padT - padB;
 
     const xAt = function (i) {
-      return n > 1 ? FIN_PAD_L + (i * plotW) / (n - 1) : FIN_PAD_L + plotW / 2;
+      return n > 1 ? padL + (i * plotW) / (n - 1) : padL + plotW / 2;
     };
-    const yAt = function (v) { return FIN_PAD_T + (1 - v / yMax) * plotH; };
+    const yAt = function (v) { return padT + (1 - v / yMax) * plotH; };
 
     const styles = getComputedStyle(document.documentElement);
     const inColor = styles.getPropertyValue('--chart-in').trim() || '#4ADE80';
@@ -4137,26 +4270,26 @@
 
     let grid = '';
     for (let i = 0; i <= TICKS; i++) {
-      const y = FIN_PAD_T + (i / TICKS) * plotH;
+      const y = padT + (i / TICKS) * plotH;
       const val = axis.step * (TICKS - i);
       const isBase = i === TICKS;
       grid +=
-        '<line x1="' + FIN_PAD_L + '" y1="' + y.toFixed(1) + '" x2="' + (FIN_W - FIN_PAD_R) + '" y2="' + y.toFixed(1) +
-        '" stroke="rgba(150,192,206,' + (isBase ? '0.28' : '0.10') + ')" stroke-width="1"/>' +
-        '<text x="' + (FIN_PAD_L - 10) + '" y="' + (y + 3.5).toFixed(1) + '" text-anchor="end" font-size="10" ' +
+        '<line x1="' + padL.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + (FIN_W - padR).toFixed(1) + '" y2="' + y.toFixed(1) +
+        '" stroke="rgba(150,192,206,' + (isBase ? '0.28' : '0.10') + ')" stroke-width="' + s.toFixed(2) + '"/>' +
+        '<text x="' + (padL - 10 * s).toFixed(1) + '" y="' + (y + 3.5 * s).toFixed(1) + '" text-anchor="end" font-size="' + fAxis.toFixed(1) + '" ' +
         'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">' + finFormatAxis(val) + '</text>';
     }
 
-    const baselineY = FIN_PAD_T + plotH;
+    const baselineY = padT + plotH;
     let ticks = '';
     days.forEach(function (d, i) {
       const x = xAt(i).toFixed(1);
-      ticks += '<line x1="' + x + '" y1="' + baselineY + '" x2="' + x + '" y2="' + (baselineY + (d.has ? 6 : 3)) +
-        '" stroke="rgba(150,192,206,' + (d.has ? '0.6' : '0.18') + ')" stroke-width="1"/>';
+      ticks += '<line x1="' + x + '" y1="' + baselineY.toFixed(1) + '" x2="' + x + '" y2="' + (baselineY + (d.has ? 6 : 3) * s).toFixed(1) +
+        '" stroke="rgba(150,192,206,' + (d.has ? '0.6' : '0.18') + ')" stroke-width="' + s.toFixed(2) + '"/>';
     });
 
     const placed = [];
-    const MIN_GAP = 15;
+    const MIN_GAP = 15 * s;
     function canPlace(x) {
       for (let k = 0; k < placed.length; k++) {
         if (Math.abs(placed[k] - x) < MIN_GAP) return false;
@@ -4164,14 +4297,14 @@
       return true;
     }
 
-    const dayLabelY = baselineY + 20;
+    const dayLabelY = baselineY + 20 * s;
     let dayLabels = '';
     days.forEach(function (d, i) {
       if (!d.has) return;
       const x = xAt(i);
       if (!canPlace(x)) return;
       placed.push(x);
-      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY + '" text-anchor="middle" font-size="12" ' +
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY.toFixed(1) + '" text-anchor="middle" font-size="' + fDay.toFixed(1) + '" ' +
         'font-weight="700" font-family="ui-monospace, monospace" fill="rgba(255,255,255,0.95)">' + d.date.getDate() + '</text>';
     });
     days.forEach(function (d, i) {
@@ -4179,7 +4312,7 @@
       const x = xAt(i);
       if (!canPlace(x)) return;
       placed.push(x);
-      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY + '" text-anchor="middle" font-size="10" ' +
+      dayLabels += '<text x="' + x.toFixed(1) + '" y="' + dayLabelY.toFixed(1) + '" text-anchor="middle" font-size="' + fDim.toFixed(1) + '" ' +
         'font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.35)">' + d.date.getDate() + '</text>';
     });
 
@@ -4189,7 +4322,7 @@
       const key = d.date.getFullYear() + '-' + d.date.getMonth();
       if (key === lastMonth) return;
       lastMonth = key;
-      monthLabels += '<text x="' + xAt(i).toFixed(1) + '" y="' + (baselineY + 36) + '" text-anchor="middle" font-size="10" ' +
+      monthLabels += '<text x="' + xAt(i).toFixed(1) + '" y="' + (baselineY + 36 * s).toFixed(1) + '" text-anchor="middle" font-size="' + fMonth.toFixed(1) + '" ' +
         'letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.4)">' +
         d.date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() + '</text>';
     });
@@ -4203,22 +4336,22 @@
     const body =
       '<path class="chart-area shown" d="' + keptArea + '" fill="' + inColor + '" fill-opacity="0.16"/>' +
       '<path id="fin-line-out" d="M' + outPts.join(' L') + '" fill="none" stroke="' + outColor +
-        '" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>' +
+        '" stroke-width="' + lineW.toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>' +
       '<path id="fin-line-in" d="M' + inPts.join(' L') + '" fill="none" stroke="' + inColor +
-        '" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>' +
-      '<circle cx="' + xAt(n - 1).toFixed(1) + '" cy="' + yAt(last.cumOut).toFixed(1) + '" r="4.6" fill="' + outColor +
-        '" stroke="#0A1013" stroke-width="1.5"/>' +
-      '<circle cx="' + xAt(n - 1).toFixed(1) + '" cy="' + yAt(last.cumIn).toFixed(1) + '" r="4.6" fill="' + inColor +
-        '" stroke="#0A1013" stroke-width="1.5"/>';
+        '" stroke-width="' + lineW.toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + xAt(n - 1).toFixed(1) + '" cy="' + yAt(last.cumOut).toFixed(1) + '" r="' + dotR.toFixed(2) + '" fill="' + outColor +
+        '" stroke="#0A1013" stroke-width="' + (1.5 * s).toFixed(2) + '"/>' +
+      '<circle cx="' + xAt(n - 1).toFixed(1) + '" cy="' + yAt(last.cumIn).toFixed(1) + '" r="' + dotR.toFixed(2) + '" fill="' + inColor +
+        '" stroke="#0A1013" stroke-width="' + (1.5 * s).toFixed(2) + '"/>';
 
     const hoverLayer =
-      '<line id="fin-cross" y1="' + FIN_PAD_T + '" y2="' + baselineY +
-        '" stroke="rgba(150,192,206,0.55)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>' +
-      '<circle id="fin-hov-in" r="4.6" fill="' + inColor + '" stroke="#0A1013" stroke-width="1.5" opacity="0"/>' +
-      '<circle id="fin-hov-out" r="4.6" fill="' + outColor + '" stroke="#0A1013" stroke-width="1.5" opacity="0"/>';
+      '<line id="fin-cross" y1="' + padT + '" y2="' + baselineY.toFixed(1) +
+        '" stroke="rgba(150,192,206,0.55)" stroke-width="' + s.toFixed(2) + '" stroke-dasharray="' + (3 * s).toFixed(1) + ' ' + (3 * s).toFixed(1) + '" opacity="0"/>' +
+      '<circle id="fin-hov-in" r="' + dotR.toFixed(2) + '" fill="' + inColor + '" stroke="#0A1013" stroke-width="' + (1.5 * s).toFixed(2) + '" opacity="0"/>' +
+      '<circle id="fin-hov-out" r="' + dotR.toFixed(2) + '" fill="' + outColor + '" stroke="#0A1013" stroke-width="' + (1.5 * s).toFixed(2) + '" opacity="0"/>';
 
     svg.innerHTML = grid + ticks + dayLabels + monthLabels + body + hoverLayer;
-    finChartState = { days: days, n: n, plotW: plotW, xAt: xAt, yAt: yAt };
+    finChartState = { days: days, n: n, plotW: plotW, padL: padL, xAt: xAt, yAt: yAt };
 
     if (!shouldAnimate) return;
     [svg.querySelector('#fin-line-in'), svg.querySelector('#fin-line-out')].forEach(function (path) {
@@ -4250,7 +4383,7 @@
     if (!rect.width) return;
 
     const svgX = (e.clientX - rect.left) * (FIN_W / rect.width);
-    const t = Math.max(0, Math.min(1, (svgX - FIN_PAD_L) / finChartState.plotW));
+    const t = Math.max(0, Math.min(1, (svgX - finChartState.padL) / finChartState.plotW));
     const idx = finChartState.n > 1 ? Math.round(t * (finChartState.n - 1)) : 0;
     const day = finChartState.days[idx];
     if (!day) return;
@@ -4450,6 +4583,10 @@
     finResizeTimer = setTimeout(function () {
       const panel = document.getElementById('tab-finances');
       if (panel && panel.classList.contains('active')) finRenderAll(false);
+      // Both charts pick their type size and drawing height from how wide they
+      // are actually rendered, so crossing the phone breakpoint needs a redraw.
+      const clients = document.getElementById('tab-clients');
+      if (clients && clients.classList.contains('active') && chartState) renderChart(false);
     }, 180);
   });
 
