@@ -55,7 +55,9 @@ create table if not exists public.finance_settings (
   user_id          uuid primary key references auth.users(id) on delete cascade,
   display_currency text not null default 'EUR' check (display_currency in ('EUR', 'USD')),
   -- How many dollars one euro buys. Used to show mixed entries in one currency.
-  eur_usd_rate     numeric(10, 4) not null default 1.0800 check (eur_usd_rate > 0),
+  -- The dashboard refreshes this from the ECB on load; this default is just a
+  -- sane starting point for the very first render.
+  eur_usd_rate     numeric(10, 4) not null default 1.1545 check (eur_usd_rate > 0),
   updated_at       timestamptz not null default now()
 );
 

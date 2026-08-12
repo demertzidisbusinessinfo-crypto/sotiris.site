@@ -1445,15 +1445,20 @@
   }
   .fin-bar-legend span { display: flex; align-items: center; gap: 7px; }
 
-  .fin-columns {
+  /* On a wide screen the entry form sits beside the chart, so logging
+     something and watching the line move happen in one glance. Below that
+     there is no room for two columns, so it drops underneath. */
+  .fin-top {
     display: grid;
-    grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 340px;
     gap: 24px;
     align-items: start;
   }
-  @media (max-width: 900px) {
-    .fin-columns { grid-template-columns: minmax(0, 1fr); }
+  @media (max-width: 1080px) {
+    .fin-top { grid-template-columns: minmax(0, 1fr); }
   }
+  .fin-form-card { padding: 24px 26px; margin-bottom: 24px; }
+  .fin-form-card .fin-row > .fin-input-group { flex: 1 1 120px; }
 
   .fin-seg {
     display: inline-flex;
@@ -1633,16 +1638,20 @@
   }
   .fin-settings-bar .fin-input-group { flex: 0 0 auto; }
   .fin-settings-note { font-size: 12px; color: var(--ink-faint); flex: 1 1 200px; line-height: 1.5; }
-  .fin-rate-wrap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .fin-rate-live {
+    font-family: var(--font-mono);
     font-size: 14px;
-    color: var(--ink-dim);
+    color: var(--ink);
+    padding: 10px 0;
     white-space: nowrap;
   }
-  .fin-rate-wrap .fin-input { width: 84px; }
-  .fin-rate-cur { color: var(--ink); font-weight: 600; }
+  .fin-rate-live em {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-left: 6px;
+  }
 
   .fin-setup-notice {
     border: 1px solid var(--glass-border);
@@ -2219,14 +2228,10 @@
             </select>
           </div>
           <div class="fin-input-group">
-            <label class="fin-label" for="fin-rate">Exchange rate</label>
-            <div class="fin-rate-wrap">
-              <span>€1 =</span>
-              <span class="fin-rate-cur">$</span>
-              <input class="fin-input" id="fin-rate" type="number" step="0.0001" min="0.0001" value="1.08">
-            </div>
+            <span class="fin-label">Exchange rate</span>
+            <div class="fin-rate-live" id="fin-rate-live">€1 = $1.1545 <em>checking…</em></div>
           </div>
-          <div class="fin-settings-note">Some clients pay you in dollars, some of your costs are in euros. Log every entry in the currency you actually paid or got paid in — this rate is what lets the dashboard add them into one total.</div>
+          <div class="fin-settings-note">Some clients pay you in dollars, some of your costs are in euros. Log every entry in the currency you actually paid or got paid in — the rate above is fetched from the European Central Bank so you never have to set it.</div>
         </div>
 
         <div class="agg-grid">
@@ -2257,6 +2262,7 @@
           </div>
         </div>
 
+        <div class="fin-top">
         <div class="tracker-card chart-card">
           <div class="chart-head">
             <div class="card-title">Money in vs money out</div>
@@ -2294,23 +2300,8 @@
           </div>
         </div>
 
-        <div class="section-head">
-          <h2>Where it went</h2>
-        </div>
-        <div class="table-card" style="padding: 24px 26px;">
-          <div class="fin-bar-list" id="fin-bar-list"></div>
-          <div class="empty-state" id="fin-bars-empty" style="display: none;">No expenses in this range.</div>
-          <div class="fin-bar-legend">
-            <span><i class="fin-kind-dot"></i> Business — comes off revenue before profit</span>
-            <span><i class="fin-kind-dot personal"></i> Personal — comes out of profit you already made</span>
-          </div>
-        </div>
-
-        <div class="section-head">
-          <h2>Log an entry</h2>
-        </div>
-        <div class="fin-columns">
-          <div class="tracker-card" style="margin-bottom: 0;">
+          <div class="tracker-card fin-form-card">
+            <div class="card-title" style="margin-bottom: 20px;">Log an entry</div>
             <div class="fin-seg" id="fin-direction">
               <button class="fin-seg-btn" type="button" data-direction="in">Money in</button>
               <button class="fin-seg-btn out active" type="button" data-direction="out">Money out</button>
@@ -2349,11 +2340,26 @@
             <button class="fin-submit" id="fin-add-btn" type="button">Add entry</button>
             <div class="fin-form-msg" id="fin-form-msg"></div>
           </div>
+        </div>
 
-          <div class="table-card" style="margin-bottom: 0;">
-            <div id="fin-ledger"></div>
-            <div class="empty-state" id="fin-ledger-empty" style="display: none;">Nothing logged in this range yet.</div>
+        <div class="section-head">
+          <h2>Where it went</h2>
+        </div>
+        <div class="table-card" style="padding: 24px 26px;">
+          <div class="fin-bar-list" id="fin-bar-list"></div>
+          <div class="empty-state" id="fin-bars-empty" style="display: none;">No expenses in this range.</div>
+          <div class="fin-bar-legend">
+            <span><i class="fin-kind-dot"></i> Business — comes off revenue before profit</span>
+            <span><i class="fin-kind-dot personal"></i> Personal — comes out of profit you already made</span>
           </div>
+        </div>
+
+        <div class="section-head">
+          <h2>Recent entries</h2>
+        </div>
+        <div class="table-card">
+          <div id="fin-ledger"></div>
+          <div class="empty-state" id="fin-ledger-empty" style="display: none;">Nothing logged in this range yet.</div>
         </div>
 
       </div>
@@ -3747,7 +3753,12 @@
 
   let finEntries = [];
   let finCategories = [];
-  let finSettings = { display_currency: 'EUR', eur_usd_rate: 1.08 };
+  // Last known good rate, used until the live one lands and if the fetch ever
+  // fails. ECB reference rate for 12 Aug 2026.
+  const FIN_FALLBACK_RATE = 1.1545;
+  const FIN_RATE_URL = 'https://api.frankfurter.dev/v1/latest?from=EUR&to=USD';
+
+  let finSettings = { display_currency: 'EUR', eur_usd_rate: FIN_FALLBACK_RATE };
   let finRange = 3;
   let finDirection = 'out';
   let finCategoryId = null;
@@ -3755,7 +3766,42 @@
 
   function finRate() {
     const r = parseFloat(finSettings.eur_usd_rate);
-    return isFinite(r) && r > 0 ? r : 1.08;
+    return isFinite(r) && r > 0 ? r : FIN_FALLBACK_RATE;
+  }
+
+  function finShowRate(note) {
+    const el = document.getElementById('fin-rate-live');
+    if (!el) return;
+    el.innerHTML = '€1 = $' + finRate().toFixed(4) +
+      (note ? ' <em>' + escapeHtml(note) + '</em>' : '');
+  }
+
+  // The rate comes from the ECB via Frankfurter, so it is never something to
+  // keep up to date by hand. Whatever was last saved keeps the page usable
+  // until this lands, and covers the case where the request fails entirely.
+  async function finFetchRate() {
+    try {
+      const res = await fetch(FIN_RATE_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      const rate = json && json.rates && parseFloat(json.rates.USD);
+      if (!isFinite(rate) || rate <= 0) throw new Error('no usable rate in response');
+
+      const changed = Math.abs(rate - finRate()) > 0.00001;
+      finSettings.eur_usd_rate = rate;
+
+      const on = json.date ? new Date(json.date + 'T00:00:00') : null;
+      const today = on && finISO(on) === finISO(new Date());
+      finShowRate(on ? (today ? 'live today' : 'as of ' + on.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : 'live');
+
+      if (changed) {
+        finRenderAll(false);
+        finSaveSettings();
+      }
+    } catch (err) {
+      console.error('Could not fetch the exchange rate:', err.message);
+      finShowRate('saved rate — could not reach the bank');
+    }
   }
 
   // Everything is stored in the currency it was paid in, and converted only
@@ -4363,14 +4409,6 @@
     finSaveSettings();
   });
 
-  document.getElementById('fin-rate').addEventListener('change', function () {
-    const rate = parseFloat(this.value);
-    if (!isFinite(rate) || rate <= 0) { this.value = finSettings.eur_usd_rate; return; }
-    finSettings.eur_usd_rate = rate;
-    finRenderAll(false);
-    finSaveSettings();
-  });
-
   document.getElementById('fin-add-btn').addEventListener('click', finAddEntry);
 
   function finRenderAll(animate) {
@@ -4414,6 +4452,7 @@
           '<code>supabase/finances.sql</code> from the repo. Then reload this page and the tab will start working.'
         : '<strong>Could not load your finances.</strong>' + escapeHtml(loadError.message);
       notice.style.display = 'block';
+      finShowRate('');
       return;
     }
 
@@ -4422,7 +4461,7 @@
 
     if (setRes && setRes.data) {
       finSettings.display_currency = setRes.data.display_currency || 'EUR';
-      finSettings.eur_usd_rate = parseFloat(setRes.data.eur_usd_rate) || 1.08;
+      finSettings.eur_usd_rate = parseFloat(setRes.data.eur_usd_rate) || FIN_FALLBACK_RATE;
     }
 
     // First run on a fresh account — give it the buckets to start from.
@@ -4436,12 +4475,13 @@
     }
 
     document.getElementById('fin-display-cur').value = finSettings.display_currency;
-    document.getElementById('fin-rate').value = finSettings.eur_usd_rate;
+    finShowRate('checking…');
 
     finCategoryId = finCategories.length ? finCategories[0].id : null;
     finRenderChips();
     finRenderDirection();
     finRenderAll(true);
+    finFetchRate();
   }
 
   // ---------------- AUTH GATE ----------------
