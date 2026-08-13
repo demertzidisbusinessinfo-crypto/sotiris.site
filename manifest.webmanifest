@@ -1,7 +1,7 @@
 {
-  "name": "Money — Sotiris",
+  "name": "Money",
   "short_name": "Money",
-  "description": "Log income and expenses straight into the finances dashboard.",
+  "description": "Log income and expenses straight into your finances dashboard.",
   "start_url": "/money",
   "scope": "/money",
   "display": "standalone",

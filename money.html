@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<title>Money — Sotiris</title>
+<title>Money</title>
 <meta name="theme-color" content="#0A1013">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -518,6 +518,7 @@
   var SYMBOL = { EUR: '€', USD: '$' };
 
   var userId = null;
+  var isAdmin = false;
   var categories = [];
   var entries = [];
   var settings = { display_currency: 'EUR', eur_usd_rate: FALLBACK_RATE };
@@ -892,16 +893,18 @@
     categories = out[0].data || [];
     entries = out[1].data || [];
     if (out[2] && out[2].data) {
-      settings.display_currency = out[2].data.display_currency || 'EUR';
+      // A client stays on dollars whatever is stored, so a preference saved
+      // elsewhere cannot flip the app to euros behind their back.
+      if (isAdmin) settings.display_currency = out[2].data.display_currency || 'EUR';
       settings.eur_usd_rate = parseFloat(out[2].data.eur_usd_rate) || FALLBACK_RATE;
     }
 
     draft.currency = settings.display_currency;
     draft.category_id = categories.length ? categories[0].id : null;
 
-    showRate('');
     render();
-    fetchRate();
+    // Only the two-currency view needs a rate to reconcile.
+    if (isAdmin) { showRate(''); fetchRate(); }
   }
 
   // ---------------- wiring ----------------
@@ -929,6 +932,7 @@
   });
 
   $('cur-toggle').addEventListener('click', function () {
+    if (!isAdmin) return;
     draft.currency = draft.currency === 'EUR' ? 'USD' : 'EUR';
     renderAmount();
   });
@@ -950,11 +954,6 @@
     var btn = $('login-btn');
     var msg = $('login-msg');
 
-    if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-      msg.textContent = 'This app is only for the admin account.';
-      return;
-    }
-
     btn.disabled = true;
     msg.textContent = '';
     var res = await db.auth.signInWithPassword({ email: email, password: pass });
@@ -964,19 +963,35 @@
     start(res.data.session);
   });
 
+  // Anyone with an account can use this for their own money. Row-level
+  // security keys every finance row to auth.uid(), so two people signing in
+  // here never see a figure of each other's.
   function start(session) {
     userId = session.user.id;
+    isAdmin = (session.user.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    applyCurrencyMode();
     $('screen-login').classList.remove('on');
     $('screen-app').classList.add('on');
     load();
   }
 
+  // Clients bill in dollars and their dashboard is dollars-only, so the app
+  // has to match it — a euro logged here would show up converted there.
+  function applyCurrencyMode() {
+    if (isAdmin) return;
+    settings.display_currency = 'USD';
+    draft.currency = 'USD';
+    $('rate-chip').style.display = 'none';
+    var cur = $('cur-toggle');
+    cur.disabled = true;
+    cur.style.opacity = '1';
+    cur.style.background = 'transparent';
+  }
+
   (async function init() {
     var res = await db.auth.getSession();
     var session = res.data.session;
-    if (session && session.user && session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      start(session);
-    }
+    if (session && session.user) start(session);
   })();
 })();
 </script>
