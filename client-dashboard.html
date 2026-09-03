@@ -9,9 +9,6 @@
 <style>
   :root {
     --bg: #EFE8DF;
-    --bg-elevated: #E4DBCC;
-    --tan: #D8BA98;
-    --tan-light: #F0E2D1;
     --maroon: #7F0303;
     --maroon-soft: #9C1F1F;
     --midnight: #0F414A;
@@ -21,7 +18,6 @@
     --ink-faint: #8A8378;
     --glass-border: rgba(15, 65, 74, 0.14);
     --glass-bg: rgba(255, 255, 255, 0.4);
-    --accent: var(--maroon);
     --accent-soft: var(--midnight);
     --accent-dim: rgba(127, 3, 3, 0.08);
     --green: #2E6B4F;
@@ -182,26 +178,6 @@
     color: var(--green);
   }
   .status-badge.verified .dot { background: var(--green); }
-
-  .dashboard-columns {
-    display: flex;
-    gap: 28px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .col-main {
-    flex: 1 1 560px;
-    min-width: 0;
-  }
-  .col-side {
-    flex: 0 0 320px;
-    min-width: 280px;
-    position: sticky;
-    top: 24px;
-  }
-  @media (max-width: 900px) {
-    .col-side { position: static; flex: 1 1 100%; }
-  }
 
   /* ---------- TABS ---------- */
   .tabs {
@@ -650,12 +626,6 @@
   }
   .tracker-counter-row input:focus { border-bottom-color: var(--midnight); }
 
-  .tracker-save-row {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
-
   /* ---------- REVENUE / CASH CHART (futuristic panel) ---------- */
   .chart-card {
     background: linear-gradient(160deg, #111C21 0%, #0A1013 100%);
@@ -1001,7 +971,6 @@
     color: var(--ink-dim);
     flex: 0 0 auto;
   }
-  .fin-cur-select { flex: 0 0 76px; }
 
   .fin-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
   .fin-chip {
@@ -1119,30 +1088,6 @@
   }
   .fin-del:hover { color: var(--maroon); background: var(--accent-dim); }
 
-  .fin-settings-bar {
-    display: flex;
-    align-items: flex-end;
-    gap: 18px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-  }
-  .fin-settings-bar .fin-input-group { flex: 0 0 auto; }
-  .fin-settings-note { font-size: 12px; color: var(--ink-faint); flex: 1 1 200px; line-height: 1.5; }
-  .fin-rate-live {
-    font-family: var(--font-mono);
-    font-size: 14px;
-    color: var(--ink);
-    padding: 10px 0;
-    white-space: nowrap;
-  }
-  .fin-rate-live em {
-    font-family: var(--font-body);
-    font-style: normal;
-    font-size: 12px;
-    color: var(--ink-faint);
-    margin-left: 6px;
-  }
-
   .fin-setup-notice {
     border: 1px solid var(--glass-border);
     border-left: 3px solid var(--maroon);
@@ -1229,7 +1174,6 @@
     font-variant-numeric: tabular-nums;
   }
   .chart-tip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .chart-tip-none { font-size: 11.5px; color: rgba(232,240,242,0.4); }
 
   .chart-tip-vs {
     margin-top: 6px;
@@ -1493,10 +1437,6 @@
     /* A chart 120px tall is a smear — the plot reads its own proportions, so
        a taller box stays undistorted. */
     .fin-canvas-wrap { aspect-ratio: 640 / 430; }
-
-    .fin-settings-bar { align-items: flex-start; gap: 12px 18px; margin-bottom: 20px; }
-    .fin-settings-note { font-size: 11.5px; flex-basis: 100%; }
-    .fin-rate-live { font-size: 13px; padding: 9px 0; }
 
     .fin-form-card { padding: 20px 17px; }
     .fin-form-card .fin-row > .fin-input-group { flex: 1 1 100%; }
@@ -4119,18 +4059,6 @@
 
     finEntries = finEntries.filter(function (r) { return r.id !== id; });
     finRenderAll(false);
-  }
-
-  async function finSaveSettings() {
-    const { error } = await supabaseClient
-      .from('finance_settings')
-      .upsert({
-        user_id: currentUserId,
-        display_currency: finSettings.display_currency,
-        eur_usd_rate: finSettings.eur_usd_rate,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-    if (error) console.error('Could not save finance settings:', error.message);
   }
 
   document.getElementById('fin-add-btn').addEventListener('click', finAddEntry);
