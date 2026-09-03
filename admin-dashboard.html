@@ -2105,14 +2105,14 @@
             <div class="agg-sub" id="agg-clients-sub">verified</div>
           </div>
           <div class="agg-card">
-            <div class="agg-label">Revenue tracked</div>
+            <div class="agg-label">Client revenue</div>
             <div class="agg-value" id="agg-revenue">—</div>
             <div class="agg-sub">across all clients</div>
           </div>
           <div class="agg-card">
-            <div class="agg-label">Cash collected</div>
-            <div class="agg-value" id="agg-cash">—</div>
-            <div class="agg-sub">across all clients</div>
+            <div class="agg-label">My revenue</div>
+            <div class="agg-value" id="agg-my-revenue">—</div>
+            <div class="agg-sub">all time</div>
           </div>
           <div class="agg-card">
             <div class="agg-label">Videos delivered</div>
@@ -2752,32 +2752,31 @@
     document.getElementById('agg-videos').textContent = videosTotal.toLocaleString('en-US');
   }
 
-  function formatAggMoney(n) {
+  function formatAggMoney(n, sym) {
     n = n || 0;
-    if (n >= 1000000) return '$' + (n / 1000000).toFixed(n >= 10000000 ? 0 : 1) + 'M';
-    if (n >= 1000) return '$' + (n / 1000).toFixed(n >= 100000 ? 0 : 1) + 'k';
-    return '$' + Math.round(n).toLocaleString('en-US');
+    sym = sym || '$';
+    if (n >= 1000000) return sym + (n / 1000000).toFixed(n >= 10000000 ? 0 : 1) + 'M';
+    if (n >= 1000) return sym + (n / 1000).toFixed(n >= 100000 ? 0 : 1) + 'k';
+    return sym + Math.round(n).toLocaleString('en-US');
   }
 
   async function loadAggregateMetrics() {
     const { data, error } = await supabaseClient
       .from('client_metrics')
-      .select('monthly_revenue, cash_collected, leads_from_content');
+      .select('monthly_revenue, leads_from_content');
 
     if (error) {
       console.error('Could not load aggregate metrics:', error.message);
       return;
     }
 
-    let revenue = 0, cash = 0, leads = 0;
+    let revenue = 0, leads = 0;
     (data || []).forEach(function (row) {
       revenue += parseFloat(row.monthly_revenue) || 0;
-      cash += parseFloat(row.cash_collected) || 0;
       leads += parseInt(row.leads_from_content, 10) || 0;
     });
 
     document.getElementById('agg-revenue').textContent = formatAggMoney(revenue);
-    document.getElementById('agg-cash').textContent = formatAggMoney(cash);
     document.getElementById('agg-leads').textContent = leads.toLocaleString('en-US');
   }
 
@@ -5107,7 +5106,21 @@
     }, 180);
   });
 
+  // Every euro or dollar that has ever come in, converted to whichever currency
+  // the finances tab is set to. Deliberately ignores the range chips — the
+  // Overview card says "all time" and means it. Recurring income counts once
+  // for each month it has actually run, because finOccurrences expands it.
+  function updateMyRevenue() {
+    const el = document.getElementById('agg-my-revenue');
+    if (!el) return;
+    const total = finOccurrences().reduce(function (sum, o) {
+      return o.direction === 'in' ? sum + finToDisplay(o.amount, o.currency) : sum;
+    }, 0);
+    el.textContent = formatAggMoney(total, FIN_SYMBOL[finSettings.display_currency] || '€');
+  }
+
   function finRenderAll(animate) {
+    updateMyRevenue();
     const range = finBuildRange();
     finRenderCards(range);
     finRenderChart(range, animate);
