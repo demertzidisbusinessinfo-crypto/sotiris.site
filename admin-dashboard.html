@@ -792,6 +792,40 @@
     color: #fff;
   }
 
+  /* Rolling vs Monthly. Rolling counts back day by day from today; Monthly
+     buckets by calendar month so each one can be compared on its own. */
+  .chart-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .chart-mode-group {
+    display: flex;
+    gap: 0;
+    padding: 2px;
+    border-radius: 9px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+  }
+  .chart-mode-btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 5px 13px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: rgba(232,240,242,0.55);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .chart-mode-btn:hover { color: var(--chart-panel-ink); }
+  .chart-mode-btn.active { background: rgba(150,192,206,0.22); color: #fff; }
+  .chart-range-note {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+    color: rgba(232,240,242,0.42);
+    margin-top: 12px;
+  }
+
   .chart-stats-row {
     display: flex;
     gap: 34px;
@@ -906,6 +940,26 @@
   }
   .chart-tip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .chart-tip-none { font-size: 11.5px; color: rgba(232,240,242,0.4); }
+
+  .chart-tip-vs {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: rgba(232,240,242,0.55);
+  }
+  .chart-tip-vs.up { color: #4ADE80; }
+  .chart-tip-vs.down { color: #FB7185; }
+  /* Bars grow out of the baseline rather than fading in, so the height —
+     which is the whole point of the monthly view — is what you notice. */
+  .chart-bar {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transform: scaleY(0.001);
+    transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .chart-bar.shown { transform: scaleY(1); }
 
   .chart-line { fill: none; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
   .chart-area { opacity: 0; transition: opacity 0.7s ease 0.25s; }
@@ -2251,25 +2305,25 @@
             <div class="tracker-card chart-card">
                 <div class="chart-head">
                   <div class="card-title">Revenue &amp; cash collected</div>
-                  <div class="chart-range-group" id="chart-range-group">
-                    <button class="chart-range-btn" data-range="1w">1W</button>
-                    <button class="chart-range-btn" data-range="1">1M</button>
-                    <button class="chart-range-btn active" data-range="3">3M</button>
-                    <button class="chart-range-btn" data-range="6">6M</button>
-                    <button class="chart-range-btn" data-range="all">All</button>
+                  <div class="chart-controls">
+                    <div class="chart-mode-group" id="chart-mode-group">
+                      <button class="chart-mode-btn active" data-mode="roll">Rolling</button>
+                      <button class="chart-mode-btn" data-mode="mon">Monthly</button>
+                    </div>
+                    <div class="chart-range-group" id="chart-range-group"></div>
                   </div>
                 </div>
 
                 <div class="chart-stats-row">
                   <div class="chart-stat">
                     <span class="chart-stat-dot" style="background: var(--chart-revenue);"></span>
-                    <span class="chart-stat-label">Total revenue</span>
+                    <span class="chart-stat-label" id="chart-label-rev">Total revenue</span>
                     <span class="chart-stat-value" id="chart-revenue-value">—</span>
                     <span class="chart-stat-change" id="chart-revenue-change"></span>
                   </div>
                   <div class="chart-stat">
                     <span class="chart-stat-dot" style="background: var(--chart-cash);"></span>
-                    <span class="chart-stat-label">Total cash collected</span>
+                    <span class="chart-stat-label" id="chart-label-cash">Total cash collected</span>
                     <span class="chart-stat-value" id="chart-cash-value">—</span>
                     <span class="chart-stat-change" id="chart-cash-change"></span>
                   </div>
@@ -2280,6 +2334,7 @@
                   <div class="chart-tip" id="chart-tip"></div>
                   <div class="chart-empty" id="chart-empty">No data recorded yet.</div>
                 </div>
+                <div class="chart-range-note" id="chart-range-note"></div>
               </div>
 
             <div class="brand-section">
@@ -2380,29 +2435,29 @@
         <div class="tracker-card chart-card">
           <div class="chart-head">
             <div class="card-title">Money in vs money out</div>
-            <div class="chart-range-group" id="fin-range-group">
-              <button class="chart-range-btn" data-range="1w">1W</button>
-              <button class="chart-range-btn" data-range="1">1M</button>
-              <button class="chart-range-btn active" data-range="3">3M</button>
-              <button class="chart-range-btn" data-range="6">6M</button>
-              <button class="chart-range-btn" data-range="all">All</button>
+            <div class="chart-controls">
+              <div class="chart-mode-group" id="fin-mode-group">
+                <button class="chart-mode-btn active" data-mode="roll">Rolling</button>
+                <button class="chart-mode-btn" data-mode="mon">Monthly</button>
+              </div>
+              <div class="chart-range-group" id="fin-range-group"></div>
             </div>
           </div>
 
           <div class="chart-stats-row">
             <div class="chart-stat">
               <span class="chart-stat-dot" style="background: var(--chart-in);"></span>
-              <span class="chart-stat-label">In</span>
+              <span class="chart-stat-label" id="fin-label-in">In</span>
               <span class="chart-stat-value" id="fin-chart-in">—</span>
             </div>
             <div class="chart-stat">
               <span class="chart-stat-dot" style="background: var(--chart-out);"></span>
-              <span class="chart-stat-label">Out</span>
+              <span class="chart-stat-label" id="fin-label-out">Out</span>
               <span class="chart-stat-value" id="fin-chart-out">—</span>
             </div>
             <div class="chart-stat">
               <span class="chart-stat-dot" style="background: rgba(74,222,128,0.32);"></span>
-              <span class="chart-stat-label">Kept</span>
+              <span class="chart-stat-label" id="fin-label-kept">Kept</span>
               <span class="chart-stat-value" id="fin-chart-kept">—</span>
             </div>
           </div>
@@ -2412,6 +2467,7 @@
             <div class="chart-tip" id="fin-chart-tip"></div>
             <div class="chart-empty" id="fin-chart-empty">Nothing logged yet.</div>
           </div>
+          <div class="chart-range-note" id="fin-range-note"></div>
         </div>
 
           <div class="tracker-card fin-form-card">
@@ -3455,9 +3511,105 @@
     loadClientMetricsChart(false); // keep the read-only chart in sync after an edit
   }
 
+  // ==================== TIME RANGES ====================
+  // Rolling ranges count back day by day from today: 30D is the 30 days ending
+  // today, not the calendar month so far, so the window never resets on the 1st.
+  // Monthly instead buckets by calendar month — one bucket each, standing on its
+  // own — so the months can be read against each other.
+
+  const ROLL_CHIPS = [[7, '7D'], [30, '30D'], [90, '90D'], [180, '180D'], ['all', 'All']];
+  const MON_CHIPS = [[1, '1M'], [3, '3M'], [6, '6M'], [12, '12M'], ['all', 'All']];
+  const MON_CAP = 24; // past two years the bars are hairlines and say nothing
+  const MONTH_FULL = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+
+  function rangeSod(d) { const x = new Date(d.getTime()); x.setHours(0, 0, 0, 0); return x; }
+
+  // Today counts as day one, so 30 gives 30 slots ending today.
+  function rollingStart(days) {
+    const s = rangeSod(new Date());
+    s.setDate(s.getDate() - (days - 1));
+    return s;
+  }
+
+  function monthShort(d) { return d.toLocaleDateString('en-US', { month: 'short' }); }
+
+  // 'all' walks back to the first entry there is, capped so bars stay readable.
+  function monthSpan(count, firstDate) {
+    if (count !== 'all') return count;
+    if (!firstDate) return 1;
+    const now = new Date();
+    const n = (now.getFullYear() - firstDate.getFullYear()) * 12 +
+      (now.getMonth() - firstDate.getMonth()) + 1;
+    return Math.max(1, Math.min(MON_CAP, n));
+  }
+
+  // Empty buckets, oldest first, ending with the month we are in right now.
+  function monthBuckets(n) {
+    const now = new Date();
+    const out = [];
+    for (let i = n - 1; i >= 0; i--) {
+      const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      out.push({ date: m, y: m.getFullYear(), mo: m.getMonth(), partial: i === 0, has: false });
+    }
+    return out;
+  }
+
+  function rangeChipsHtml(mode, roll, mon) {
+    const set = mode === 'mon' ? MON_CHIPS : ROLL_CHIPS;
+    const cur = mode === 'mon' ? mon : roll;
+    return set.map(function (c) {
+      return '<button class="chart-range-btn' + (String(c[0]) === String(cur) ? ' active' : '') +
+        '" data-range="' + c[0] + '">' + c[1] + '</button>';
+    }).join('');
+  }
+
+  function rangeChipValue(raw) { return raw === 'all' ? 'all' : parseInt(raw, 10); }
+
+  function rollingNote(days, startDate) {
+    if (days === 'all') return 'Everything on record, up to today.';
+    const f = { month: 'short', day: 'numeric' };
+    return 'Last ' + days + ' days — ' + startDate.toLocaleDateString('en-US', f) + ' to today.';
+  }
+
+  // Wires a Rolling/Monthly toggle to its chip row. The chips are rebuilt on
+  // every mode change because the two modes offer different spans.
+  function wireRangeControls(modeId, groupId, get, set, onChange) {
+    const modeEl = document.getElementById(modeId);
+    const groupEl = document.getElementById(groupId);
+    if (!modeEl || !groupEl) return;
+
+    function paintChips() {
+      const st = get();
+      groupEl.innerHTML = rangeChipsHtml(st.mode, st.roll, st.mon);
+      groupEl.querySelectorAll('.chart-range-btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          const v = rangeChipValue(b.getAttribute('data-range'));
+          set(get().mode === 'mon' ? { mon: v } : { roll: v });
+          paintChips();
+          onChange();
+        });
+      });
+    }
+
+    modeEl.querySelectorAll('.chart-mode-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        modeEl.querySelectorAll('.chart-mode-btn').forEach(function (x) { x.classList.remove('active'); });
+        b.classList.add('active');
+        set({ mode: b.getAttribute('data-mode') });
+        paintChips();
+        onChange();
+      });
+    });
+
+    paintChips();
+  }
+
   // ==================== CLIENT REVENUE / CASH CHART (read-only) ====================
   let allMetricsRows = [];
-  let chartRange = 3;
+  let chartMode = 'roll';   // 'roll' = a rolling day window | 'mon' = calendar months
+  let chartRoll = 90;      // days, or 'all'
+  let chartMon = 6;        // months, or 'all'
   const chartReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const CH_W = 640;
@@ -3493,21 +3645,13 @@
     renderChart(animate !== false);
   }
 
-  // 1M is this month from the 1st to today, 3M/6M add the months before it.
-  // 1W is the last 7 days (not the calendar week) so it always shows a full week.
+  // Rolling only now — a day count ending today. 'all' starts at the first entry.
   function chartRangeStart(range) {
-    const now = new Date();
     if (range === 'all') {
-      if (!allMetricsRows.length) return new Date(now.getFullYear(), now.getMonth(), 1);
-      const first = new Date(allMetricsRows[0].month + 'T00:00:00');
-      return new Date(first.getFullYear(), first.getMonth(), 1);
+      if (!allMetricsRows.length) return rangeSod(new Date());
+      return rangeSod(new Date(allMetricsRows[0].month + 'T00:00:00'));
     }
-    if (range === '1w') {
-      const s = chartStartOfDay(now);
-      s.setDate(s.getDate() - 6);
-      return s;
-    }
-    return new Date(now.getFullYear(), now.getMonth() - (range - 1), 1);
+    return rollingStart(range);
   }
 
   // One slot per calendar day; entries on the same day are summed. cumRev/cumCash
@@ -3537,18 +3681,14 @@
     return days;
   }
 
+  // The same-length window immediately before this one, so the % change compares
+  // like with like — the last 30 days against the 30 days before them.
   function previousPeriodTotals() {
-    if (chartRange === 'all') return null;
-    const curStart = chartRangeStart(chartRange);
-    let prevStart;
-    if (chartRange === '1w') {
-      prevStart = new Date(curStart.getTime());
-      prevStart.setDate(prevStart.getDate() - 7);
-    } else {
-      prevStart = new Date(curStart.getFullYear(), curStart.getMonth() - chartRange, 1);
-    }
-    const prevEnd = new Date(curStart.getTime());
+    if (chartRoll === 'all') return null;
+    const prevEnd = rollingStart(chartRoll);
     prevEnd.setDate(prevEnd.getDate() - 1);
+    const prevStart = new Date(prevEnd.getTime());
+    prevStart.setDate(prevStart.getDate() - (chartRoll - 1));
 
     let rev = 0, cash = 0, found = false;
     allMetricsRows.forEach(function (r) {
@@ -3610,13 +3750,205 @@
     chartSetChange('chart-cash-change', prev ? totalCash : null, prev ? prev.cash : null);
   }
 
+  // Geometry for one draw. On a phone the box is drawn far narrower than the
+  // 640-unit viewBox, so everything inside it — type included — is scaled down;
+  // a taller box plus a scale factor puts the text back at its intended size.
+  function chartGeom(svg) {
+    const isPhone = window.matchMedia('(max-width: 640px)').matches;
+    CH_H = isPhone ? 430 : 272;
+    svg.setAttribute('viewBox', '0 0 ' + CH_W + ' ' + CH_H);
+    const wrapW = (svg.parentElement && svg.parentElement.clientWidth) || CH_W;
+    const cs = Math.max(1, CH_W / wrapW);
+    const padL = CH_PAD_L * cs, padR = CH_PAD_R * cs, padB = CH_PAD_B * cs;
+    return {
+      cs: cs, H: CH_H, padL: padL, padT: CH_PAD_T, padB: padB,
+      plotW: CH_W - padL - padR, plotH: CH_H - CH_PAD_T - padB
+    };
+  }
+
+  // Monthly view: one bar pair per calendar month, each showing that month's own
+  // total rather than a running sum, so August can be read against July.
+  function buildChartMonths(count) {
+    const first = allMetricsRows.length ? new Date(allMetricsRows[0].month + 'T00:00:00') : null;
+    const months = monthBuckets(monthSpan(count, first));
+    const idx = {};
+    months.forEach(function (m, i) { m.rev = 0; m.cash = 0; idx[m.y + '-' + m.mo] = i; });
+    allMetricsRows.forEach(function (r) {
+      const d = new Date(r.month + 'T00:00:00');
+      const i = idx[d.getFullYear() + '-' + d.getMonth()];
+      if (i == null) return;
+      months[i].rev += Number(r.monthly_revenue) || 0;
+      months[i].cash += Number(r.cash_collected) || 0;
+      months[i].has = true;
+    });
+    return months;
+  }
+
+  function renderChartMonthly(svg, emptyEl, animate) {
+    const months = buildChartMonths(chartMon);
+    const n = months.length;
+    const newest = months[n - 1];
+    const prev = n > 1 ? months[n - 2] : null;
+    const anyData = months.some(function (m) { return m.has; });
+
+    // In Monthly the newest month is the subject; the bars behind it are context.
+    document.getElementById('chart-label-rev').textContent = monthShort(newest.date) + ' revenue';
+    document.getElementById('chart-label-cash').textContent = monthShort(newest.date) + ' cash';
+    updateChartStats(
+      anyData ? newest.rev : null,
+      anyData ? newest.cash : null,
+      prev && prev.has ? { rev: prev.rev, cash: prev.cash } : null,
+      animate
+    );
+
+    const note = document.getElementById('chart-range-note');
+    if (note) {
+      note.textContent = anyData
+        ? 'One bar per calendar month, ' + monthShort(months[0].date) + ' ' + months[0].y + ' to ' +
+          monthShort(newest.date) + ' ' + newest.y + '. Figures above are ' +
+          MONTH_FULL[newest.mo] + ', still running.'
+        : '';
+    }
+
+    if (!anyData) {
+      svg.innerHTML = '';
+      chartState = null;
+      emptyEl.style.display = 'flex';
+      emptyEl.textContent = allMetricsRows.length ? 'Nothing recorded in these months.' : 'No data recorded yet.';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    const g = chartGeom(svg);
+    const TICKS = 4;
+    let peak = 0;
+    months.forEach(function (m) { peak = Math.max(peak, m.rev, m.cash); });
+    const axis = niceAxis(peak, TICKS);
+    const yMax = axis.max;
+
+    const baselineY = g.padT + g.plotH;
+    const rightX = g.padL + g.plotW;
+    const yAt = function (v) { return g.padT + (1 - v / yMax) * g.plotH; };
+    const slot = g.plotW / n;
+    const barW = Math.min(26 * g.cs, slot * 0.30);
+    const gap = Math.min(4 * g.cs, slot * 0.06);
+    const cxAt = function (i) { return g.padL + slot * i + slot / 2; };
+
+    const styles = getComputedStyle(document.documentElement);
+    const revColor = styles.getPropertyValue('--chart-revenue').trim();
+    const cashColor = styles.getPropertyValue('--chart-cash').trim();
+
+    let grid = '';
+    for (let i = 0; i <= TICKS; i++) {
+      const y = g.padT + (i / TICKS) * g.plotH;
+      const val = axis.step * (TICKS - i);
+      grid +=
+        '<line x1="' + g.padL.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + rightX.toFixed(1) +
+          '" y2="' + y.toFixed(1) + '" stroke="rgba(150,192,206,' + (i === TICKS ? '0.28' : '0.10') +
+          ')" stroke-width="' + g.cs.toFixed(2) + '"/>' +
+        '<text x="' + (g.padL - 10 * g.cs).toFixed(1) + '" y="' + (y + 3.5 * g.cs).toFixed(1) +
+          '" text-anchor="end" font-size="' + (10 * g.cs).toFixed(1) +
+          '" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">' + chartFormatAxis(val) + '</text>';
+    }
+
+    let bars = '', labels = '';
+    months.forEach(function (m, i) {
+      const cx = cxAt(i);
+      // The month in progress is drawn faint, so a half-finished month is not
+      // mistaken for a collapse.
+      const op = m.partial ? '0.55' : '0.92';
+      bars +=
+        '<rect class="chart-bar" x="' + (cx - barW - gap / 2).toFixed(1) + '" y="' + yAt(m.rev).toFixed(1) +
+          '" width="' + barW.toFixed(1) + '" height="' + Math.max(0.5, baselineY - yAt(m.rev)).toFixed(1) +
+          '" rx="' + (3 * g.cs).toFixed(1) + '" fill="' + revColor + '" opacity="' + op + '"/>' +
+        '<rect class="chart-bar" x="' + (cx + gap / 2).toFixed(1) + '" y="' + yAt(m.cash).toFixed(1) +
+          '" width="' + barW.toFixed(1) + '" height="' + Math.max(0.5, baselineY - yAt(m.cash)).toFixed(1) +
+          '" rx="' + (3 * g.cs).toFixed(1) + '" fill="' + cashColor + '" opacity="' + op + '"/>';
+
+      labels += '<text x="' + cx.toFixed(1) + '" y="' + (baselineY + 20 * g.cs).toFixed(1) +
+        '" text-anchor="middle" font-size="' + (11 * g.cs).toFixed(1) +
+        '" font-weight="600" letter-spacing="0.06em" font-family="ui-monospace, monospace" ' +
+        'fill="rgba(232,240,242,' + (m.partial ? '0.5' : '0.78') + ')">' +
+        monthShort(m.date).toUpperCase() + '</text>';
+
+      const sub = m.partial ? 'so far' : ((i === 0 || m.mo === 0) ? String(m.y) : '');
+      if (sub) {
+        labels += '<text x="' + cx.toFixed(1) + '" y="' + (baselineY + 33 * g.cs).toFixed(1) +
+          '" text-anchor="middle" font-size="' + (9 * g.cs).toFixed(1) +
+          '" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.34)">' + sub + '</text>';
+      }
+    });
+
+    const band = '<rect id="ch-band" x="0" y="' + g.padT + '" width="' + slot.toFixed(1) +
+      '" height="' + g.plotH.toFixed(1) + '" fill="rgba(150,192,206,0.10)" opacity="0"/>';
+
+    svg.innerHTML = grid + band + bars + labels;
+    chartState = {
+      mode: 'mon', months: months, n: n, slot: slot, padL: g.padL,
+      plotW: g.plotW, cxAt: cxAt, yAt: yAt, H: g.H
+    };
+
+    const barEls = svg.querySelectorAll('.chart-bar');
+    if (!animate) { barEls.forEach(function (b) { b.classList.add('shown'); }); return; }
+    requestAnimationFrame(function () {
+      barEls.forEach(function (b, i) {
+        setTimeout(function () { b.classList.add('shown'); }, (i >> 1) * (600 / Math.max(1, n)));
+      });
+    });
+  }
+
+  // Hovering a month highlights its slot and shows it against the month before.
+  function monthHover(svgX, rect) {
+    const st = chartState;
+    const i = Math.max(0, Math.min(st.n - 1, Math.floor((svgX - st.padL) / st.slot)));
+    const m = st.months[i];
+    const p = i > 0 ? st.months[i - 1] : null;
+
+    const band = document.getElementById('ch-band');
+    if (band) {
+      band.setAttribute('x', (st.padL + st.slot * i).toFixed(1));
+      band.setAttribute('opacity', '1');
+    }
+
+    function row(label, colorVar, amt) {
+      return '<div class="chart-tip-row">' +
+        '<span class="chart-tip-dot" style="background:var(' + colorVar + ')"></span>' + label +
+        '<span class="chart-tip-day"></span><b>' + chartFormatMoney(amt) + '</b></div>';
+    }
+    let vs = '';
+    if (p && p.rev > 0) {
+      const pct = ((m.rev - p.rev) / p.rev) * 100;
+      vs = '<div class="chart-tip-vs ' + (pct >= 0 ? 'up' : 'down') + '">' +
+        (pct >= 0 ? '+' : '') + pct.toFixed(1) + '% revenue vs ' + monthShort(p.date) + '</div>';
+    }
+    chartTipEl.innerHTML =
+      '<div class="chart-tip-date">' + MONTH_FULL[m.mo] + ' ' + m.y +
+        (m.partial ? ' · so far' : '') + (m.has ? '' : ' · no entries') + '</div>' +
+      row('Revenue', '--chart-revenue', m.rev) +
+      row('Cash', '--chart-cash', m.cash) + vs;
+
+    const leftPx = (st.cxAt(i) / CH_W) * rect.width;
+    const halfW = (chartTipEl.offsetWidth || 120) / 2;
+    chartTipEl.style.left = Math.max(halfW + 4, Math.min(rect.width - halfW - 4, leftPx)) + 'px';
+    const yTop = Math.min(st.yAt(m.rev), st.yAt(m.cash));
+    chartTipEl.style.top = ((yTop / st.H) * rect.height - 12) + 'px';
+    chartTipEl.classList.add('show');
+  }
+
   function renderChart(animate) {
     const shouldAnimate = animate !== false && !chartReducedMotion;
     const svg = document.getElementById('chart-svg');
     const emptyEl = document.getElementById('chart-empty');
     if (!svg || !emptyEl) return;
 
-    const days = buildChartDays(chartRange);
+    if (chartMode === 'mon') { renderChartMonthly(svg, emptyEl, shouldAnimate); return; }
+
+    document.getElementById('chart-label-rev').textContent = 'Total revenue';
+    document.getElementById('chart-label-cash').textContent = 'Total cash collected';
+
+    const days = buildChartDays(chartRoll);
+    const noteEl = document.getElementById('chart-range-note');
+    if (noteEl) noteEl.textContent = rollingNote(chartRoll, days[0].date);
     const n = days.length;
     const entryIdx = [];
     days.forEach(function (d, i) { if (d.has) entryIdx.push(i); });
@@ -3779,7 +4111,7 @@
       '<circle id="ch-hov-cash" r="' + (4.6 * cs).toFixed(2) + '" fill="' + cashColor + '" stroke="#0A1013" stroke-width="' + (1.5 * cs).toFixed(2) + '" opacity="0"/>';
 
     svg.innerHTML = defs + grid + ticks + dayLabels + monthLabels + body + hoverLayer;
-    chartState = { days: days, n: n, plotW: plotW, padL: cPadL, xAt: xAt, yAt: yAt };
+    chartState = { mode: 'roll', days: days, n: n, plotW: plotW, padL: cPadL, xAt: xAt, yAt: yAt };
 
     const areas = svg.querySelectorAll('.chart-area');
     const dotEls = svg.querySelectorAll('.chart-dot');
@@ -3807,7 +4139,7 @@
   const chartTipEl = document.getElementById('chart-tip');
 
   function hideChartHover() {
-    ['ch-cross', 'ch-hov-rev', 'ch-hov-cash'].forEach(function (id) {
+    ['ch-cross', 'ch-hov-rev', 'ch-hov-cash', 'ch-band'].forEach(function (id) {
       const el = document.getElementById(id);
       if (el) el.setAttribute('opacity', '0');
     });
@@ -3821,6 +4153,8 @@
     if (!rect.width) return;
 
     const svgX = (e.clientX - rect.left) * (CH_W / rect.width);
+    if (chartState.mode === 'mon') { monthHover(svgX, rect); return; }
+
     const t = Math.max(0, Math.min(1, (svgX - chartState.padL) / chartState.plotW));
     const idx = chartState.n > 1 ? Math.round(t * (chartState.n - 1)) : 0;
     const day = chartState.days[idx];
@@ -3860,15 +4194,14 @@
     chartWrapEl.addEventListener('mouseleave', hideChartHover);
   }
 
-  document.querySelectorAll('#chart-range-group .chart-range-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('#chart-range-group .chart-range-btn').forEach(function (b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      const r = btn.getAttribute('data-range');
-      chartRange = (r === 'all' || r === '1w') ? r : parseInt(r, 10);
-      renderChart(true);
-    });
-  });
+  wireRangeControls('chart-mode-group', 'chart-range-group',
+    function () { return { mode: chartMode, roll: chartRoll, mon: chartMon }; },
+    function (p) {
+      if (p.mode !== undefined) chartMode = p.mode;
+      if (p.roll !== undefined) chartRoll = p.roll;
+      if (p.mon !== undefined) chartMon = p.mon;
+    },
+    function () { renderChart(true); });
 
   // ---------------- FINANCES ----------------
 
@@ -3894,7 +4227,9 @@
   const FIN_RATE_URL = 'https://api.frankfurter.dev/v1/latest?from=EUR&to=USD';
 
   let finSettings = { display_currency: 'EUR', eur_usd_rate: FIN_FALLBACK_RATE };
-  let finRange = 3;
+  let finMode = 'roll';    // 'roll' = a rolling day window | 'mon' = calendar months
+  let finRoll = 90;        // days, or 'all'
+  let finMon = 6;          // months, or 'all'
   let finDirection = 'out';
   let finCategoryId = null;
   let finChartState = null;
@@ -4009,19 +4344,13 @@
     return out;
   }
 
+  // Rolling only now — a day count ending today. 'all' starts at the first entry.
   function finRangeStart(occurrences) {
-    const now = new Date();
-    if (finRange === 'all') {
-      if (!occurrences.length) return new Date(now.getFullYear(), now.getMonth(), 1);
-      const first = occurrences[0].date;
-      return new Date(first.getFullYear(), first.getMonth(), 1);
+    if (finRoll === 'all') {
+      if (!occurrences.length) return finStartOfDay(new Date());
+      return finStartOfDay(occurrences[0].date);
     }
-    if (finRange === '1w') {
-      const s = finStartOfDay(now);
-      s.setDate(s.getDate() - 6);
-      return s;
-    }
-    return new Date(now.getFullYear(), now.getMonth() - (finRange - 1), 1);
+    return rollingStart(finRoll);
   }
 
   function finCategoryById(id) {
@@ -4036,8 +4365,13 @@
   // buckets for the bars.
   function finBuildRange() {
     const occurrences = finOccurrences();
-    const start = finStartOfDay(finRangeStart(occurrences));
     const end = finStartOfDay(new Date());
+    // In Monthly the subject is the month in progress, so the cards, category
+    // bars and ledger all describe that month; the chart's bars are what put it
+    // in context against the months before it.
+    const start = finMode === 'mon'
+      ? new Date(end.getFullYear(), end.getMonth(), 1)
+      : finStartOfDay(finRangeStart(occurrences));
 
     const byDay = {};
     const inRange = [];
@@ -4113,10 +4447,9 @@
     document.getElementById('fin-agg-margin').textContent =
       margin == null ? 'no revenue yet' : margin.toFixed(0) + '% margin';
 
-    const label = finRange === 'all' ? 'all time'
-      : finRange === '1w' ? 'last 7 days'
-      : finRange === 1 ? 'this month'
-      : 'last ' + finRange + ' months';
+    const label = finMode === 'mon'
+      ? MONTH_FULL[new Date().getMonth()] + ' so far'
+      : finRoll === 'all' ? 'all time' : 'last ' + finRoll + ' days';
     document.getElementById('fin-agg-in-sub').textContent = label;
   }
 
@@ -4215,11 +4548,194 @@
     if (svg) svg.setAttribute('viewBox', '0 0 ' + FIN_W + ' ' + FIN_H);
   }
 
+  // One bucket per calendar month: what came in and what went out that month,
+  // each on its own rather than as a running total.
+  function finBuildMonths(count) {
+    const occurrences = finOccurrences();
+    const first = occurrences.length ? occurrences[0].date : null;
+    const months = monthBuckets(monthSpan(count, first));
+    const idx = {};
+    months.forEach(function (m, i) { m.in = 0; m.out = 0; idx[m.y + '-' + m.mo] = i; });
+
+    occurrences.forEach(function (o) {
+      const i = idx[o.date.getFullYear() + '-' + o.date.getMonth()];
+      if (i == null) return;
+      const amt = finToDisplay(o.amount, o.currency);
+      if (o.direction === 'in') months[i].in += amt; else months[i].out += amt;
+      months[i].has = true;
+    });
+    return months;
+  }
+
+  function finRenderChartMonthly(svg, emptyEl, animate) {
+    const months = finBuildMonths(finMon);
+    const n = months.length;
+    const newest = months[n - 1];
+    const anyData = months.some(function (m) { return m.has; });
+
+    // Monthly makes the month in progress the subject; the bars behind it are context.
+    document.getElementById('fin-label-in').textContent = monthShort(newest.date) + ' in';
+    document.getElementById('fin-label-out').textContent = monthShort(newest.date) + ' out';
+    document.getElementById('fin-label-kept').textContent = monthShort(newest.date) + ' kept';
+    document.getElementById('fin-chart-in').textContent = finFormatMoney(newest.in);
+    document.getElementById('fin-chart-out').textContent = finFormatMoney(newest.out);
+    document.getElementById('fin-chart-kept').textContent = finFormatMoney(newest.in - newest.out);
+
+    const note = document.getElementById('fin-range-note');
+    if (note) {
+      note.textContent = anyData
+        ? 'One bar per calendar month, ' + monthShort(months[0].date) + ' ' + months[0].y + ' to ' +
+          monthShort(newest.date) + ' ' + newest.y + '. Everything else on this tab is ' +
+          MONTH_FULL[newest.mo] + ' so far.'
+        : '';
+    }
+
+    finSyncViewBox(svg);
+
+    if (!anyData) {
+      svg.innerHTML = '';
+      finChartState = null;
+      emptyEl.style.display = 'flex';
+      emptyEl.textContent = finEntries.length ? 'Nothing in these months yet.' : 'Nothing logged yet.';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    const wrapW = (document.getElementById('fin-canvas-wrap') || {}).clientWidth || FIN_W;
+    const sc = Math.max(1, FIN_W / wrapW);
+    const padL = FIN_PAD_L * sc, padR = FIN_PAD_R * sc, padT = FIN_PAD_T, padB = FIN_PAD_B * sc;
+    const plotW = FIN_W - padL - padR;
+    const plotH = FIN_H - padT - padB;
+
+    const TICKS = 4;
+    let peak = 0;
+    months.forEach(function (m) { peak = Math.max(peak, m.in, m.out); });
+    const axis = niceAxis(peak, TICKS);
+    const yMax = axis.max;
+
+    const baselineY = padT + plotH;
+    const rightX = padL + plotW;
+    const yAt = function (v) { return padT + (1 - v / yMax) * plotH; };
+    const slot = plotW / n;
+    const barW = Math.min(26 * sc, slot * 0.30);
+    const gap = Math.min(4 * sc, slot * 0.06);
+    const cxAt = function (i) { return padL + slot * i + slot / 2; };
+
+    const styles = getComputedStyle(document.documentElement);
+    const inColor = styles.getPropertyValue('--chart-in').trim() || '#4ADE80';
+    const outColor = styles.getPropertyValue('--chart-out').trim() || '#FB7185';
+
+    let grid = '';
+    for (let i = 0; i <= TICKS; i++) {
+      const y = padT + (i / TICKS) * plotH;
+      const val = axis.step * (TICKS - i);
+      grid +=
+        '<line x1="' + padL.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + rightX.toFixed(1) +
+          '" y2="' + y.toFixed(1) + '" stroke="rgba(150,192,206,' + (i === TICKS ? '0.28' : '0.10') +
+          ')" stroke-width="' + sc.toFixed(2) + '"/>' +
+        '<text x="' + (padL - 10 * sc).toFixed(1) + '" y="' + (y + 3.5 * sc).toFixed(1) +
+          '" text-anchor="end" font-size="' + (10 * sc).toFixed(1) +
+          '" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">' + finFormatAxis(val) + '</text>';
+    }
+
+    let bars = '', labels = '';
+    months.forEach(function (m, i) {
+      const cx = cxAt(i);
+      // The month in progress is faint, so a half-finished month is not read as a drop.
+      const op = m.partial ? '0.55' : '0.92';
+      bars +=
+        '<rect class="chart-bar" x="' + (cx - barW - gap / 2).toFixed(1) + '" y="' + yAt(m.in).toFixed(1) +
+          '" width="' + barW.toFixed(1) + '" height="' + Math.max(0.5, baselineY - yAt(m.in)).toFixed(1) +
+          '" rx="' + (3 * sc).toFixed(1) + '" fill="' + inColor + '" opacity="' + op + '"/>' +
+        '<rect class="chart-bar" x="' + (cx + gap / 2).toFixed(1) + '" y="' + yAt(m.out).toFixed(1) +
+          '" width="' + barW.toFixed(1) + '" height="' + Math.max(0.5, baselineY - yAt(m.out)).toFixed(1) +
+          '" rx="' + (3 * sc).toFixed(1) + '" fill="' + outColor + '" opacity="' + op + '"/>';
+
+      labels += '<text x="' + cx.toFixed(1) + '" y="' + (baselineY + 20 * sc).toFixed(1) +
+        '" text-anchor="middle" font-size="' + (11 * sc).toFixed(1) +
+        '" font-weight="600" letter-spacing="0.06em" font-family="ui-monospace, monospace" ' +
+        'fill="rgba(232,240,242,' + (m.partial ? '0.5' : '0.78') + ')">' +
+        monthShort(m.date).toUpperCase() + '</text>';
+
+      const sub = m.partial ? 'so far' : ((i === 0 || m.mo === 0) ? String(m.y) : '');
+      if (sub) {
+        labels += '<text x="' + cx.toFixed(1) + '" y="' + (baselineY + 33 * sc).toFixed(1) +
+          '" text-anchor="middle" font-size="' + (9 * sc).toFixed(1) +
+          '" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.34)">' + sub + '</text>';
+      }
+    });
+
+    const band = '<rect id="fin-band" x="0" y="' + padT + '" width="' + slot.toFixed(1) +
+      '" height="' + plotH.toFixed(1) + '" fill="rgba(150,192,206,0.10)" opacity="0"/>';
+
+    svg.innerHTML = grid + band + bars + labels;
+    finChartState = {
+      mode: 'mon', months: months, n: n, slot: slot, padL: padL,
+      plotW: plotW, cxAt: cxAt, yAt: yAt, H: FIN_H
+    };
+
+    const barEls = svg.querySelectorAll('.chart-bar');
+    if (!animate) { barEls.forEach(function (b) { b.classList.add('shown'); }); return; }
+    requestAnimationFrame(function () {
+      barEls.forEach(function (b, i) {
+        setTimeout(function () { b.classList.add('shown'); }, (i >> 1) * (600 / Math.max(1, n)));
+      });
+    });
+  }
+
+  // Hovering a month highlights its slot and shows it against the month before.
+  function finMonthHover(svgX, rect) {
+    const st = finChartState;
+    const i = Math.max(0, Math.min(st.n - 1, Math.floor((svgX - st.padL) / st.slot)));
+    const m = st.months[i];
+    const p = i > 0 ? st.months[i - 1] : null;
+
+    const band = document.getElementById('fin-band');
+    if (band) {
+      band.setAttribute('x', (st.padL + st.slot * i).toFixed(1));
+      band.setAttribute('opacity', '1');
+    }
+
+    function row(label, color, amt) {
+      return '<div class="chart-tip-row">' +
+        '<span class="chart-tip-dot" style="background:' + color + '"></span>' + label +
+        '<span class="chart-tip-day"></span><b>' + finFormatMoney(amt) + '</b></div>';
+    }
+    let vs = '';
+    const kept = m.in - m.out, pKept = p ? p.in - p.out : null;
+    if (p && p.has && pKept !== 0 && pKept != null) {
+      const pct = ((kept - pKept) / Math.abs(pKept)) * 100;
+      vs = '<div class="chart-tip-vs ' + (pct >= 0 ? 'up' : 'down') + '">' +
+        (pct >= 0 ? '+' : '') + pct.toFixed(1) + '% kept vs ' + monthShort(p.date) + '</div>';
+    }
+    finTipEl.innerHTML =
+      '<div class="chart-tip-date">' + MONTH_FULL[m.mo] + ' ' + m.y +
+        (m.partial ? ' · so far' : '') + (m.has ? '' : ' · nothing logged') + '</div>' +
+      row('In', 'var(--chart-in)', m.in) +
+      row('Out', 'var(--chart-out)', m.out) +
+      row('Kept', 'rgba(74,222,128,0.4)', kept) + vs;
+
+    const leftPx = (st.cxAt(i) / FIN_W) * rect.width;
+    const halfW = (finTipEl.offsetWidth || 120) / 2;
+    finTipEl.style.left = Math.max(halfW + 4, Math.min(rect.width - halfW - 4, leftPx)) + 'px';
+    const yTop = Math.min(st.yAt(m.in), st.yAt(m.out));
+    finTipEl.style.top = ((yTop / st.H) * rect.height - 12) + 'px';
+    finTipEl.classList.add('show');
+  }
+
   function finRenderChart(range, animate) {
     const shouldAnimate = animate !== false && !chartReducedMotion;
     const svg = document.getElementById('fin-chart-svg');
     const emptyEl = document.getElementById('fin-chart-empty');
+    if (finMode === 'mon') { finRenderChartMonthly(svg, emptyEl, shouldAnimate); return; }
+
+    document.getElementById('fin-label-in').textContent = 'In';
+    document.getElementById('fin-label-out').textContent = 'Out';
+    document.getElementById('fin-label-kept').textContent = 'Kept';
+
     const days = range.days;
+    const finNote = document.getElementById('fin-range-note');
+    if (finNote) finNote.textContent = days.length ? rollingNote(finRoll, days[0].date) : '';
     const n = days.length;
 
     finSyncViewBox(svg);
@@ -4351,7 +4867,7 @@
       '<circle id="fin-hov-out" r="' + dotR.toFixed(2) + '" fill="' + outColor + '" stroke="#0A1013" stroke-width="' + (1.5 * s).toFixed(2) + '" opacity="0"/>';
 
     svg.innerHTML = grid + ticks + dayLabels + monthLabels + body + hoverLayer;
-    finChartState = { days: days, n: n, plotW: plotW, padL: padL, xAt: xAt, yAt: yAt };
+    finChartState = { mode: 'roll', days: days, n: n, plotW: plotW, padL: padL, xAt: xAt, yAt: yAt };
 
     if (!shouldAnimate) return;
     [svg.querySelector('#fin-line-in'), svg.querySelector('#fin-line-out')].forEach(function (path) {
@@ -4369,7 +4885,7 @@
   const finTipEl = document.getElementById('fin-chart-tip');
 
   function finHideHover() {
-    ['fin-cross', 'fin-hov-in', 'fin-hov-out'].forEach(function (id) {
+    ['fin-cross', 'fin-hov-in', 'fin-hov-out', 'fin-band'].forEach(function (id) {
       const el = document.getElementById(id);
       if (el) el.setAttribute('opacity', '0');
     });
@@ -4383,6 +4899,8 @@
     if (!rect.width) return;
 
     const svgX = (e.clientX - rect.left) * (FIN_W / rect.width);
+    if (finChartState.mode === 'mon') { finMonthHover(svgX, rect); return; }
+
     const t = Math.max(0, Math.min(1, (svgX - finChartState.padL) / finChartState.plotW));
     const idx = finChartState.n > 1 ? Math.round(t * (finChartState.n - 1)) : 0;
     const day = finChartState.days[idx];
@@ -4486,15 +5004,14 @@
     });
   });
 
-  document.querySelectorAll('#fin-range-group .chart-range-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('#fin-range-group .chart-range-btn').forEach(function (b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      const r = btn.getAttribute('data-range');
-      finRange = (r === 'all' || r === '1w') ? r : parseInt(r, 10);
-      finRenderAll(true);
-    });
-  });
+  wireRangeControls('fin-mode-group', 'fin-range-group',
+    function () { return { mode: finMode, roll: finRoll, mon: finMon }; },
+    function (p) {
+      if (p.mode !== undefined) finMode = p.mode;
+      if (p.roll !== undefined) finRoll = p.roll;
+      if (p.mon !== undefined) finMon = p.mon;
+    },
+    function () { finRenderAll(true); });
 
   function finSetMessage(text, kind) {
     const el = document.getElementById('fin-form-msg');
