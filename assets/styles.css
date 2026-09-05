@@ -59,6 +59,17 @@
   --chart-out: #FB7185;
   --chart-panel-ink: #E8F0F2;
 
+  /* Lighter and darker stops of the two series colours. The client dashboard
+     had these as loose hex in seven places, which read as a third red and a
+     third purple rather than as ramps of the two that already existed. */
+  --chart-revenue-lift: #E6394E;
+  --chart-revenue-deep: #A3132A;
+  --chart-revenue-deepest: #6B0210;
+  --chart-cash-lift: #A279F2;
+  --chart-cash-deep: #6B3FD4;
+  --chart-cash-deepest: #3D2280;
+  --green-bright: #2E9E5B;
+
   /* ---- Type scale ----
      Replaces the 28 distinct font sizes that were in use, seven of them
      half-pixel values. Steps are chosen at the centres of the clusters that
@@ -490,10 +501,40 @@ footer {
   margin: 0 auto;
 }
 
-/* ---------- Phone ---------- */
+/* ---------- Phone ----------
+   Everything here was written for a 1180px canvas. 64px of gutter out of a
+   390px screen is a sixth of it. admin-dashboard had a block like this of its
+   own; partner-dashboard and client-detail had nothing, so they shipped the
+   desktop canvas to a phone. It belongs to the shared chrome, not to one page. */
+@media (max-width: 640px) {
+  .wrap { padding-left: 16px; padding-right: 16px; }
+  .nav-inner { padding: 13px 16px; gap: 10px; }
+  .logo { font-size: var(--text-xs); line-height: 1.25; }
+  .nav-actions { gap: 7px; flex-shrink: 0; }
+
+  footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px 16px 32px; }
+  .footer-links { gap: 18px; }
+
+  /* A four-across tab row does not fit; scroll it rather than wrap it. */
+  .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn { white-space: nowrap; flex-shrink: 0; }
+}
+
 @media (max-width: 500px) {
-  .wrap, .nav-inner { padding-left: 20px; padding-right: 20px; }
   .form-card { padding: 28px 24px; }
+}
+
+/* ---------- Touch targets ----------
+   A 30px close button is under half the area a thumb needs. The icon inside
+   stays the size it was; only the target grows. */
+@media (pointer: coarse) {
+  .modal-close,
+  .counter-btn,
+  .cal-nav-btn,
+  .tracker-nav-btn,
+  .btn-quiet,
+  .pw-toggle { min-width: 44px; min-height: 44px; }
 }
 
 /* ---------- Pointer-only hover ----------
@@ -645,4 +686,19 @@ footer {
 }
 @media (prefers-reduced-motion: reduce) {
   .form-shell.showing-pending .pending-panel { animation: none; }
+}
+
+/* ---------- Reduced motion, everywhere ----------
+   The five app pages had no prefers-reduced-motion rule of any kind, while
+   carrying chart draws, growing bars and sliding sheets. The landing page
+   handles its own set-pieces above; this is the backstop for everything
+   else, including anything added later. Press feedback survives it: at this
+   duration the scale still reads as a state change, just without travel. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -45,8 +45,16 @@
   }
 
   /* ---------- EOD MODAL ---------- */
+  /* Was display:none -> display:flex, which cannot animate: the scrim
+     snapped in at full strength on one frame with no relationship to the
+     card it was dimming for. visibility carries the same "not there"
+     semantics (no pointer events, out of the tab order) and does animate. */
   .modal-overlay {
-    display: none;
+    display: flex;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out),
+                visibility 0s linear var(--dur-base);
     position: fixed;
     inset: 0;
     z-index: 50;
@@ -57,9 +65,16 @@
     justify-content: center;
     padding: 20px;
   }
-  .modal-overlay.open { display: flex; }
+  .modal-overlay.open {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity var(--dur-base) var(--ease-out), visibility 0s;
+  }
+  .modal-overlay.open .modal-card { transform: none; }
 
   .modal-card {
+    transform: scale(0.97);
+    transition: transform var(--dur-base) var(--ease-out);
     width: 100%;
     max-width: 460px;
     max-height: 90vh;
@@ -314,16 +329,6 @@
     display: flex;
     gap: 10px;
   }
-  .btn-action {
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 600;
-    padding: 9px 18px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease, transform 0.15s ease;
-  }
   .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .btn-approve { background: var(--green); color: #fff; }
   .btn-reject {
@@ -404,7 +409,7 @@
     transition: box-shadow 0.25s ease, transform 0.2s ease;
   }
   .btn-frame-open:disabled {
-    opacity: 0.4;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -444,7 +449,7 @@
     justify-content: center;
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
   }
-  .counter-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .counter-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .counter-value {
     font-family: var(--font-display);
     font-weight: 600;
@@ -704,12 +709,12 @@
     transform-box: fill-box;
     transform-origin: 50% 100%;
     transform: scaleY(0.001);
-    transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform var(--dur-slow) var(--ease-out);
   }
   .chart-bar.shown { transform: scaleY(1); }
 
   .chart-line { fill: none; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
-  .chart-area { opacity: 0; transition: opacity 0.7s ease 0.25s; }
+  .chart-area { opacity: 0; transition: opacity var(--dur-slow) var(--ease-out) 120ms; }
   .chart-area.shown { opacity: 1; }
   .chart-dot { opacity: 0; transition: opacity 0.4s ease; }
   .chart-dot.shown { opacity: 1; }
@@ -1154,7 +1159,7 @@
     border-radius: 4px;
     background: var(--maroon);
     width: 0;
-    transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: width var(--dur-slow) var(--ease-out);
   }
   .fin-bar-fill.personal { background: var(--ink-faint); }
   .fin-bar-amount {
@@ -1432,6 +1437,7 @@
     height: 2px;
     background: var(--maroon);
     transform: scaleX(0);
+    transform-origin: left;   /* grow from the leading edge, not the middle */
     transition: transform 0.2s ease;
   }
   .tab-btn.active { color: var(--ink); }
@@ -3857,7 +3863,7 @@
       path.style.strokeDasharray = len;
       path.style.strokeDashoffset = len;
       path.getBoundingClientRect();
-      path.style.transition = 'stroke-dashoffset 1.15s cubic-bezier(0.22, 1, 0.36, 1)';
+      path.style.transition = 'stroke-dashoffset 450ms cubic-bezier(0.23, 1, 0.32, 1)';
       path.style.strokeDashoffset = '0';
     });
     requestAnimationFrame(function () { areas.forEach(function (a) { a.classList.add('shown'); }); });
@@ -4606,7 +4612,7 @@
       path.style.strokeDasharray = len;
       path.style.strokeDashoffset = len;
       path.getBoundingClientRect();
-      path.style.transition = 'stroke-dashoffset 1.15s cubic-bezier(0.22, 1, 0.36, 1)';
+      path.style.transition = 'stroke-dashoffset 450ms cubic-bezier(0.23, 1, 0.32, 1)';
       path.style.strokeDashoffset = '0';
     });
   }

@@ -124,6 +124,7 @@
     height: 2px;
     background: var(--maroon);
     transform: scaleX(0);
+    transform-origin: left;   /* grow from the leading edge, not the middle */
     transition: transform 0.2s ease;
   }
   .tab-btn.active { color: var(--ink); }
@@ -379,8 +380,16 @@
   .brand-item-row a { color: var(--midnight); word-break: break-all; }
   .brand-empty { font-size: 12.5px; color: var(--ink-faint); padding: 4px 0; }
 
+  /* Was display:none -> display:flex, which cannot animate: the scrim
+     snapped in at full strength on one frame with no relationship to the
+     card it was dimming for. visibility carries the same "not there"
+     semantics (no pointer events, out of the tab order) and does animate. */
   .modal-overlay {
-    display: none;
+    display: flex;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out),
+                visibility 0s linear var(--dur-base);
     position: fixed;
     inset: 0;
     z-index: 50;
@@ -391,9 +400,16 @@
     justify-content: center;
     padding: 20px;
   }
-  .modal-overlay.open { display: flex; }
+  .modal-overlay.open {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity var(--dur-base) var(--ease-out), visibility 0s;
+  }
+  .modal-overlay.open .modal-card { transform: none; }
 
   .modal-card {
+    transform: scale(0.97);
+    transition: transform var(--dur-base) var(--ease-out);
     width: 100%;
     max-width: 460px;
     max-height: 90vh;
@@ -494,7 +510,7 @@
     padding: 16px 4px 4px;
   }
   .modal-success .success-icon {
-    width: 52px; height: 52px;
+    width: 48px; height: 48px;
     border-radius: 50%;
     background: var(--green-dim);
     color: var(--green);

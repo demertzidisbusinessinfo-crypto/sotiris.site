@@ -95,7 +95,7 @@
     font-size: 16px;
     font-weight: 600;
   }
-  .btn-big:disabled { opacity: 0.55; }
+  .btn-big:disabled { opacity: 0.5; }
   .msg { font-size: 13.5px; color: var(--out); min-height: 18px; line-height: 1.45; }
 
   /* ---------------- home ---------------- */
@@ -226,15 +226,25 @@
 
   /* ---------------- entry sheet ---------------- */
 
+  /* A full-screen sheet on a phone is the single most animation-hungry
+     component here, and it was a display swap. It rises now. */
   .sheet {
     position: fixed;
     inset: 0;
     background: var(--bg);
     z-index: 40;
-    display: none;
+    display: flex;
     flex-direction: column;
+    visibility: hidden;
+    transform: translateY(100%);
+    transition: transform var(--dur-base) var(--ease-out),
+                visibility 0s linear var(--dur-base);
   }
-  .sheet.on { display: flex; }
+  .sheet.on {
+    visibility: visible;
+    transform: none;
+    transition: transform var(--dur-base) var(--ease-out), visibility 0s;
+  }
 
   .sheet-head {
     display: flex;
