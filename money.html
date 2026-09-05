@@ -444,10 +444,10 @@
     <div class="setup" id="setup-notice" style="display: none;"></div>
 
     <div class="ranges" id="ranges">
-      <button class="range" data-range="1w">1W</button>
-      <button class="range on" data-range="1">1M</button>
-      <button class="range" data-range="3">3M</button>
-      <button class="range" data-range="6">6M</button>
+      <button class="range" data-range="7">7D</button>
+      <button class="range on" data-range="30">30D</button>
+      <button class="range" data-range="90">90D</button>
+      <button class="range" data-range="180">180D</button>
       <button class="range" data-range="all">All</button>
     </div>
 
@@ -567,7 +567,7 @@
   var entries = [];
   var settings = { display_currency: 'EUR', eur_usd_rate: FALLBACK_RATE };
 
-  var range = 1;
+  var range = 30;
   var draft = { direction: 'out', amount: '0', currency: 'EUR', category_id: null, repeat: false };
 
   function $(id) { return document.getElementById(id); }
@@ -652,19 +652,19 @@
     return out;
   }
 
+  // Rolling, counting back day by day from today, the same way the dashboard
+  // does it: 30D is the 30 days ending today, not the calendar month so far.
+  // The old version started every window on the 1st, so on the 5th of the
+  // month "1M" was showing you five days and the totals collapsed overnight.
   function rangeStart(occ) {
     var now = new Date();
     if (range === 'all') {
-      if (!occ.length) return new Date(now.getFullYear(), now.getMonth(), 1);
-      var f = occ[0].date;
-      return new Date(f.getFullYear(), f.getMonth(), 1);
+      if (!occ.length) return startOfDay(now);
+      return startOfDay(occ[0].date);
     }
-    if (range === '1w') {
-      var s = startOfDay(now);
-      s.setDate(s.getDate() - 6);
-      return s;
-    }
-    return new Date(now.getFullYear(), now.getMonth() - (range - 1), 1);
+    var s = startOfDay(now);
+    s.setDate(s.getDate() - (range - 1));
+    return s;
   }
 
   function catById(id) {
@@ -716,10 +716,7 @@
     $('v-profit').textContent = money(profit);
     $('v-personal').textContent = money(r.personal);
 
-    var label = range === 'all' ? 'all time'
-      : range === '1w' ? 'the last 7 days'
-      : range === 1 ? 'this month'
-      : 'the last ' + range + ' months';
+    var label = range === 'all' ? 'all time' : 'the last ' + range + ' days';
     $('v-kept-sub').textContent = 'across ' + label;
 
     var total = r.categories.reduce(function (s, c) { return s + c.amount; }, 0);
@@ -962,7 +959,7 @@
       Array.prototype.forEach.call($('ranges').querySelectorAll('.range'), function (x) { x.classList.remove('on'); });
       b.classList.add('on');
       var v = b.dataset.range;
-      range = (v === 'all' || v === '1w') ? v : parseInt(v, 10);
+      range = v === 'all' ? v : parseInt(v, 10);
       render();
     });
   });
