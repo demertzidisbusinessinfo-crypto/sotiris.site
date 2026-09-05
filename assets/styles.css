@@ -59,7 +59,6 @@
   --chart-out: #FB7185;
   --chart-panel-ink: #E8F0F2;
 
-
   /* ---- Type scale ----
      Replaces the 28 distinct font sizes that were in use, seven of them
      half-pixel values. Steps are chosen at the centres of the clusters that
@@ -108,6 +107,8 @@
      Four durations replace ten, two curves replace the browser default.
      ease-in is deliberately absent: it delays the first frame, which is the
      one the eye is on, so it reads as slower at the same duration. */
+  --press: 0.97;          /* controls: a real, felt press */
+  --press-settle: 0.995;  /* rows and cards: settle, do not shrink */
   --dur-press: 120ms;
   --dur-fast:  180ms;
   --dur-base:  240ms;
@@ -151,6 +152,10 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+
+  /* Android paints a grey box on tap. Safe to drop now that every
+     pressable element has its own :active feedback. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -164,7 +169,6 @@ a { color: inherit; text-decoration: none; }
      should not be losable by accident. */
   outline: 2px solid var(--accent-soft) !important;
   outline-offset: 2px !important;
-  border-radius: var(--radius-2);
 }
 
 /* Lets a keyboard user jump the nav straight to the page content. Hidden
@@ -267,10 +271,8 @@ nav {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: color var(--dur-fast) var(--ease-out);
+  transition: color var(--dur-fast) var(--ease-out), transform var(--dur-press) var(--ease-out);
 }
-
-.nav-back:hover { color: var(--ink); }
 
 .nav-actions {
   display: flex;
@@ -287,12 +289,7 @@ nav {
   padding: 8px 16px;
   border-radius: var(--radius-2);
   cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
-}
-
-.btn-logout:hover {
-  border-color: var(--midnight);
-  background: rgba(15, 65, 74, 0.06);
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), transform var(--dur-press) var(--ease-out);
 }
 
 /* ---------- Footer ---------- */
@@ -311,8 +308,6 @@ footer {
 }
 
 .footer-links { display: flex; gap: 22px; }
-
-.footer-links a:hover { color: var(--ink); }
 
 /* ---------- The eyebrow pill ---------- */
 .eyebrow {
@@ -426,12 +421,7 @@ footer {
   border: none;
   cursor: pointer;
   margin-top: 28px;
-  transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
-}
-
-.btn-submit:hover {
-  box-shadow: var(--shadow-accent);
-  transform: translateY(-1px);
+  transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out);
 }
 
 .btn-submit:disabled {
@@ -498,4 +488,32 @@ footer {
 @media (max-width: 500px) {
   .wrap, .nav-inner { padding-left: 20px; padding-right: 20px; }
   .form-card { padding: 28px 24px; }
+}
+
+/* ---------- Pointer-only hover ----------
+   A touch screen has no hover to leave, so an ungated :hover latches
+   after a tap and the control stays lit until you tap something else. */
+@media (hover: hover) and (pointer: fine) {
+  .nav-back:hover { color: var(--ink); }
+
+  .btn-logout:hover {
+    border-color: var(--midnight);
+    background: rgba(15, 65, 74, 0.06);
+  }
+
+  .footer-links a:hover { color: var(--ink); }
+
+  .btn-submit:hover {
+    box-shadow: var(--shadow-accent);
+    transform: translateY(-1px);
+  }
+}
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.btn-submit:active,
+.btn-logout:active,
+.nav-back:active {
+  transform: scale(var(--press));
 }

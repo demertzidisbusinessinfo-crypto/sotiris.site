@@ -14,10 +14,6 @@
   --accent: var(--midnight);
   --accent-dim: rgba(15, 65, 74, 0.08);
 }
-  .btn-submit:hover {
-    box-shadow: var(--shadow-accent-soft);
-    transform: translateY(-1px);
-  }
 
   .login-prompt {
     text-align: center;
@@ -41,17 +37,35 @@
     color: var(--ink);
     border: 1px solid var(--glass-border);
     background: var(--glass-bg);
-    transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
-  }
-  .btn-login:hover {
-    border-color: var(--midnight);
-    background: rgba(15, 65, 74, 0.06);
-    transform: translateY(-1px);
+    transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out);
   }
   @media (max-width: 500px) {
     footer { flex-direction: column; gap: 10px; text-align: center; }
     .form-card { padding: 28px 24px; }
   }
+
+/* ---------- Pointer-only hover ----------
+   A touch screen has no hover to leave, so an ungated :hover latches
+   after a tap and the control stays lit until you tap something else. */
+@media (hover: hover) and (pointer: fine) {
+  .btn-submit:hover {
+      box-shadow: var(--shadow-accent-soft);
+      transform: translateY(-1px);
+    }
+
+  .btn-login:hover {
+      border-color: var(--midnight);
+      background: rgba(15, 65, 74, 0.06);
+      transform: translateY(-1px);
+    }
+}
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.btn-login:active {
+  transform: scale(var(--press));
+}
 </style>
 </head>
 <body class="auth">

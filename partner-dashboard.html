@@ -17,6 +17,7 @@
      border; reset those to what the <div>s had. Declared up here so each
      element's own rules further down still win for what they do set. */
   .cal-day, .eod-list-item {
+    transition: transform var(--dur-press) var(--ease-out);
     font: inherit;
     color: inherit;
     text-align: inherit;
@@ -37,10 +38,6 @@
     border-radius: 8px;
     cursor: pointer;
     transition: box-shadow 0.25s ease, transform 0.2s ease;
-  }
-  .btn-eod-nav:hover {
-    box-shadow: 0 4px 20px rgba(127,3,3,0.3);
-    transform: translateY(-1px);
   }
 
   .gate-screen {
@@ -114,7 +111,7 @@
     padding: 12px 6px;
     cursor: pointer;
     position: relative;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
   .tab-btn::after {
     content: '';
@@ -170,9 +167,8 @@
     color: var(--ink-dim);
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .cal-nav-btn:hover { background: rgba(255,255,255,0.85); }
 
   .cal-grid {
     display: grid;
@@ -200,12 +196,12 @@
   }
   .cal-day.empty { background: none; }
   .cal-day.has-eod {
+    transition: transform var(--dur-press) var(--ease-out);
     background: var(--green-dim);
     color: var(--green);
     font-weight: 600;
     cursor: pointer;
   }
-  .cal-day.has-eod:hover { background: rgba(46,107,79,0.18); }
   .cal-day.today { box-shadow: inset 0 0 0 1.5px var(--midnight); }
 
   .eod-list-title {
@@ -228,7 +224,6 @@
     transition: background 0.2s ease;
     font-size: 13px;
   }
-  .eod-list-item:hover { background: rgba(255,255,255,0.65); }
   .eod-date { font-weight: 600; }
   .eod-count { color: var(--ink-dim); }
   .eod-log-empty {
@@ -267,7 +262,6 @@
     cursor: pointer;
     transition: border-color 0.2s ease, transform 0.2s ease;
   }
-  .client-card:hover { border-color: var(--midnight); transform: translateY(-2px); }
   .client-card h3 {
     font-family: var(--font-display);
     font-weight: 600;
@@ -318,6 +312,7 @@
   }
   .client-detail-header .ig { font-size: 13px; color: var(--ink-faint); }
   .btn-close-detail {
+    transition: transform var(--dur-press) var(--ease-out);
     width: 30px; height: 30px;
     border-radius: 50%;
     border: 1px solid var(--glass-border);
@@ -327,7 +322,6 @@
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .btn-close-detail:hover { background: rgba(255,255,255,0.85); }
 
   .frame-link-row {
     margin-bottom: 26px;
@@ -376,7 +370,6 @@
   .brand-item-row:last-child { border-bottom: none; }
   .brand-item-row svg { width: 15px; height: 15px; color: var(--ink-dim); flex-shrink: 0; }
   .brand-item-row a { color: var(--midnight); word-break: break-all; }
-  .brand-item-row a:hover { text-decoration: underline; }
   .brand-empty { font-size: 12.5px; color: var(--ink-faint); padding: 4px 0; }
 
   .modal-overlay {
@@ -418,9 +411,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .modal-close:hover { background: rgba(255,255,255,0.8); }
 
   .modal-card h2 {
     font-family: var(--font-display);
@@ -486,10 +478,6 @@
     margin-top: 6px;
     transition: box-shadow 0.25s ease, transform 0.2s ease;
   }
-  .modal-submit:hover {
-    box-shadow: 0 6px 24px rgba(127,3,3,0.32);
-    transform: translateY(-1px);
-  }
   .modal-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
   .modal-success {
@@ -516,6 +504,53 @@
   @media (max-width: 500px) {
     footer { flex-direction: column; gap: 10px; text-align: center; }
   }
+
+/* ---------- Pointer-only hover ----------
+   A touch screen has no hover to leave, so an ungated :hover latches
+   after a tap and the control stays lit until you tap something else. */
+@media (hover: hover) and (pointer: fine) {
+  .btn-eod-nav:hover {
+      box-shadow: 0 4px 20px rgba(127,3,3,0.3);
+      transform: translateY(-1px);
+    }
+
+  .cal-nav-btn:hover { background: rgba(255,255,255,0.85); }
+
+  .cal-day.has-eod:hover { background: rgba(46,107,79,0.18); }
+
+  .eod-list-item:hover { background: rgba(255,255,255,0.65); }
+
+  .client-card:hover { border-color: var(--midnight); transform: translateY(-2px); }
+
+  .btn-close-detail:hover { background: rgba(255,255,255,0.85); }
+
+  .brand-item-row a:hover { text-decoration: underline; }
+
+  .modal-close:hover { background: rgba(255,255,255,0.8); }
+
+  .modal-submit:hover {
+      box-shadow: 0 6px 24px rgba(127,3,3,0.32);
+      transform: translateY(-1px);
+    }
+}
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.btn-eod-nav:active,
+.tab-btn:active,
+.cal-nav-btn:active,
+.btn-close-detail:active,
+.modal-close:active,
+.modal-submit:active {
+  transform: scale(var(--press));
+}
+
+.eod-list-item:active,
+.client-card:active,
+.cal-day.has-eod:active {
+  transform: translateY(0) scale(var(--press-settle));
+}
 </style>
 </head>
 <body>

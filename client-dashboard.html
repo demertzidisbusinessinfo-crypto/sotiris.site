@@ -80,7 +80,7 @@
     padding: 12px 6px;
     cursor: pointer;
     position: relative;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
   .tab-btn::after {
     content: '';
@@ -181,10 +181,6 @@
     white-space: nowrap;
     transition: box-shadow 0.25s ease, transform 0.2s ease;
   }
-  .btn-save:hover {
-    box-shadow: 0 6px 24px rgba(15,65,74,0.28);
-    transform: translateY(-1px);
-  }
   .btn-save:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
   .frame-current {
@@ -232,7 +228,6 @@
     cursor: pointer; width: 100%; text-align: left; font: inherit; color: inherit;
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
   }
-  .onb-item:hover { border-color: var(--midnight); transform: translateX(2px); }
   .onb-check {
     width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
     border: 2px solid rgba(15,65,74,0.3); display: flex; align-items: center; justify-content: center; color: #fff;
@@ -261,9 +256,8 @@
   .goal-edit-btn {
     font-family: var(--font-mono); font-size: 11px; padding: 6px 12px; border-radius: 8px;
     border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); color: var(--ink-dim); cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease;
+    transition: border-color 0.2s ease, color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .goal-edit-btn:hover { border-color: var(--midnight); color: var(--ink); }
   .goal-rows { display: grid; gap: 16px; }
   .goal-row-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
   .goal-metric { font-size: 11.5px; font-weight: 600; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.05em; }
@@ -306,9 +300,8 @@
     background: rgba(255,255,255,0.5);
     color: var(--ink-dim);
     cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .stat-range-btn:hover { border-color: var(--midnight); color: var(--ink); }
   .stat-range-btn.active {
     background: var(--midnight);
     border-color: var(--midnight);
@@ -408,11 +401,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .tracker-nav-btn:hover {
-    border-color: var(--midnight);
-    background: rgba(15, 65, 74, 0.06);
+    transition: border-color 0.2s ease, background 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
 
   .tracker-grid {
@@ -489,11 +478,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .tracker-counter-btn:hover {
-    border-color: var(--midnight);
-    background: rgba(15, 65, 74, 0.06);
+    transition: border-color 0.2s ease, background 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
   .tracker-counter-row input {
     width: 60px;
@@ -551,9 +536,8 @@
     background: rgba(255,255,255,0.04);
     color: rgba(232,240,242,0.62);
     cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .chart-range-btn:hover { border-color: rgba(150,192,206,0.55); color: var(--chart-panel-ink); }
   .chart-range-btn.active {
     background: rgba(150,192,206,0.18);
     border-color: rgba(150,192,206,0.6);
@@ -582,9 +566,8 @@
     background: transparent;
     color: rgba(232,240,242,0.55);
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .chart-mode-btn:hover { color: var(--chart-panel-ink); }
   .chart-mode-btn.active { background: rgba(150,192,206,0.22); color: #fff; }
   .chart-range-note {
     font-family: var(--font-mono);
@@ -813,9 +796,8 @@
     background: transparent;
     color: var(--ink-dim);
     cursor: pointer;
-    transition: background 0.18s ease, color 0.18s ease;
+    transition: background 0.18s ease, color 0.18s ease, transform var(--dur-press) var(--ease-out);
   }
-  .fin-seg-btn:hover { color: var(--ink); }
   .fin-seg-btn.active { background: var(--midnight); color: #F4F9FA; }
   .fin-seg-btn.active.out { background: var(--maroon); }
 
@@ -866,9 +848,8 @@
     background: rgba(255,255,255,0.4);
     color: var(--ink-dim);
     cursor: pointer;
-    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform var(--dur-press) var(--ease-out);
   }
-  .fin-chip:hover { border-color: var(--midnight); color: var(--ink); }
   .fin-chip.active { background: var(--maroon); border-color: var(--maroon); color: #fff; }
   .fin-chip.personal.active { background: var(--midnight); border-color: var(--midnight); }
   .fin-chip.add { color: var(--ink-faint); border-style: dashed; }
@@ -898,7 +879,6 @@
     cursor: pointer;
     transition: transform 0.18s ease, opacity 0.18s ease;
   }
-  .fin-submit:hover { transform: translateY(-1px); }
   .fin-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .fin-form-msg { font-size: 12.5px; margin-top: 12px; min-height: 16px; color: var(--ink-faint); }
   .fin-form-msg.error { color: var(--maroon-soft); }
@@ -968,9 +948,8 @@
     padding: 4px 6px;
     cursor: pointer;
     border-radius: 6px;
-    transition: color 0.18s ease, background 0.18s ease;
+    transition: color 0.18s ease, background 0.18s ease, transform var(--dur-press) var(--ease-out);
   }
-  .fin-del:hover { color: var(--maroon); background: var(--accent-dim); }
 
   .fin-setup-notice {
     border: 1px solid var(--glass-border);
@@ -1096,9 +1075,8 @@
     background: rgba(255,255,255,0.55);
     color: var(--ink-dim);
     cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .tracker-mode-btn:hover { border-color: var(--midnight); color: var(--ink); }
   .tracker-date-input {
     font-family: var(--font-body);
     font-size: 12px;
@@ -1111,13 +1089,8 @@
     cursor: pointer;
     transition: border-color 0.2s ease, color 0.2s ease;
   }
-  .tracker-date-input:hover { border-color: var(--midnight); color: var(--ink); }
   .tracker-date-input:focus { outline: none; border-color: var(--midnight); color: var(--ink); }
   .tracker-nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .tracker-nav-btn:disabled:hover {
-    border-color: var(--glass-border);
-    background: rgba(255,255,255,0.5);
-  }
   .tracker-mode-btn.active {
     background: var(--midnight);
     border-color: var(--midnight);
@@ -1232,7 +1205,7 @@
     color: #fff;
     border: none;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
   .brand-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -1324,6 +1297,77 @@
     .fin-ledger-note { font-size: 13px; }
     .fin-ledger-amount { font-size: 12.5px; }
   }
+
+/* ---------- Pointer-only hover ----------
+   A touch screen has no hover to leave, so an ungated :hover latches
+   after a tap and the control stays lit until you tap something else. */
+@media (hover: hover) and (pointer: fine) {
+  .btn-save:hover {
+      box-shadow: 0 6px 24px rgba(15,65,74,0.28);
+      transform: translateY(-1px);
+    }
+
+  .onb-item:hover { border-color: var(--midnight); transform: translateX(2px); }
+
+  .goal-edit-btn:hover { border-color: var(--midnight); color: var(--ink); }
+
+  .stat-range-btn:hover { border-color: var(--midnight); color: var(--ink); }
+
+  .tracker-nav-btn:hover {
+      border-color: var(--midnight);
+      background: rgba(15, 65, 74, 0.06);
+    }
+
+  .tracker-counter-btn:hover {
+      border-color: var(--midnight);
+      background: rgba(15, 65, 74, 0.06);
+    }
+
+  .chart-range-btn:hover { border-color: rgba(150,192,206,0.55); color: var(--chart-panel-ink); }
+
+  .chart-mode-btn:hover { color: var(--chart-panel-ink); }
+
+  .fin-seg-btn:hover { color: var(--ink); }
+
+  .fin-chip:hover { border-color: var(--midnight); color: var(--ink); }
+
+  .fin-submit:hover { transform: translateY(-1px); }
+
+  .fin-del:hover { color: var(--maroon); background: var(--accent-dim); }
+
+  .tracker-mode-btn:hover { border-color: var(--midnight); color: var(--ink); }
+
+  .tracker-date-input:hover { border-color: var(--midnight); color: var(--ink); }
+
+  .tracker-nav-btn:disabled:hover {
+      border-color: var(--glass-border);
+      background: rgba(255,255,255,0.5);
+    }
+}
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.tab-btn:active,
+.btn-save:active,
+.goal-edit-btn:active,
+.stat-range-btn:active,
+.tracker-nav-btn:active,
+.tracker-counter-btn:active,
+.chart-range-btn:active,
+.chart-mode-btn:active,
+.fin-seg-btn:active,
+.fin-chip:active,
+.fin-submit:active,
+.fin-del:active,
+.tracker-mode-btn:active,
+.brand-save-btn:active {
+  transform: scale(var(--press));
+}
+
+.onb-item:active {
+  transform: translateY(0) scale(var(--press-settle));
+}
 </style>
 </head>
 <body>

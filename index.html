@@ -23,7 +23,6 @@
     line-height: 1.5;
     overflow-x: hidden;
     position: relative;
-    -webkit-tap-highlight-color: transparent;
   }
 
   /* Ambient background — anchored to the page, scrolls with content */
@@ -109,9 +108,8 @@
     background: var(--accent);
     color: #fff;
     box-shadow: 0 0 0 0 rgba(127,3,3,0.35);
-    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out);
   }
-  .nav-cta:hover { box-shadow: var(--shadow-accent); transform: translateY(-1px); }
 
   .nav-actions {
     display: flex;
@@ -126,7 +124,7 @@
     background: var(--accent);
     color: #fff;
     box-shadow: 0 0 0 0 rgba(127,3,3,0.35);
-    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -143,7 +141,6 @@
     letter-spacing: 0.02em;
     color: rgba(255,255,255,0.75);
   }
-  .nav-terminal:hover { box-shadow: var(--shadow-accent); transform: translateY(-1px); }
 
   @media (max-width: 480px) {
     .nav-inner { padding-top: 14px; padding-bottom: 14px; }
@@ -233,10 +230,9 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out);
     box-shadow: 0 0 0 0 rgba(127,3,3,0.35);
   }
-  .btn-primary:hover { box-shadow: var(--shadow-accent); transform: translateY(-1px); }
 
   /* ---------- SIGNATURE: Clip breakdown card ---------- */
   .clip-card {
@@ -420,9 +416,8 @@
     font-family: var(--font-mono); font-size: var(--text-2xs); font-weight: 600; letter-spacing: 0.04em;
     padding: 6px 12px; border-radius: var(--radius-2); border: 1px solid rgba(255,255,255,0.12);
     background: rgba(255,255,255,0.04); color: rgba(232,240,242,0.62); cursor: pointer;
-    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-press) var(--ease-out);
   }
-  .dp-range-btn:hover { border-color: rgba(150,192,206,0.55); color: #fff; }
   .dp-range-btn.active { background: rgba(150,192,206,0.18); border-color: rgba(150,192,206,0.6); color: #fff; }
 
   .dp-stats-row { display: flex; gap: 34px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -459,17 +454,6 @@
   #dashboard-preview.dp-play .dp-file-row:nth-child(2) { transition-delay: 0.35s; }
   #dashboard-preview.dp-play .dp-file-row:nth-child(3) { transition-delay: 0.51s; }
   #dashboard-preview.dp-play .dp-file-row:nth-child(4) { transition-delay: 0.67s; }
-  /* hover: file pops bigger and lifts (snappy, overrides the reveal timing) */
-  #dashboard-preview.dp-play .dp-file-row:hover {
-    transform: translateY(-5px) scale(1.035);
-    transition: transform var(--dur-base) var(--ease-out), 1, 0.36, 1), box-shadow var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
-    transition-delay: 0s;
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(150,192,206,0.45);
-    box-shadow: 0 16px 32px -12px rgba(0,0,0,0.78);
-    position: relative;
-    z-index: 3;
-  }
   .dp-file-check { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.05em; text-transform: uppercase; color: #4ADE80; }
   .dp-file-check svg { width: 14px; height: 14px; color: #4ADE80; }
 
@@ -506,9 +490,8 @@
     position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
     width: 74px; height: 74px; border-radius: 50%; border: none; cursor: pointer; z-index: 2;
     background: rgba(127,3,3,0.92); color: #fff; display: flex; align-items: center; justify-content: center;
-    box-shadow: var(--shadow-accent); transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+    box-shadow: var(--shadow-accent); transition: transform var(--dur-press) var(--ease-out), background var(--dur-fast) var(--ease-out);
   }
-  .tm-play:hover { transform: translate(-50%,-50%) scale(1.08); background: var(--maroon); }
   .tm-play svg { width: 26px; height: 26px; margin-left: 3px; }
   .tm-play::before { content: ''; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); animation: tm-ring 2.4s ease-out infinite; }
   @keyframes tm-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.5); opacity: 0; } }
@@ -572,11 +555,6 @@
     opacity: 0.09;
     mix-blend-mode: multiply;
     background-image: var(--grain);
-  }
-  .service-card:hover {
-    background: var(--tan);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-2);
   }
   .services-grid { perspective: 800px; }
   .service-card.stagger-item {
@@ -667,10 +645,6 @@
     transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
     display: block;
   }
-  .client-avatar-wrap:hover .client-avatar {
-    transform: scale(1.08);
-    box-shadow: 0 0 0 2px var(--maroon);
-  }
 
   /* Instagram-style popover */
   .ig-popover {
@@ -691,13 +665,13 @@
     z-index: 60;
     text-align: left;
   }
-  .client-avatar-wrap:hover .ig-popover,
-  .client-avatar-wrap:focus-visible .ig-popover,
-  .client-avatar-wrap.open .ig-popover {
+.client-avatar-wrap:focus-visible .ig-popover,
+.client-avatar-wrap.open .ig-popover {
     opacity: 1;
     visibility: visible;
     transform: translateX(calc(-50% + var(--shift))) translateY(0);
   }
+
   .ig-popover::after {
     content: '';
     position: absolute;
@@ -781,10 +755,6 @@
     align-items: start;
     transition: transform var(--dur-slow) var(--ease-out), 1, 0.36, 1), box-shadow var(--dur-slow) var(--ease-out);
     cursor: default;
-    box-shadow: var(--shadow-3);
-  }
-  .about-card:hover {
-    transform: scale(1.015);
     box-shadow: var(--shadow-3);
   }
   @media (max-width: 800px) {
@@ -896,7 +866,6 @@
   @media (max-width: 600px) {
     footer { flex-direction: column; gap: 12px; text-align: center; }
   }
-  footer a:hover { color: var(--ink-dim); }
   .footer-links { display: flex; gap: 24px; }
 
   /* Scroll reveal */
@@ -909,6 +878,67 @@
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; transition: none; }
   }
+
+/* ---------- Pointer-only hover ----------
+   A touch screen has no hover to leave, so an ungated :hover latches
+   after a tap and the control stays lit until you tap something else. */
+@media (hover: hover) and (pointer: fine) {
+  .nav-cta:hover { box-shadow: var(--shadow-accent); transform: translateY(-1px); }
+
+  .nav-terminal:hover { box-shadow: var(--shadow-accent); transform: translateY(-1px); }
+
+  .btn-primary:hover { box-shadow: var(--shadow-accent); transform: translateY(-1px); }
+
+  .dp-range-btn:hover { border-color: rgba(150,192,206,0.55); color: #fff; }
+
+  #dashboard-preview.dp-play .dp-file-row:hover {
+      transform: translateY(-5px) scale(1.035);
+      transition: transform var(--dur-base) var(--ease-out), 1, 0.36, 1), box-shadow var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+      transition-delay: 0s;
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(150,192,206,0.45);
+      box-shadow: 0 16px 32px -12px rgba(0,0,0,0.78);
+      position: relative;
+      z-index: 3;
+    }
+
+  .tm-play:hover { transform: translate(-50%,-50%) scale(1.08); background: var(--maroon); }
+
+  .service-card:hover {
+      background: var(--tan);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-2);
+    }
+
+  .client-avatar-wrap:hover .client-avatar {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 2px var(--maroon);
+    }
+
+  .client-avatar-wrap:hover .ig-popover {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(calc(-50% + var(--shift))) translateY(0);
+    }
+
+  .about-card:hover {
+      transform: scale(1.015);
+      box-shadow: var(--shadow-3);
+    }
+
+  footer a:hover { color: var(--ink-dim); }
+}
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.nav-cta:active,
+.nav-terminal:active,
+.btn-primary:active,
+.dp-range-btn:active,
+.tm-play:active {
+  transform: scale(var(--press));
+}
 </style>
 </head>
 <body>

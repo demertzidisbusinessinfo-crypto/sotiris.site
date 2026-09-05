@@ -17,6 +17,7 @@
      border; reset those to what the <div>s had. Declared up here so each
      element's own rules further down still win for what they do set. */
   .cal-day, .bottleneck-item, .eod-list-item {
+    transition: transform var(--dur-press) var(--ease-out);
     font: inherit;
     color: inherit;
     text-align: inherit;
@@ -37,10 +38,6 @@
     border-radius: 8px;
     cursor: pointer;
     transition: box-shadow 0.25s ease, transform 0.2s ease;
-  }
-  .btn-eod-nav:hover {
-    box-shadow: 0 4px 20px rgba(127,3,3,0.3);
-    transform: translateY(-1px);
   }
 
   /* ---------- EOD MODAL ---------- */
@@ -83,9 +80,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .modal-close:hover { background: rgba(255,255,255,0.8); }
 
   .modal-card h2 {
     font-family: var(--font-display);
@@ -148,10 +144,6 @@
     cursor: pointer;
     margin-top: 6px;
     transition: box-shadow 0.25s ease, transform 0.2s ease;
-  }
-  .modal-submit:hover {
-    box-shadow: 0 6px 24px rgba(127,3,3,0.32);
-    transform: translateY(-1px);
   }
   .modal-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
@@ -228,9 +220,8 @@
     border: 1px solid transparent;
     font-size: 13.5px;
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .assign-client-row:hover { background: rgba(255,255,255,0.6); }
   .assign-client-row.checked {
     border-color: var(--midnight);
     background: rgba(15, 65, 74, 0.06);
@@ -263,10 +254,6 @@
     border-radius: 8px;
     cursor: pointer;
     transition: box-shadow 0.25s ease, transform 0.2s ease;
-  }
-  .btn-save-assignments:hover {
-    box-shadow: 0 4px 20px rgba(15,65,74,0.3);
-    transform: translateY(-1px);
   }
   .btn-save-assignments:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
   .assign-save-status {
@@ -331,7 +318,6 @@
     cursor: pointer;
     transition: opacity 0.2s ease, transform 0.15s ease;
   }
-  .btn-action:hover { transform: translateY(-1px); }
   .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .btn-approve { background: var(--green); color: #fff; }
   .btn-reject {
@@ -410,10 +396,6 @@
     white-space: nowrap;
     transition: box-shadow 0.25s ease, transform 0.2s ease;
   }
-  .btn-frame-open:hover {
-    box-shadow: 0 6px 24px rgba(15,65,74,0.28);
-    transform: translateY(-1px);
-  }
   .btn-frame-open:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -453,11 +435,6 @@
     align-items: center;
     justify-content: center;
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
-  }
-  .counter-btn:hover {
-    border-color: var(--midnight);
-    background: rgba(15, 65, 74, 0.06);
-    transform: translateY(-1px);
   }
   .counter-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
   .counter-value {
@@ -547,9 +524,8 @@
     background: rgba(255,255,255,0.04);
     color: rgba(232,240,242,0.62);
     cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .chart-range-btn:hover { border-color: rgba(150,192,206,0.55); color: var(--chart-panel-ink); }
   .chart-range-btn.active {
     background: rgba(150,192,206,0.18);
     border-color: rgba(150,192,206,0.6);
@@ -578,9 +554,8 @@
     background: transparent;
     color: rgba(232,240,242,0.55);
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
-  .chart-mode-btn:hover { color: var(--chart-panel-ink); }
   .chart-mode-btn.active { background: rgba(150,192,206,0.22); color: #fff; }
   .chart-range-note {
     font-family: var(--font-mono);
@@ -979,11 +954,6 @@
     cursor: pointer;
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
   }
-  .eod-list-item:hover {
-    border-color: var(--midnight);
-    background: rgba(255,255,255,0.8);
-    transform: translateY(-1px);
-  }
   .eod-list-item .eod-date {
     font-size: 13px;
     font-weight: 600;
@@ -1020,11 +990,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .cal-nav-btn:hover {
-    border-color: var(--midnight);
-    background: rgba(15, 65, 74, 0.06);
+    transition: border-color 0.2s ease, background 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
   .cal-nav-group { display: flex; gap: 8px; }
 
@@ -1064,13 +1030,13 @@
     border-color: rgba(46,107,79,0.3);
   }
   .cal-day.has-eod {
+    transition: transform var(--dur-press) var(--ease-out);
     background: var(--green-dim);
     border-color: rgba(46,107,79,0.3);
     color: var(--green);
     font-weight: 600;
     cursor: pointer;
   }
-  .cal-day.has-eod:hover { background: rgba(46,107,79,0.18); }
   .cal-day.today { box-shadow: inset 0 0 0 1.5px var(--midnight); }
 
   /* Recent bottlenecks feed — the bottleneck field from every partner's EODs,
@@ -1082,7 +1048,6 @@
     transition: background 0.15s ease;
   }
   .bottleneck-item:last-child { border-bottom: none; }
-  .bottleneck-item:hover { background: rgba(15, 65, 74, 0.04); }
   .bottleneck-head {
     display: flex;
     align-items: baseline;
@@ -1235,9 +1200,8 @@
     background: transparent;
     color: var(--ink-dim);
     cursor: pointer;
-    transition: background 0.18s ease, color 0.18s ease;
+    transition: background 0.18s ease, color 0.18s ease, transform var(--dur-press) var(--ease-out);
   }
-  .fin-seg-btn:hover { color: var(--ink); }
   .fin-seg-btn.active { background: var(--midnight); color: #F4F9FA; }
   .fin-seg-btn.active.out { background: var(--maroon); }
 
@@ -1282,9 +1246,8 @@
     background: rgba(255,255,255,0.4);
     color: var(--ink-dim);
     cursor: pointer;
-    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform var(--dur-press) var(--ease-out);
   }
-  .fin-chip:hover { border-color: var(--midnight); color: var(--ink); }
   .fin-chip.active { background: var(--maroon); border-color: var(--maroon); color: #fff; }
   .fin-chip.personal.active { background: var(--midnight); border-color: var(--midnight); }
   .fin-chip.add { color: var(--ink-faint); border-style: dashed; }
@@ -1314,7 +1277,6 @@
     cursor: pointer;
     transition: transform 0.18s ease, opacity 0.18s ease;
   }
-  .fin-submit:hover { transform: translateY(-1px); }
   .fin-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .fin-form-msg { font-size: 12.5px; margin-top: 12px; min-height: 16px; color: var(--ink-faint); }
   .fin-form-msg.error { color: var(--maroon-soft); }
@@ -1384,9 +1346,8 @@
     padding: 4px 6px;
     cursor: pointer;
     border-radius: 6px;
-    transition: color 0.18s ease, background 0.18s ease;
+    transition: color 0.18s ease, background 0.18s ease, transform var(--dur-press) var(--ease-out);
   }
-  .fin-del:hover { color: var(--maroon); background: var(--accent-dim); }
 
   .fin-settings-bar {
     display: flex;
@@ -1449,7 +1410,7 @@
     padding: 12px 6px;
     cursor: pointer;
     position: relative;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
   .tab-btn::after {
     content: '';
@@ -1502,7 +1463,6 @@
     transition: background 0.15s ease;
   }
   tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.35); }
 
   tbody td {
     padding: 16px 20px;
@@ -1563,7 +1523,6 @@
     transition: opacity 0.2s ease, transform 0.15s ease;
     white-space: nowrap;
   }
-  .btn-action:hover { transform: translateY(-1px); }
   .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   .btn-approve {
@@ -1702,6 +1661,102 @@
     .btn-eod-nav, .btn-logout { font-size: 11.5px; padding: 8px 10px; }
     .tab-btn + .tab-btn { margin-left: 12px; }
   }
+
+/* ---------- Pointer-only hover ----------
+   A touch screen has no hover to leave, so an ungated :hover latches
+   after a tap and the control stays lit until you tap something else. */
+@media (hover: hover) and (pointer: fine) {
+  .btn-eod-nav:hover {
+      box-shadow: 0 4px 20px rgba(127,3,3,0.3);
+      transform: translateY(-1px);
+    }
+
+  .modal-close:hover { background: rgba(255,255,255,0.8); }
+
+  .modal-submit:hover {
+      box-shadow: 0 6px 24px rgba(127,3,3,0.32);
+      transform: translateY(-1px);
+    }
+
+  .assign-client-row:hover { background: rgba(255,255,255,0.6); }
+
+  .btn-save-assignments:hover {
+      box-shadow: 0 4px 20px rgba(15,65,74,0.3);
+      transform: translateY(-1px);
+    }
+
+  .btn-action:hover { transform: translateY(-1px); }
+
+  .btn-frame-open:hover {
+      box-shadow: 0 6px 24px rgba(15,65,74,0.28);
+      transform: translateY(-1px);
+    }
+
+  .counter-btn:hover {
+      border-color: var(--midnight);
+      background: rgba(15, 65, 74, 0.06);
+      transform: translateY(-1px);
+    }
+
+  .chart-range-btn:hover { border-color: rgba(150,192,206,0.55); color: var(--chart-panel-ink); }
+
+  .chart-mode-btn:hover { color: var(--chart-panel-ink); }
+
+  .eod-list-item:hover {
+      border-color: var(--midnight);
+      background: rgba(255,255,255,0.8);
+      transform: translateY(-1px);
+    }
+
+  .cal-nav-btn:hover {
+      border-color: var(--midnight);
+      background: rgba(15, 65, 74, 0.06);
+    }
+
+  .cal-day.has-eod:hover { background: rgba(46,107,79,0.18); }
+
+  .bottleneck-item:hover { background: rgba(15, 65, 74, 0.04); }
+
+  .fin-seg-btn:hover { color: var(--ink); }
+
+  .fin-chip:hover { border-color: var(--midnight); color: var(--ink); }
+
+  .fin-submit:hover { transform: translateY(-1px); }
+
+  .fin-del:hover { color: var(--maroon); background: var(--accent-dim); }
+
+  tbody tr:hover { background: rgba(255,255,255,0.35); }
+
+  .btn-action:hover { transform: translateY(-1px); }
+}
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.btn-eod-nav:active,
+.modal-close:active,
+.modal-submit:active,
+.btn-save-assignments:active,
+.btn-action:active,
+.btn-frame-open:active,
+.counter-btn:active,
+.chart-range-btn:active,
+.chart-mode-btn:active,
+.cal-nav-btn:active,
+.fin-seg-btn:active,
+.fin-chip:active,
+.fin-submit:active,
+.fin-del:active,
+.tab-btn:active {
+  transform: scale(var(--press));
+}
+
+.assign-client-row:active,
+.eod-list-item:active,
+.bottleneck-item:active,
+.cal-day.has-eod:active {
+  transform: translateY(0) scale(var(--press-settle));
+}
 </style>
 </head>
 <body>

@@ -85,6 +85,7 @@
   }
   .field:focus { border-color: rgba(74, 222, 128, 0.5); }
   .btn-big {
+    transition: transform var(--dur-press) var(--ease-out);
     width: 100%;
     padding: 17px;
     border-radius: 14px;
@@ -111,6 +112,7 @@
 
   .ranges { display: flex; gap: 7px; margin-bottom: 18px; }
   .range {
+    transition: transform var(--dur-press) var(--ease-out);
     flex: 1;
     min-height: 44px;
     padding: 0;
@@ -243,6 +245,7 @@
   .sheet-head button { font-size: 15px; color: var(--ink-dim); padding: 6px 2px; }
   .seg { display: flex; background: var(--surface); border-radius: 11px; padding: 3px; }
   .seg button {
+    transition: transform var(--dur-press) var(--ease-out);
     padding: 8px 15px;
     border-radius: 9px;
     font-size: 13px;
@@ -292,6 +295,7 @@
 
   .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 22px; }
   .tile {
+    transition: transform var(--dur-press) var(--ease-out);
     padding: 15px 14px;
     border-radius: 14px;
     background: var(--surface);
@@ -350,6 +354,7 @@
 
   .sheet-foot { flex: 0 0 auto; padding: 10px 16px calc(14px + var(--safe-bottom)); }
   .save {
+    transition: transform var(--dur-press) var(--ease-out);
     width: 100%;
     padding: 18px;
     border-radius: 16px;
@@ -390,6 +395,17 @@
     line-height: 1.55;
     color: var(--ink-dim);
   }
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.save:active,
+.tile:active,
+.range:active,
+.seg button:active,
+.btn-big:active {
+  transform: scale(var(--press));
+}
 </style>
 </head>
 <body>

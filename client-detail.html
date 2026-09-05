@@ -106,7 +106,6 @@
     cursor: pointer;
     transition: opacity 0.2s ease, transform 0.15s ease;
   }
-  .btn-action:hover { transform: translateY(-1px); }
   .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .btn-approve { background: var(--green); color: #fff; }
   .btn-reject {
@@ -189,10 +188,6 @@
     white-space: nowrap;
     transition: box-shadow 0.25s ease, transform 0.2s ease;
   }
-  .btn-frame-open:hover {
-    box-shadow: 0 6px 24px rgba(15,65,74,0.28);
-    transform: translateY(-1px);
-  }
   .btn-frame-open:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -235,11 +230,6 @@
     align-items: center;
     justify-content: center;
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
-  }
-  .counter-btn:hover {
-    border-color: var(--midnight);
-    background: rgba(15, 65, 74, 0.06);
-    transform: translateY(-1px);
   }
   .counter-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
@@ -286,11 +276,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .tracker-nav-btn:hover {
-    border-color: var(--midnight);
-    background: rgba(15, 65, 74, 0.06);
+    transition: border-color 0.2s ease, background 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
 
   .tracker-grid {
@@ -367,11 +353,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .tracker-counter-btn:hover {
-    border-color: var(--midnight);
-    background: rgba(15, 65, 74, 0.06);
+    transition: border-color 0.2s ease, background 0.2s ease, transform var(--dur-press) var(--ease-out);
   }
   .tracker-counter-row input {
     width: 60px;
@@ -542,6 +524,45 @@
     footer { flex-direction: column; gap: 10px; text-align: center; }
     .info-card { padding: 24px 20px; }
   }
+
+/* ---------- Pointer-only hover ----------
+   A touch screen has no hover to leave, so an ungated :hover latches
+   after a tap and the control stays lit until you tap something else. */
+@media (hover: hover) and (pointer: fine) {
+  .btn-action:hover { transform: translateY(-1px); }
+
+  .btn-frame-open:hover {
+      box-shadow: 0 6px 24px rgba(15,65,74,0.28);
+      transform: translateY(-1px);
+    }
+
+  .counter-btn:hover {
+      border-color: var(--midnight);
+      background: rgba(15, 65, 74, 0.06);
+      transform: translateY(-1px);
+    }
+
+  .tracker-nav-btn:hover {
+      border-color: var(--midnight);
+      background: rgba(15, 65, 74, 0.06);
+    }
+
+  .tracker-counter-btn:hover {
+      border-color: var(--midnight);
+      background: rgba(15, 65, 74, 0.06);
+    }
+}
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.btn-action:active,
+.btn-frame-open:active,
+.counter-btn:active,
+.tracker-nav-btn:active,
+.tracker-counter-btn:active {
+  transform: scale(var(--press));
+}
 </style>
 </head>
 <body>

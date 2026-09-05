@@ -60,16 +60,11 @@
     border-radius: var(--radius-3);
     padding: 40px 32px;
     backdrop-filter: blur(16px);
-    transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+    transition: transform var(--dur-press) var(--ease-out), border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     cursor: pointer;
-  }
-  .path-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--accent-soft);
-    box-shadow: var(--shadow-2);
   }
 
   .path-mark {
@@ -103,7 +98,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out);
     margin-top: auto;
   }
 
@@ -112,21 +107,14 @@
     color: #fff;
     box-shadow: 0 0 0 0 rgba(127,3,3,0.35);
   }
-  .path-card.client:hover .path-cta {
-    box-shadow: var(--shadow-accent);
-  }
 
   .path-card.partner .path-cta {
     background: var(--midnight);
     color: #fff;
     box-shadow: 0 0 0 0 rgba(15,65,74,0.3);
   }
-  .path-card.partner:hover .path-cta {
-    box-shadow: var(--shadow-accent-soft);
-  }
 
   .path-cta svg { width: 15px; height: 15px; transition: transform var(--dur-fast) var(--ease-out); }
-  .path-card:hover .path-cta svg { transform: translateX(3px); }
 
   footer {
     position: relative;
@@ -143,6 +131,38 @@
   @media (max-width: 500px) {
     footer { flex-direction: column; gap: 10px; text-align: center; }
   }
+
+/* ---------- Pointer-only hover ----------
+   A touch screen has no hover to leave, so an ungated :hover latches
+   after a tap and the control stays lit until you tap something else. */
+@media (hover: hover) and (pointer: fine) {
+  .path-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent-soft);
+      box-shadow: var(--shadow-2);
+    }
+
+  .path-card.client:hover .path-cta {
+      box-shadow: var(--shadow-accent);
+    }
+
+  .path-card.partner:hover .path-cta {
+      box-shadow: var(--shadow-accent-soft);
+    }
+
+  .path-card:hover .path-cta svg { transform: translateX(3px); }
+}
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.path-cta:active {
+  transform: scale(var(--press));
+}
+
+.path-card:active {
+  transform: translateY(0) scale(var(--press-settle));
+}
 </style>
 </head>
 <body class="auth">
