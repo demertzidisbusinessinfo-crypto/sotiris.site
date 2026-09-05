@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#EFE8DF">
 <title>Your Dashboard — Sotiris Demertzidis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
+    color-scheme: light;
     --bg: #EFE8DF;
     --maroon: #7F0303;
     --maroon-soft: #9C1F1F;
@@ -35,6 +37,34 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+  /* Several controls clear their outline for looks; put a ring back for
+     keyboard users only, so nothing changes on click. */
+  :focus-visible {
+    /* !important because several controls clear their outline in a rule
+       more specific than this one, and one does it inline. A focus ring
+       should not be losable by accident. */
+    outline: 2px solid var(--accent-soft) !important;
+    outline-offset: 2px !important;
+    border-radius: 8px;
+  }
+
+  /* Lets a keyboard user jump the nav straight to the page content. Hidden
+     until it is focused. */
+  .skip-link {
+    position: absolute;
+    left: 12px;
+    top: 0;
+    z-index: 100;
+    background: var(--accent-soft);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 0 0 8px 8px;
+    transform: translateY(-140%);
+    transition: transform 0.15s ease;
+  }
+  .skip-link:focus { transform: translateY(0); }
 
   body {
     background: var(--bg);
@@ -982,7 +1012,7 @@
     background: rgba(255,255,255,0.4);
     color: var(--ink-dim);
     cursor: pointer;
-    transition: all 0.18s ease;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
   }
   .fin-chip:hover { border-color: var(--midnight); color: var(--ink); }
   .fin-chip.active { background: var(--maroon); border-color: var(--maroon); color: #fff; }
@@ -1358,7 +1388,7 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 22px;
   }
-  .info-field label {
+  .info-field label, .info-field .field-name {
     display: block;
     font-size: 11.5px;
     font-weight: 600;
@@ -1459,6 +1489,7 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
 
 <div class="ambient"></div>
 <div class="noise"></div>
@@ -1470,7 +1501,7 @@
   </div>
 </nav>
 
-<main>
+<main id="main">
   <div class="wrap">
 
     <div id="gate-screen" class="gate-screen">
@@ -1487,14 +1518,14 @@
         <span class="status-badge verified"><span class="dot"></span>Verified</span>
       </div>
 
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="tab-overview">Overview</button>
-        <button class="tab-btn" data-tab="tab-brand">Brand Identity</button>
-        <button class="tab-btn" data-tab="tab-tracker">Tracker</button>
-        <button class="tab-btn" data-tab="tab-finances">Finances</button>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" role="tab" aria-controls="tab-overview" aria-selected="true" data-tab="tab-overview">Overview</button>
+        <button class="tab-btn" role="tab" aria-controls="tab-brand" aria-selected="false" data-tab="tab-brand">Brand Identity</button>
+        <button class="tab-btn" role="tab" aria-controls="tab-tracker" aria-selected="false" data-tab="tab-tracker">Tracker</button>
+        <button class="tab-btn" role="tab" aria-controls="tab-finances" aria-selected="false" data-tab="tab-finances">Finances</button>
       </div>
 
-      <div class="tab-panel active" id="tab-overview">
+      <div class="tab-panel active" role="tabpanel" tabindex="0" id="tab-overview">
         <div class="onb-card" id="onb-card">
           <div class="onb-head">
             <div>
@@ -1506,24 +1537,24 @@
           <div class="onb-bar"><div class="onb-bar-fill" id="onb-bar-fill"></div></div>
           <div class="onb-list" id="onb-list">
             <button class="onb-item" type="button" data-onb="frame" data-goto="tab-overview">
-              <span class="onb-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="onb-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
               <span class="onb-label">Add your Frame.io review link</span>
-              <span class="onb-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+              <span class="onb-arrow"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </button>
             <button class="onb-item" type="button" data-onb="brand" data-goto="tab-brand">
-              <span class="onb-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="onb-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
               <span class="onb-label">Complete your brand identity <span id="onb-brand-count"></span></span>
-              <span class="onb-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+              <span class="onb-arrow"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </button>
             <button class="onb-item" type="button" data-onb="goal" data-goto="tab-overview">
-              <span class="onb-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="onb-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
               <span class="onb-label">Set your monthly goal</span>
-              <span class="onb-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+              <span class="onb-arrow"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </button>
             <button class="onb-item" type="button" data-onb="tracker" data-goto="tab-tracker">
-              <span class="onb-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="onb-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
               <span class="onb-label">Log your first tracker entry</span>
-              <span class="onb-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+              <span class="onb-arrow"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </button>
           </div>
         </div>
@@ -1531,9 +1562,9 @@
         <div class="stat-boards-head">
           <div class="card-title">At a glance</div>
           <div class="stat-range-group" id="stat-range-group">
-            <button class="stat-range-btn" data-srange="7">7D</button>
-            <button class="stat-range-btn active" data-srange="30">30D</button>
-            <button class="stat-range-btn" data-srange="90">90D</button>
+            <button class="stat-range-btn" data-srange="7" aria-pressed="false">7D</button>
+            <button class="stat-range-btn active" data-srange="30" aria-pressed="true">30D</button>
+            <button class="stat-range-btn" data-srange="90" aria-pressed="false">90D</button>
           </div>
         </div>
         <div class="stat-boards">
@@ -1596,7 +1627,7 @@
             <div class="card-title">Frame.io link</div>
             <div class="card-subtitle">Paste the link to your Frame.io review project.</div>
             <div class="frame-link-row">
-              <input type="text" class="frame-link-input" id="frame-link-input" placeholder="https://app.frame.io/...">
+              <input type="url" class="frame-link-input" id="frame-link-input" aria-label="Frame.io project link" placeholder="https://app.frame.io/…" autocomplete="off" spellcheck="false" inputmode="url">
               <button class="btn-save" id="frame-save-btn">Save link</button>
             </div>
             <div class="frame-current" id="frame-current"></div>
@@ -1614,18 +1645,18 @@
         <div class="info-card">
           <div class="info-grid">
             <div class="info-field">
-              <label>Email</label>
+              <span class="field-name">Email</span>
               <div class="value" id="client-email">—</div>
             </div>
             <div class="info-field">
-              <label>Instagram</label>
+              <span class="field-name">Instagram</span>
               <div class="value" id="client-ig">—</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="tab-panel" id="tab-brand">
+      <div class="tab-panel" role="tabpanel" tabindex="0" id="tab-brand">
         <div class="luxury-section-head">
           <h2>Brand Identity</h2>
           <span class="section-note">can also help</span>
@@ -1636,7 +1667,7 @@
         </div>
       </div>
 
-      <div class="tab-panel" id="tab-tracker">
+      <div class="tab-panel" role="tabpanel" tabindex="0" id="tab-tracker">
         <div class="tracker-card">
           <div class="tracker-month-row">
             <div>
@@ -1646,36 +1677,36 @@
             <div class="tracker-nav-group">
               <input type="date" class="tracker-date-input" id="tracker-date-input" aria-label="Jump to a past date">
               <button class="tracker-mode-btn" id="tracker-mode-btn">Add for month</button>
-              <button class="tracker-nav-btn" id="tracker-prev">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <button class="tracker-nav-btn" id="tracker-prev" aria-label="Previous month">
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
               </button>
-              <button class="tracker-nav-btn" id="tracker-next">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              <button class="tracker-nav-btn" id="tracker-next" aria-label="Next month">
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
               </button>
             </div>
           </div>
 
           <div class="tracker-grid tracker-grid-stacked">
             <div class="tracker-field">
-              <label id="tracker-revenue-label">Today's revenue</label>
+              <label id="tracker-revenue-label" for="tracker-revenue">Today's revenue</label>
               <div class="tracker-dollar-input">
                 <span>$</span>
                 <input type="number" id="tracker-revenue" min="0" step="0.01" placeholder="0">
               </div>
             </div>
             <div class="tracker-field">
-              <label id="tracker-cash-label">Today's cash collected</label>
+              <label id="tracker-cash-label" for="tracker-cash">Today's cash collected</label>
               <div class="tracker-dollar-input">
                 <span>$</span>
                 <input type="number" id="tracker-cash" min="0" step="0.01" placeholder="0">
               </div>
             </div>
             <div class="tracker-field">
-              <label>Leads from content</label>
+              <label for="tracker-leads">Leads from content</label>
               <div class="tracker-counter-row">
-                <button class="tracker-counter-btn" id="tracker-leads-minus">−</button>
+                <button class="tracker-counter-btn" id="tracker-leads-minus" aria-label="One fewer lead">−</button>
                 <input type="number" id="tracker-leads" min="0" step="1" placeholder="0">
-                <button class="tracker-counter-btn" id="tracker-leads-plus">+</button>
+                <button class="tracker-counter-btn" id="tracker-leads-plus" aria-label="One more lead">+</button>
               </div>
             </div>
           </div>
@@ -1719,7 +1750,7 @@
         </div>
       </div>
 
-      <div class="tab-panel" id="tab-finances">
+      <div class="tab-panel" role="tabpanel" tabindex="0" id="tab-finances">
 
         <div class="fin-setup-notice" id="fin-setup-notice" style="display: none;"></div>
 
@@ -1812,8 +1843,8 @@
             </div>
 
             <div id="fin-category-block">
-              <label class="fin-label">Category</label>
-              <div class="fin-chips" id="fin-chips"></div>
+              <span class="fin-label" id="fin-category-label">Category</span>
+              <div class="fin-chips" id="fin-chips" role="group" aria-labelledby="fin-category-label"></div>
             </div>
 
             <label class="fin-check" id="fin-recurring-wrap">
@@ -1822,7 +1853,7 @@
             </label>
 
             <label class="fin-label" for="fin-note">Note <em>— optional</em></label>
-            <input class="fin-input" id="fin-note" type="text" placeholder="Mentorship Subscription" style="margin-bottom: 20px;">
+            <input class="fin-input" id="fin-note" type="text" placeholder="Mentorship Subscription" autocomplete="off" style="margin-bottom: 20px;">
 
             <button class="fin-submit" id="fin-add-btn" type="button">Add entry</button>
             <div class="fin-form-msg" id="fin-form-msg"></div>
@@ -1864,7 +1895,7 @@
   </div>
 </footer>
 
-<div class="save-toast" id="save-toast">Saved</div>
+<div class="save-toast" id="save-toast" role="status" aria-live="polite">Saved</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -2069,12 +2100,12 @@
       let currentHtml = '';
       if (link) {
         currentHtml +=
-          '<div class="brand-current-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+          '<div class="brand-current-row"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
           '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a></div>';
       }
       if (filePath) {
         currentHtml +=
-          '<div class="brand-current-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+          '<div class="brand-current-row"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
           '<span>' + escapeHtml(filePath.split('/').pop()) + '</span></div>';
       }
       if (!link && !filePath) {
@@ -2085,7 +2116,7 @@
         '<div class="sub-title">' + escapeHtml(section.title) + '</div>' +
         currentHtml +
         '<div class="brand-input-row">' +
-          '<input type="text" placeholder="Paste a link" class="brand-link-input" data-key="' + section.key + '" value="' + escapeHtml(link || '') + '">' +
+          '<input type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link" class="brand-link-input" data-key="' + section.key + '" value="' + escapeHtml(link || '') + '">' +
           '<input type="file" class="brand-file-input" data-key="' + section.key + '">' +
           '<button class="brand-save-btn" data-key="' + section.key + '">Save</button>' +
         '</div>';
@@ -2401,8 +2432,12 @@
   const ROLL_CHIPS = [[7, '7D'], [30, '30D'], [90, '90D'], [180, '180D'], ['all', 'All']];
   const MON_CHIPS = [[1, '1M'], [3, '3M'], [6, '6M'], [12, '12M'], ['all', 'All']];
   const MON_CAP = 24; // past two years the bars are hairlines and say nothing
-  const MONTH_FULL = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+  // Month names come from Intl rather than a hand-typed list. Still indexed
+  // 0-11, so every use of MONTH_FULL below is unchanged.
+  const MONTH_LONG_FMT = new Intl.DateTimeFormat('en-US', { month: 'long' });
+  const MONTH_FULL = Array.from({ length: 12 }, function (_, i) {
+    return MONTH_LONG_FMT.format(new Date(2000, i, 1));
+  });
 
   function rangeSod(d) { const x = new Date(d.getTime()); x.setHours(0, 0, 0, 0); return x; }
 
@@ -3163,7 +3198,7 @@
     const gid = elId + '-grad';
 
     el.innerHTML =
-      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' +
+      '<svg aria-hidden="true" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' +
         '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' +
           '<stop offset="0%" stop-color="#ffffff" stop-opacity="0.34"/>' +
           '<stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>' +
@@ -3188,8 +3223,12 @@
 
   document.querySelectorAll('.stat-range-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      document.querySelectorAll('.stat-range-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.stat-range-btn').forEach(function (b) {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
       btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
       const r = btn.getAttribute('data-srange');
       statRange = parseInt(r, 10);
       renderStatBoards(true);
@@ -3211,9 +3250,10 @@
 
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
       document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
       document.getElementById(btn.dataset.tab).classList.add('active');
       // The finances chart sizes itself from its container, which has no size
       // while the panel is hidden — so it has to be drawn once the tab shows.

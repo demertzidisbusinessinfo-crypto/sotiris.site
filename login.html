@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#EFE8DF">
 <title>Log In — Sotiris Demertzidis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
+    color-scheme: light;
     --bg: #EFE8DF;
     --maroon: #7F0303;
     --midnight: #0F414A;
@@ -26,6 +28,35 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+
+  /* Inputs clear their outline for looks; put a ring back for keyboard users
+     only, so nothing changes on click. */
+  :focus-visible {
+    /* !important because several controls clear their outline in a rule
+       more specific than this one, and one does it inline. A focus ring
+       should not be losable by accident. */
+    outline: 2px solid var(--accent-soft) !important;
+    outline-offset: 2px !important;
+    border-radius: 8px;
+  }
+
+  /* Lets a keyboard user jump the nav straight to the page content. Hidden
+     until it is focused. */
+  .skip-link {
+    position: absolute;
+    left: 12px;
+    top: 0;
+    z-index: 100;
+    background: var(--accent-soft);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 0 0 8px 8px;
+    transform: translateY(-140%);
+    transition: transform 0.15s ease;
+  }
+  .skip-link:focus { transform: translateY(0); }
 
   body {
     background: var(--bg);
@@ -330,6 +361,7 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
 
 <div class="ambient"></div>
 <div class="noise"></div>
@@ -341,7 +373,7 @@
   </div>
 </nav>
 
-<main>
+<main id="main">
   <div class="wrap">
     <div class="form-shell">
       <div class="form-head" id="form-head">
@@ -355,13 +387,15 @@
           <form id="login-form">
             <div class="field">
               <label for="email">Email</label>
-              <input type="email" id="email" name="email" placeholder="you@example.com" required>
+              <input type="email" id="email" name="email" placeholder="you@example.com"
+                     autocomplete="username" inputmode="email" spellcheck="false" required>
             </div>
             <div class="field">
               <label for="password">Password</label>
-              <input type="password" id="password" name="password" placeholder="••••••••" required>
+              <input type="password" id="password" name="password" placeholder="••••••••"
+                     autocomplete="current-password" spellcheck="false" required>
             </div>
-            <div class="form-error" id="form-error"></div>
+            <div class="form-error" id="form-error" role="alert" aria-live="polite"></div>
             <button type="submit" class="btn-submit" id="submit-btn">Log in</button>
           </form>
 
@@ -373,7 +407,7 @@
 
         <div class="pending-panel" id="pending-panel">
           <div class="pending-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <h2>Wait for your account to be verified by an admin</h2>
           <p class="pending-sub">Sotiris will contact you when your account is verified.</p>
@@ -407,6 +441,9 @@
   function showError(message) {
     errorBox.textContent = message;
     errorBox.style.display = 'block';
+    // Send focus back to the top of the form so the message is announced and
+    // the field that needs fixing is already active.
+    document.getElementById('email').focus();
   }
 
   form.addEventListener('submit', async function (e) {

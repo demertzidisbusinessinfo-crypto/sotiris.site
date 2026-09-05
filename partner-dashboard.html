@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#EFE8DF">
 <title>Partner Dashboard — Sotiris Demertzidis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
+    color-scheme: light;
     --bg: #EFE8DF;
     --maroon: #7F0303;
     --midnight: #0F414A;
@@ -27,6 +29,48 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+  /* Several controls clear their outline for looks; put a ring back for
+     keyboard users only, so nothing changes on click. */
+  :focus-visible {
+    /* !important because several controls clear their outline in a rule
+       more specific than this one, and one does it inline. A focus ring
+       should not be losable by accident. */
+    outline: 2px solid var(--accent-soft) !important;
+    outline-offset: 2px !important;
+    border-radius: 8px;
+  }
+
+  /* Lets a keyboard user jump the nav straight to the page content. Hidden
+     until it is focused. */
+  .skip-link {
+    position: absolute;
+    left: 12px;
+    top: 0;
+    z-index: 100;
+    background: var(--accent-soft);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 0 0 8px 8px;
+    transform: translateY(-140%);
+    transition: transform 0.15s ease;
+  }
+  .skip-link:focus { transform: translateY(0); }
+
+  /* These are rendered as <button> so they are reachable by keyboard.
+     Buttons bring their own font, colour, alignment, background and
+     border; reset those to what the <div>s had. Declared up here so each
+     element's own rules further down still win for what they do set. */
+  .cal-day, .eod-list-item {
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    width: 100%;
+    background: none;
+    border: none;
+    appearance: none;
+  }
 
   body {
     background: var(--bg);
@@ -358,7 +402,23 @@
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 18px;
   }
+  /* The card keeps its heading, so it stays a <div> — a <button> may not wrap
+     an <h3>. The button lives in the heading and its ::after covers the whole
+     card, so the entire surface is still clickable. */
+  .client-card-open {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+  }
+  .client-card-open::after { content: ''; position: absolute; inset: 0; border-radius: 16px; }
+  .client-card:focus-within { border-color: var(--accent-soft); }
+
   .client-card {
+    position: relative;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     border-radius: 16px;
@@ -535,7 +595,7 @@
   }
 
   .modal-field { margin-bottom: 18px; }
-  .modal-field label {
+  .modal-field label, .modal-field .field-name {
     display: block;
     font-size: 12px;
     font-weight: 600;
@@ -635,6 +695,7 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
 
 <div class="ambient"></div>
 <div class="noise"></div>
@@ -649,7 +710,7 @@
   </div>
 </nav>
 
-<main>
+<main id="main">
   <div class="wrap">
 
     <div id="gate-screen" class="gate-screen">
@@ -674,23 +735,23 @@
         <button class="btn-eod-nav" id="eod-nudge-btn">Submit it now</button>
       </div>
 
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="eods-tab">My EODs</button>
-        <button class="tab-btn" data-tab="clients-tab">My Clients</button>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" role="tab" aria-controls="eods-tab" aria-selected="true" data-tab="eods-tab">My EODs</button>
+        <button class="tab-btn" role="tab" aria-controls="clients-tab" aria-selected="false" data-tab="clients-tab">My Clients</button>
       </div>
 
-      <div class="tab-panel active" id="eods-tab">
+      <div class="tab-panel active" role="tabpanel" tabindex="0" id="eods-tab">
         <div class="editors-card">
           <div class="editors-columns">
             <div class="cal-column">
               <div class="cal-header">
                 <h3 id="cal-month-label">—</h3>
                 <div class="cal-nav-group">
-                  <button class="cal-nav-btn" id="cal-prev">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  <button class="cal-nav-btn" id="cal-prev" aria-label="Previous month">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                   </button>
-                  <button class="cal-nav-btn" id="cal-next">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  <button class="cal-nav-btn" id="cal-next" aria-label="Next month">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                   </button>
                 </div>
               </div>
@@ -710,7 +771,7 @@
         </div>
       </div>
 
-      <div class="tab-panel" id="clients-tab">
+      <div class="tab-panel" role="tabpanel" tabindex="0" id="clients-tab">
         <div class="clients-grid" id="clients-grid"></div>
         <div class="clients-empty" id="clients-empty" style="display:none;">No clients have been assigned to you yet.</div>
 
@@ -720,8 +781,8 @@
               <h2 id="detail-client-name">—</h2>
               <div class="ig" id="detail-client-ig"></div>
             </div>
-            <button class="btn-close-detail" id="detail-close-btn">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button class="btn-close-detail" id="detail-close-btn" aria-label="Close">
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
 
@@ -765,8 +826,8 @@
 
 <div class="modal-overlay" id="eod-modal-overlay">
   <div class="modal-card">
-    <button class="modal-close" id="eod-modal-close">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <button class="modal-close" id="eod-modal-close" aria-label="Close">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
 
     <div id="eod-form-panel">
@@ -800,7 +861,7 @@
 
     <div class="modal-success" id="eod-success-panel">
       <div class="success-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
       <h3>EOD submitted</h3>
       <p>Nice work today.</p>
@@ -810,27 +871,27 @@
 
 <div class="modal-overlay" id="eod-detail-overlay">
   <div class="modal-card">
-    <button class="modal-close" id="eod-detail-close">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <button class="modal-close" id="eod-detail-close" aria-label="Close">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
 
     <h2 id="eod-detail-date">—</h2>
     <p class="modal-sub">Your submitted end-of-day report.</p>
 
     <div class="modal-field">
-      <label>Videos completed (count)</label>
+      <span class="field-name">Videos completed (count)</span>
       <div class="value" id="eod-detail-count">—</div>
     </div>
     <div class="modal-field">
-      <label>Videos completed</label>
+      <span class="field-name">Videos completed</span>
       <div class="value" id="eod-detail-videos">—</div>
     </div>
     <div class="modal-field">
-      <label>In progress or delayed</label>
+      <span class="field-name">In progress or delayed</span>
       <div class="value" id="eod-detail-progress">—</div>
     </div>
     <div class="modal-field">
-      <label>Bottlenecks</label>
+      <span class="field-name">Bottlenecks</span>
       <div class="value" id="eod-detail-bottlenecks">—</div>
     </div>
   </div>
@@ -861,9 +922,10 @@
 
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
       document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
       document.getElementById(btn.dataset.tab).classList.add('active');
     });
   });
@@ -989,13 +1051,17 @@
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
-      const cell = document.createElement('div');
+      const eod = eodDatesInMonth[d];
+      // Only days with a report do anything, so only those become buttons —
+      // the rest stay plain divs and out of the tab order.
+      const cell = document.createElement(eod ? 'button' : 'div');
       cell.className = 'cal-day';
       const isToday = today.getFullYear() === calViewYear && today.getMonth() === calViewMonth && today.getDate() === d;
       if (isToday) cell.classList.add('today');
 
-      const eod = eodDatesInMonth[d];
       if (eod) {
+        cell.type = 'button';
+        cell.setAttribute('aria-label', 'End-of-day report for ' + formatDateNice(eod.report_date));
         cell.classList.add('has-eod');
         cell.addEventListener('click', function () { openEodDetail(eod); });
       }
@@ -1024,7 +1090,8 @@
     });
 
     sorted.forEach(function (e) {
-      const item = document.createElement('div');
+      const item = document.createElement('button');
+      item.type = 'button';
       item.className = 'eod-list-item';
       const countLabel = (e.videos_completed_count === null || e.videos_completed_count === undefined)
         ? '—'
@@ -1186,11 +1253,12 @@
       const card = document.createElement('div');
       card.className = 'client-card';
       card.innerHTML =
-        '<h3>' + escapeHtml(client.full_name) + '</h3>' +
+        '<h3><button type="button" class="client-card-open">' + escapeHtml(client.full_name) + '</button></h3>' +
         (client.ig_name ? '<div class="ig">' + escapeHtml(client.ig_name) + '</div>' : '') +
         '<div class="expand-hint">View brand assets ' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>';
-      card.addEventListener('click', function () { openClientDetail(client); });
+        '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>';
+      card.querySelector('.client-card-open')
+        .addEventListener('click', function () { openClientDetail(client); });
       clientsGrid.appendChild(card);
     });
   }
@@ -1236,7 +1304,7 @@
       const row = document.createElement('div');
       row.className = 'brand-item-row';
       row.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
         '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a>';
       container.appendChild(row);
     }
@@ -1245,7 +1313,7 @@
       const row = document.createElement('div');
       row.className = 'brand-item-row';
       row.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
         '<a href="#" data-filepath="' + escapeHtml(filePath) + '">' + escapeHtml(filePath.split('/').pop()) + '</a>';
 
       const linkEl = row.querySelector('a');

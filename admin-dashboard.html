@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#EFE8DF">
 <title>Admin Dashboard — Sotiris Demertzidis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
+    color-scheme: light;
     --bg: #EFE8DF;
     --maroon: #7F0303;
     --maroon-soft: #9C1F1F;
@@ -34,6 +36,48 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+  /* Several controls clear their outline for looks; put a ring back for
+     keyboard users only, so nothing changes on click. */
+  :focus-visible {
+    /* !important because several controls clear their outline in a rule
+       more specific than this one, and one does it inline. A focus ring
+       should not be losable by accident. */
+    outline: 2px solid var(--accent-soft) !important;
+    outline-offset: 2px !important;
+    border-radius: 8px;
+  }
+
+  /* Lets a keyboard user jump the nav straight to the page content. Hidden
+     until it is focused. */
+  .skip-link {
+    position: absolute;
+    left: 12px;
+    top: 0;
+    z-index: 100;
+    background: var(--accent-soft);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 0 0 8px 8px;
+    transform: translateY(-140%);
+    transition: transform 0.15s ease;
+  }
+  .skip-link:focus { transform: translateY(0); }
+
+  /* These are rendered as <button> so they are reachable by keyboard.
+     Buttons bring their own font, colour, alignment, background and
+     border; reset those to what the <div>s had. Declared up here so each
+     element's own rules further down still win for what they do set. */
+  .cal-day, .bottleneck-item, .eod-list-item {
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    width: 100%;
+    background: none;
+    border: none;
+    appearance: none;
+  }
 
   body {
     background: var(--bg);
@@ -199,7 +243,7 @@
   }
 
   .modal-field { margin-bottom: 18px; }
-  .modal-field label {
+  .modal-field label, .modal-field .field-name {
     display: block;
     font-size: 12px;
     font-weight: 600;
@@ -921,7 +965,7 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 22px;
   }
-  .info-field label {
+  .info-field label, .info-field .field-name {
     display: block;
     font-size: 11.5px;
     font-weight: 600;
@@ -1225,6 +1269,7 @@
     color: var(--ink-faint);
   }
   .bottleneck-text {
+    display: block;
     font-size: 13px;
     line-height: 1.5;
     color: var(--ink-dim);
@@ -1407,7 +1452,7 @@
     background: rgba(255,255,255,0.4);
     color: var(--ink-dim);
     cursor: pointer;
-    transition: all 0.18s ease;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
   }
   .fin-chip:hover { border-color: var(--midnight); color: var(--ink); }
   .fin-chip.active { background: var(--maroon); border-color: var(--maroon); color: #fff; }
@@ -1846,6 +1891,7 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
 
 <div class="ambient"></div>
 <div class="noise"></div>
@@ -1860,7 +1906,7 @@
   </div>
 </nav>
 
-<main>
+<main id="main">
   <div class="wrap">
 
     <div id="gate-screen" class="gate-screen">
@@ -1879,14 +1925,14 @@
         </div>
       </div>
 
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="tab-overview">Overview</button>
-        <button class="tab-btn" data-tab="tab-partners">Partners</button>
-        <button class="tab-btn" data-tab="tab-clients">Clients</button>
-        <button class="tab-btn" data-tab="tab-finances">Finances</button>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" role="tab" aria-controls="tab-overview" aria-selected="true" data-tab="tab-overview">Overview</button>
+        <button class="tab-btn" role="tab" aria-controls="tab-partners" aria-selected="false" data-tab="tab-partners">Partners</button>
+        <button class="tab-btn" role="tab" aria-controls="tab-clients" aria-selected="false" data-tab="tab-clients">Clients</button>
+        <button class="tab-btn" role="tab" aria-controls="tab-finances" aria-selected="false" data-tab="tab-finances">Finances</button>
       </div>
 
-      <div class="tab-panel active" id="tab-overview">
+      <div class="tab-panel active" role="tabpanel" tabindex="0" id="tab-overview">
         <div class="agg-grid" id="agg-grid">
           <div class="agg-card">
             <div class="agg-label">Active clients</div>
@@ -1968,7 +2014,7 @@
         </div>
       </div>
 
-      <div class="tab-panel" id="tab-partners">
+      <div class="tab-panel" role="tabpanel" tabindex="0" id="tab-partners">
         <div class="assignments-select-row" style="margin-bottom: 24px;">
           <label for="partner-focus-select">Viewing</label>
           <select id="partner-focus-select">
@@ -1992,11 +2038,11 @@
                   <div class="cal-header">
                     <h3 id="cal-month-label">—</h3>
                     <div class="cal-nav-group">
-                      <button class="cal-nav-btn" id="cal-prev">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                      <button class="cal-nav-btn" id="cal-prev" aria-label="Previous month">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                       </button>
-                      <button class="cal-nav-btn" id="cal-next">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                      <button class="cal-nav-btn" id="cal-next" aria-label="Next month">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                       </button>
                     </div>
                   </div>
@@ -2030,7 +2076,7 @@
         </div>
       </div>
 
-      <div class="tab-panel" id="tab-clients">
+      <div class="tab-panel" role="tabpanel" tabindex="0" id="tab-clients">
         <div class="assignments-select-row" style="margin-bottom: 24px;">
           <label for="client-focus-select">Viewing</label>
           <select id="client-focus-select">
@@ -2073,9 +2119,9 @@
                   <div class="counter-sub">Editable only by you</div>
                 </div>
                 <div class="counter-control">
-                  <button class="counter-btn" id="cd-counter-minus">−</button>
+                  <button class="counter-btn" id="cd-counter-minus" aria-label="One fewer video done">−</button>
                   <div class="counter-value" id="cd-counter-value">0</div>
-                  <button class="counter-btn" id="cd-counter-plus">+</button>
+                  <button class="counter-btn" id="cd-counter-plus" aria-label="One more video done">+</button>
                 </div>
               </div>
               <div class="counter-card counter-card--compact">
@@ -2084,9 +2130,9 @@
                   <div class="counter-sub" id="cd-leads-month">—</div>
                 </div>
                 <div class="counter-control">
-                  <button class="counter-btn" id="cd-leads-minus">−</button>
+                  <button class="counter-btn" id="cd-leads-minus" aria-label="One fewer lead">−</button>
                   <div class="counter-value" id="cd-leads-value">0</div>
-                  <button class="counter-btn" id="cd-leads-plus">+</button>
+                  <button class="counter-btn" id="cd-leads-plus" aria-label="One more lead">+</button>
                 </div>
               </div>
             </div>
@@ -2154,15 +2200,15 @@
               <div class="info-card">
                 <div class="info-grid">
                   <div class="info-field">
-                    <label>Email</label>
+                    <span class="field-name">Email</span>
                     <div class="value" id="cd-client-email">—</div>
                   </div>
                   <div class="info-field">
-                    <label>Instagram</label>
+                    <span class="field-name">Instagram</span>
                     <div class="value" id="cd-client-ig-full">—</div>
                   </div>
                   <div class="info-field">
-                    <label>Signed up</label>
+                    <span class="field-name">Signed up</span>
                     <div class="value" id="cd-client-created">—</div>
                   </div>
                 </div>
@@ -2173,7 +2219,7 @@
       </div>
     </div>
 
-      <div class="tab-panel" id="tab-finances">
+      <div class="tab-panel" role="tabpanel" tabindex="0" id="tab-finances">
 
         <div class="fin-setup-notice" id="fin-setup-notice" style="display: none;"></div>
 
@@ -2271,7 +2317,7 @@
                 <label class="fin-label" for="fin-amount">Amount</label>
                 <div class="fin-amount-wrap">
                   <input class="fin-input" id="fin-amount" type="number" step="0.01" min="0" placeholder="0">
-                  <select class="fin-input fin-cur-select" id="fin-currency">
+                  <select class="fin-input fin-cur-select" id="fin-currency" aria-label="Currency">
                     <option value="EUR">€</option>
                     <option value="USD">$</option>
                   </select>
@@ -2284,8 +2330,8 @@
             </div>
 
             <div id="fin-category-block">
-              <label class="fin-label">Category</label>
-              <div class="fin-chips" id="fin-chips"></div>
+              <span class="fin-label" id="fin-category-label">Category</span>
+              <div class="fin-chips" id="fin-chips" role="group" aria-labelledby="fin-category-label"></div>
             </div>
 
             <label class="fin-check" id="fin-recurring-wrap">
@@ -2294,7 +2340,7 @@
             </label>
 
             <label class="fin-label" for="fin-note">Note <em>— optional</em></label>
-            <input class="fin-input" id="fin-note" type="text" placeholder="Adobe Creative Cloud" style="margin-bottom: 20px;">
+            <input class="fin-input" id="fin-note" type="text" placeholder="Adobe Creative Cloud" autocomplete="off" style="margin-bottom: 20px;">
 
             <button class="fin-submit" id="fin-add-btn" type="button">Add entry</button>
             <div class="fin-form-msg" id="fin-form-msg"></div>
@@ -2335,12 +2381,12 @@
   </div>
 </footer>
 
-<div class="save-toast" id="save-toast">Saved</div>
+<div class="save-toast" id="save-toast" role="status" aria-live="polite">Saved</div>
 
 <div class="modal-overlay" id="eod-modal-overlay">
   <div class="modal-card">
-    <button class="modal-close" id="eod-modal-close">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <button class="modal-close" id="eod-modal-close" aria-label="Close">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
 
     <div id="eod-form-panel">
@@ -2358,7 +2404,7 @@
         </div>
         <div class="modal-field">
           <label for="eod-videos">Videos completed today (links if possible)</label>
-          <textarea id="eod-videos" rows="3" placeholder="e.g. https://..."></textarea>
+          <textarea id="eod-videos" rows="3" placeholder="e.g. https://…"></textarea>
         </div>
         <div class="modal-field">
           <label for="eod-progress">Anything in progress or delayed and why?</label>
@@ -2374,7 +2420,7 @@
 
     <div class="modal-success" id="eod-success-panel">
       <div class="success-icon">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
       <h3>EOD submitted</h3>
       <p>Your report for that day has been saved.</p>
@@ -2384,26 +2430,26 @@
 
 <div class="modal-overlay" id="eod-detail-overlay">
   <div class="modal-card">
-    <button class="modal-close" id="eod-detail-close">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <button class="modal-close" id="eod-detail-close" aria-label="Close">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <h2 id="eod-detail-date">—</h2>
     <p class="modal-sub">Full EOD report.</p>
 
     <div class="modal-field">
-      <label>Videos completed today (number)</label>
+      <span class="field-name">Videos completed today (number)</span>
       <div class="value" id="eod-detail-count">—</div>
     </div>
     <div class="modal-field">
-      <label>Videos completed today (links if possible)</label>
+      <span class="field-name">Videos completed today (links if possible)</span>
       <div class="value" id="eod-detail-videos">—</div>
     </div>
     <div class="modal-field">
-      <label>In progress or delayed</label>
+      <span class="field-name">In progress or delayed</span>
       <div class="value" id="eod-detail-progress">—</div>
     </div>
     <div class="modal-field">
-      <label>Bottlenecks</label>
+      <span class="field-name">Bottlenecks</span>
       <div class="value" id="eod-detail-bottlenecks">—</div>
     </div>
   </div>
@@ -2452,9 +2498,10 @@
 
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
       document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
       document.getElementById(btn.dataset.tab).classList.add('active');
       // The chart sizes itself from its container, which has no size while the
       // panel is hidden — so it has to be drawn once the tab is actually shown.
@@ -2608,10 +2655,13 @@
     empty.style.display = 'none';
 
     withBottlenecks.forEach(function (e) {
-      const item = document.createElement('div');
+      const item = document.createElement('button');
+      item.type = 'button';
       item.className = 'bottleneck-item';
 
-      const head = document.createElement('div');
+      // Spans, not divs: this sits inside a <button>, which may only contain
+      // phrasing content. The CSS gives them block/flex layout back.
+      const head = document.createElement('span');
       head.className = 'bottleneck-head';
 
       const who = document.createElement('span');
@@ -2625,7 +2675,7 @@
       head.appendChild(who);
       head.appendChild(when);
 
-      const text = document.createElement('div');
+      const text = document.createElement('span');
       text.className = 'bottleneck-text';
       text.textContent = e.bottlenecks.trim();
 
@@ -2780,12 +2830,16 @@
 
     for (let d = 1; d <= daysInMonth; d++) {
       const iso = formatDateISO(calViewYear, calViewMonth, d);
-      const cell = document.createElement('div');
+      const eod = eodByDate[iso];
+      // Only days with a report do anything, so only those become buttons —
+      // the rest stay plain divs and out of the tab order.
+      const cell = document.createElement(eod ? 'button' : 'div');
       cell.className = 'cal-day';
       if (iso === todayISO) cell.classList.add('today');
 
-      const eod = eodByDate[iso];
       if (eod) {
+        cell.type = 'button';
+        cell.setAttribute('aria-label', 'End-of-day report for ' + formatDateNice(iso));
         cell.classList.add('has-eod');
         cell.addEventListener('click', function () { openEodDetail(eod); });
       }
@@ -2813,7 +2867,8 @@
     });
 
     sorted.forEach(function (e) {
-      const item = document.createElement('div');
+      const item = document.createElement('button');
+      item.type = 'button';
       item.className = 'eod-list-item';
       const countLabel = (e.videos_completed_count === null || e.videos_completed_count === undefined)
         ? '—' : e.videos_completed_count;
@@ -3045,7 +3100,7 @@
       const safeLink = data.frame_link.trim();
       frameDisplay.classList.remove('empty');
       frameDisplay.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
         '<a href="' + escapeHtml(safeLink) + '" target="_blank" rel="noopener">' + escapeHtml(safeLink) + '</a>';
       frameOpenBtn.disabled = false;
       frameOpenBtn.dataset.href = safeLink;
@@ -3085,7 +3140,7 @@
       const row = document.createElement('div');
       row.className = 'brand-item-row';
       row.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+        '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
         '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a>';
       container.appendChild(row);
     }
@@ -3094,7 +3149,7 @@
       const row = document.createElement('div');
       row.className = 'brand-item-row';
       row.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
         '<a href="#" data-filepath="' + escapeHtml(filePath) + '">' + escapeHtml(filePath.split('/').pop()) + '</a>';
 
       const linkEl = row.querySelector('a');
@@ -3308,8 +3363,13 @@
   const ROLL_CHIPS = [[7, '7D'], [30, '30D'], [90, '90D'], [180, '180D'], ['all', 'All']];
   const MON_CHIPS = [[1, '1M'], [3, '3M'], [6, '6M'], [12, '12M'], ['all', 'All']];
   const MON_CAP = 24; // past two years the bars are hairlines and say nothing
-  const MONTH_FULL = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+  // Month names come from Intl rather than a hand-typed list. Still indexed
+  // 0-11, so every use of MONTH_FULL below is unchanged.
+  const MONTH_LONG_FMT = new Intl.DateTimeFormat('en-US', { month: 'long' });
+  const MONTH_SHORT_FMT = new Intl.DateTimeFormat('en-US', { month: 'short' });
+  const MONTH_FULL = Array.from({ length: 12 }, function (_, i) {
+    return MONTH_LONG_FMT.format(new Date(2000, i, 1));
+  });
 
   function rangeSod(d) { const x = new Date(d.getTime()); x.setHours(0, 0, 0, 0); return x; }
 
@@ -3320,7 +3380,8 @@
     return s;
   }
 
-  function monthShort(d) { return d.toLocaleDateString('en-US', { month: 'short' }); }
+  // Reuses one formatter — this runs once per point while drawing a chart.
+  function monthShort(d) { return MONTH_SHORT_FMT.format(d); }
 
   // 'all' walks back to the first entry there is, capped so bars stay readable.
   function monthSpan(count, firstDate) {
