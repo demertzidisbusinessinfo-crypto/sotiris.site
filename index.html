@@ -243,14 +243,8 @@
     padding: 22px;
     box-shadow: var(--shadow-3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     position: relative;
-    animation: float 7s ease-in-out infinite;
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .clip-card { animation: none; }
   }
 
   /* Raw vs. designed drag reveal */
@@ -391,10 +385,7 @@
     content: ''; position: absolute; top: 0; left: -60%; width: 45%; height: 100%; z-index: 2;
     background: linear-gradient(100deg, transparent, rgba(150,192,206,0.10), transparent);
     transform: skewX(-18deg); pointer-events: none;
-    animation: dp-sheen 7.5s ease-in-out infinite;
   }
-  @keyframes dp-sheen { 0%, 55% { left: -60%; } 100% { left: 135%; } }
-
   .dp-chart-card { padding: 26px 30px; }
   .dp-badge {
     display: inline-flex; align-items: center; gap: 7px;
@@ -469,7 +460,7 @@
   .dp-caption { font-size: var(--text-xs); color: var(--ink-faint); text-align: center; margin-top: 2px; font-style: italic; }
 
   @media (prefers-reduced-motion: reduce) {
-    .dp-panel::after, .dp-live-dot { animation: none; }
+    .dp-live-dot { animation: none; }
     #dashboard-preview .dp-line { stroke-dashoffset: 0; }
     .dp-area, .dp-dot, .dp-file-row { opacity: 1 !important; transform: none !important; }
   }
@@ -493,7 +484,21 @@
     box-shadow: var(--shadow-accent); transition: transform var(--dur-press) var(--ease-out), background var(--dur-fast) var(--ease-out);
   }
   .tm-play svg { width: 26px; height: 26px; margin-left: 3px; }
-  .tm-play::before { content: ''; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); animation: tm-ring 2.4s ease-out infinite; }
+  .tm-play::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.5);
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+  /* The ring used to pulse forever to say "playable". The triangle already
+     says that; the ring now answers the pointer instead. */
+  @media (hover: hover) and (pointer: fine) {
+    .tm-play:hover::before { animation: tm-ring 2.4s ease-out infinite; opacity: 1; }
+  }
+  .tm-play:focus-visible::before { animation: tm-ring 2.4s ease-out infinite; opacity: 1; }
   @keyframes tm-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.5); opacity: 0; } }
   .tm-video-badge {
     position: absolute; left: 14px; bottom: 12px; z-index: 2;
@@ -543,6 +548,13 @@
     backdrop-filter: blur(12px);
     box-shadow: var(--shadow-2);
     transition: background var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+
+  /* While the cursor is over the card the transform must track it 1:1.
+     A transition on transform here restarts a tween every frame, which is
+     the lag the old version had. Only the release eases. */
+  .service-card.tilting {
+    transition: background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
   }
   .service-card::after,
   .clip-card::after,
@@ -840,16 +852,13 @@
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     z-index: -1;
-    animation: cta-shimmer 5s linear infinite;
   }
-  @keyframes cta-shimmer { to { --cta-ang: 380deg; } }
   @property --cta-ang {
     syntax: '<angle>';
     inherits: false;
     initial-value: 20deg;
   }
   @media (prefers-reduced-motion: reduce) {
-    .cta-card::before { animation: none; }
   }
   .cta-card h2 { margin-bottom: 16px; }
   .cta-card p { color: var(--ink-dim); font-size: var(--text-sm); margin-bottom: 32px; }
@@ -1349,6 +1358,10 @@
 <script src="/assets/app.js"></script>
 <script>
 
+  // Every count-up on the page runs for the same length of time. There were
+  // three: 1750ms, 1600ms and 700ms, for the same effect.
+  var COUNT_MS = 900;
+
   // Tracking dashboard preview: clickable ranges, line draw, count-up, staggered files
   (function () {
     var dpSection = document.getElementById('dashboard-preview');
@@ -1361,7 +1374,7 @@
 
     // geometry — matches the live dashboard chart
     var PL = 64, PT = 20, PLOT_W = 558, PLOT_H = 206, BASE_Y = 226, Y_MAX = 120;
-    var DRAW_MS = 1690; // line-draw duration (80% of the old speed = 1.25x longer)
+    var DRAW_MS = 560;  // one value, matching --dur-reveal
 
     function xAt(i, n) { return n > 1 ? PL + (i * PLOT_W) / (n - 1) : PL + PLOT_W / 2; }
     function yAt(v) { return PT + (1 - v / Y_MAX) * PLOT_H; }
@@ -1435,7 +1448,7 @@
       requestAnimationFrame(function () {
         lines.forEach(function (line, idx) {
           if (animate && !prefersReducedMotion) {
-            line.style.transition = 'stroke-dashoffset ' + DRAW_MS + 'ms cubic-bezier(0.22,1,0.36,1) ' + (idx * 225) + 'ms';
+            line.style.transition = 'stroke-dashoffset ' + DRAW_MS + 'ms cubic-bezier(0.22,1,0.36,1) ' + (idx * 120) + 'ms';
           }
           line.style.strokeDashoffset = '0';
         });
@@ -1452,7 +1465,7 @@
         var prefix = el.getAttribute('data-prefix') || '';
         var suffix = el.getAttribute('data-suffix') || '';
         if (prefersReducedMotion) { el.textContent = prefix + target + suffix; return; }
-        var duration = 1750, startTime = null;
+        var duration = COUNT_MS, startTime = null;
         function tick(ts) {
           if (startTime === null) startTime = ts;
           var p = Math.min((ts - startTime) / duration, 1);
@@ -1484,16 +1497,8 @@
       runCounts();
     }
 
-    if ('IntersectionObserver' in window && !prefersReducedMotion) {
-      var dpObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) { play(true); dpObserver.disconnect(); }
-        });
-      }, { threshold: 0.25 });
-      dpObserver.observe(dpSection);
-    } else {
-      play(false);
-    }
+    if (prefersReducedMotion) play(false);
+    else whenVisible(dpSection, function () { play(true); });
   })();
 
   // Nav hairline: fills left-to-right as a scroll progress bar
@@ -1528,30 +1533,43 @@
   var servicesGrid = document.querySelector('.services-grid');
   if (servicesGrid) {
     var staggerItems = servicesGrid.querySelectorAll('.stagger-item');
-    if ('IntersectionObserver' in window && !prefersReducedMotion) {
-      var staggerObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            staggerItems.forEach(function (el) { el.classList.add('visible'); });
-            staggerObserver.unobserve(servicesGrid);
-          }
-        });
-      }, { threshold: 0.2 });
-      staggerObserver.observe(servicesGrid);
-    } else {
-      staggerItems.forEach(function (el) { el.classList.add('visible'); });
-    }
+    function showCards() { staggerItems.forEach(function (el) { el.classList.add('visible'); }); }
+    if (prefersReducedMotion) showCards();
+    else whenVisible(servicesGrid, showCards);
 
-    // Services: magnetic tilt on hover
-    if (!prefersReducedMotion) {
+    // Services: magnetic tilt.
+    //
+    // The old version wrote card.style.transform on every raw mousemove while
+    // .service-card carried a 240ms transform transition, so every mouse pixel
+    // restarted a quarter-second tween and the card lagged the cursor. The
+    // write is rAF-throttled now, and .tilting drops the transition for the
+    // duration of the gesture, so tracking is 1:1 and only the release eases.
+    //
+    // The perspective belongs to .services-grid (800px). The old inline
+    // transform declared its own 700px, which fought it.
+    if (!prefersReducedMotion && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
       staggerItems.forEach(function (card) {
+        var frame = 0, mx = 0, my = 0;
+
+        function paint() {
+          frame = 0;
+          card.style.transform =
+            'rotateY(' + (mx * 8).toFixed(2) + 'deg) rotateX(' + (-my * 8).toFixed(2) + 'deg) translateY(-3px)';
+        }
+
         card.addEventListener('mousemove', function (e) {
           var rect = card.getBoundingClientRect();
-          var px = (e.clientX - rect.left) / rect.width - 0.5;
-          var py = (e.clientY - rect.top) / rect.height - 0.5;
-          card.style.transform = 'perspective(700px) rotateY(' + (px * 8).toFixed(2) + 'deg) rotateX(' + (-py * 8).toFixed(2) + 'deg) translateY(-3px)';
+          mx = (e.clientX - rect.left) / rect.width - 0.5;
+          my = (e.clientY - rect.top) / rect.height - 0.5;
+          card.classList.add('tilting');
+          if (!frame) frame = requestAnimationFrame(paint);
         });
-        card.addEventListener('mouseleave', function () { card.style.transform = ''; });
+
+        card.addEventListener('mouseleave', function () {
+          if (frame) { cancelAnimationFrame(frame); frame = 0; }
+          card.classList.remove('tilting');   // the return eases back
+          card.style.transform = '';
+        });
       });
     }
   }
@@ -1600,7 +1618,7 @@
         var from = parseFloat(el.getAttribute('data-from')) || 0;
         var suffix = el.getAttribute('data-suffix') || '';
         if (prefersReducedMotion) { el.textContent = to.toLocaleString('en-US') + suffix; return; }
-        var duration = 1600, start = null;
+        var duration = COUNT_MS, start = null;
         function tick(ts) {
           if (start === null) start = ts;
           var p = Math.min((ts - start) / duration, 1);
@@ -1612,28 +1630,16 @@
       });
     }
 
-    if ('IntersectionObserver' in window && !prefersReducedMotion) {
-      var obs = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) { if (e.isIntersecting) { runStats(); obs.disconnect(); } });
-      }, { threshold: 0.3 });
-      obs.observe(section);
-    } else {
-      runStats();
-    }
+    if (prefersReducedMotion) runStats();
+    else whenVisible(section, runStats);
   })();
 
   // Scroll reveal
   var revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window && revealEls.length) {
-    var revealObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-    revealEls.forEach(function (el) { revealObserver.observe(el); });
+    revealEls.forEach(function (el) {
+      whenVisible(el, function (target) { target.classList.add('visible'); });
+    });
   } else {
     revealEls.forEach(function (el) { el.classList.add('visible'); });
   }
@@ -1659,7 +1665,7 @@
       if (!el.dataset.target) el.dataset.target = el.textContent.trim();
       var target = parseStatTarget(el.dataset.target);
       if (!target) return;
-      var start = performance.now(), duration = 700;
+      var start = performance.now(), duration = COUNT_MS;
       function tick(now) {
         var p = Math.min(1, (now - start) / duration);
         var eased = 1 - Math.pow(1 - p, 3);

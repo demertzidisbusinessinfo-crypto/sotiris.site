@@ -517,3 +517,42 @@ footer {
 .nav-back:active {
   transform: scale(var(--press));
 }
+
+/* ---------- Reduced motion ----------
+   scroll-behavior: smooth was never reset, so a reduced-motion user still got
+   thrown down the page by every in-page link. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ---------- Reduced transparency ----------
+   The site leans on backdrop-filter for its nav and cards. Asked for less
+   transparency, make those surfaces solid rather than frosted. */
+@media (prefers-reduced-transparency: reduce) {
+  nav {
+    background: var(--bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .form-card {
+    background: #FBF8F4;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .ambient, .noise { display: none; }
+}
+
+/* ---------- More contrast ----------
+   Hairlines at 14% alpha disappear for anyone who asked for more contrast.
+   Give every edge a real border and drop the wash behind the text. */
+@media (prefers-contrast: more) {
+  :root {
+    --glass-border: rgba(15, 65, 74, 0.55);
+    --glass-bg: #FFFFFF;
+    --ink-dim: #2C3A3C;
+    --ink-faint: #4A4436;
+  }
+  nav { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .field input { border-width: 2px; }
+  .ambient, .noise { display: none; }
+}

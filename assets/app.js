@@ -50,3 +50,30 @@ var prefersReducedMotion = reducedMotionQuery.matches;
 reducedMotionQuery.addEventListener('change', function (e) {
   prefersReducedMotion = e.matches;
 });
+
+/* ---------- Reveal on scroll ----------
+   One observer for the whole page. The landing page used to build four, with
+   four different thresholds (0.25 / 0.2 / 0.3 / 0.15) for what is conceptually
+   the same question: is this on screen yet?
+
+   Callbacks fire once, then the element is dropped. If IntersectionObserver is
+   missing, everything runs immediately rather than never. */
+var revealJobs = new WeakMap();
+var revealObserver = null;
+
+function whenVisible(el, fn) {
+  if (!el) return;
+  if (!('IntersectionObserver' in window)) { fn(el); return; }
+  if (!revealObserver) {
+    revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        revealObserver.unobserve(entry.target);
+        var job = revealJobs.get(entry.target);
+        if (job) { revealJobs.delete(entry.target); job(entry.target); }
+      });
+    }, { threshold: 0.2, rootMargin: '0px 0px -40px 0px' });
+  }
+  revealJobs.set(el, fn);
+  revealObserver.observe(el);
+}
