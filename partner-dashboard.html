@@ -897,7 +897,7 @@
     }
 
     eodNudgeDate.textContent = new Date(iso + 'T00:00:00')
-      .toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+      .toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     eodNudge.style.display = 'flex';
   }
 
@@ -953,7 +953,7 @@
 
   function formatDateNice(iso) {
     const d = new Date(iso + 'T00:00:00');
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
   function renderEodsLog() {

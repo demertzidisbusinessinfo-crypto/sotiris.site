@@ -1814,11 +1814,18 @@
         </div>
       </div>
 
+      <!-- Each tab carries its own heading. The h1 used to say "Account
+           requests / Review new sign-ups" on all four, so on Finances the
+           page was telling you it was something it wasn't. -->
       <div class="tabs" role="tablist">
-        <button class="tab-btn active" role="tab" aria-controls="tab-overview" aria-selected="true" data-tab="tab-overview">Overview</button>
-        <button class="tab-btn" role="tab" aria-controls="tab-partners" aria-selected="false" data-tab="tab-partners">Partners</button>
-        <button class="tab-btn" role="tab" aria-controls="tab-clients" aria-selected="false" data-tab="tab-clients">Clients</button>
-        <button class="tab-btn" role="tab" aria-controls="tab-finances" aria-selected="false" data-tab="tab-finances">Finances</button>
+        <button class="tab-btn active" role="tab" aria-controls="tab-overview" aria-selected="true" data-tab="tab-overview"
+                data-title="Overview" data-sub="Where everything stands across your clients and partners.">Overview</button>
+        <button class="tab-btn" role="tab" aria-controls="tab-partners" aria-selected="false" data-tab="tab-partners"
+                data-title="Partners" data-sub="The editors on your team, and the end-of-day reports they've sent.">Partners</button>
+        <button class="tab-btn" role="tab" aria-controls="tab-clients" aria-selected="false" data-tab="tab-clients"
+                data-title="Clients" data-sub="Open a client to see their tracker, revenue and brand assets.">Clients</button>
+        <button class="tab-btn" role="tab" aria-controls="tab-finances" aria-selected="false" data-tab="tab-finances"
+                data-title="Finances" data-sub="Every euro and dollar in and out, and what's left after both.">Finances</button>
       </div>
 
       <div class="tab-panel active" role="tabpanel" tabindex="0" id="tab-overview">
@@ -2372,16 +2379,26 @@
   function formatDateNice(iso) {
     if (!iso) return '—';
     const d = new Date(iso + 'T00:00:00');
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
   function formatDateLong(iso) {
     if (!iso) return '—';
     const d = new Date(iso);
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
   // ---------------- TABS ----------------
+
+  // The page heading follows the tab. It was fixed at "Account requests",
+  // which is only true of one of the four.
+  var pageHeadTitle = document.querySelector('.page-head h1');
+  var pageHeadSub = document.querySelector('.page-head p');
+  function setPageHead(btn) {
+    if (pageHeadTitle && btn.dataset.title) pageHeadTitle.textContent = btn.dataset.title;
+    if (pageHeadSub && btn.dataset.sub) pageHeadSub.textContent = btn.dataset.sub;
+  }
+  setPageHead(document.querySelector('.tab-btn.active'));
 
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -2390,6 +2407,7 @@
       btn.classList.add('active');
       btn.setAttribute('aria-selected', 'true');
       document.getElementById(btn.dataset.tab).classList.add('active');
+      setPageHead(btn);
       // The chart sizes itself from its container, which has no size while the
       // panel is hidden — so it has to be drawn once the tab is actually shown.
       if (btn.dataset.tab === 'tab-finances') finRenderAll(false);
