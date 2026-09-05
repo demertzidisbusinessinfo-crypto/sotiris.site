@@ -357,7 +357,9 @@ footer {
 }
 
 .form-head h1 .accent-italic {
-  color: var(--maroon);
+  /* --accent, not --maroon: partner-signup repoints the accent to teal and
+     was rendering one maroon word above a teal button and a teal eyebrow. */
+  color: var(--accent);
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 600;
@@ -561,4 +563,86 @@ footer {
   nav { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
   .field input { border-width: 2px; }
   .ambient, .noise { display: none; }
+}
+
+/* ---------- Auth: the quiet secondary button ----------
+   This was .btn-signup on the login page and .btn-login on both sign-up
+   pages: two names, character-for-character the same rule. */
+.btn-quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  padding: 11px 26px;
+  border-radius: var(--radius-2);
+  color: var(--ink);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  transition: border-color var(--dur-base) var(--ease-out),
+              background var(--dur-base) var(--ease-out),
+              transform var(--dur-press) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-quiet:hover { border-color: var(--midnight); background: rgba(15, 65, 74, 0.06); transform: translateY(-1px); }
+}
+.btn-quiet:active { transform: scale(var(--press)); }
+
+/* ---------- Auth: password fields ----------
+   The two sign-up pages ask for the password twice and offered no way to
+   check what you typed. */
+.field-input { position: relative; display: flex; }
+.field-input input { padding-right: 46px; }
+.pw-toggle {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  border-radius: var(--radius-1);
+  transition: color var(--dur-fast) var(--ease-out), transform var(--dur-press) var(--ease-out);
+}
+.pw-toggle:active { transform: translateY(-50%) scale(var(--press)); }
+@media (hover: hover) and (pointer: fine) {
+  .pw-toggle:hover { color: var(--ink); }
+}
+.pw-toggle .eye-open { display: none; }
+.pw-toggle[aria-pressed="true"] .eye-open { display: block; }
+.pw-toggle[aria-pressed="true"] .eye-shut { display: none; }
+
+/* Chrome paints its own opaque yellow-white over autofilled inputs, which
+   wipes out the glass fill on exactly the fields people autofill most.
+   The inset shadow trick is the only way to override it. */
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink);
+  -webkit-box-shadow: 0 0 0 40px #F7F3EE inset;
+  caret-color: var(--ink);
+  transition: background-color 9999s ease-out;
+}
+
+/* ---------- Auth: the pending panel ----------
+   Was a hard display swap — the form vanished and the panel appeared on the
+   same frame, with no relationship between them. */
+.form-shell.showing-pending .form-head,
+.form-shell.showing-pending .form-panel { display: none; }
+.form-shell.showing-pending .pending-panel {
+  display: block;
+  animation: panel-in var(--dur-base) var(--ease-out) both;
+}
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .form-shell.showing-pending .pending-panel { animation: none; }
 }
