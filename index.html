@@ -83,14 +83,32 @@
   }
 
   /* ---------- NAV ---------- */
+  /* The only nav on the site that actually floats over content. The blur,
+     background and border come from the shared sheet; only these differ. */
   nav {
     position: sticky;
     top: 0;
     z-index: 50;
-    backdrop-filter: blur(16px);
-    background: rgba(239, 232, 223, 0.75);
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom-color: transparent;
+    transition: border-color var(--dur-base) var(--ease-out);
   }
+  nav.scrolled { border-bottom-color: var(--glass-border); }
+
+  /* A soft edge where content passes under the bar, instead of a hard 1px
+     rule drawn whether or not anything is behind it yet. */
+  nav::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 16px;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(to bottom, rgba(239, 232, 223, 0.6), transparent);
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+  nav.scrolled::before { opacity: 1; }
   nav::after {
     content: '';
     position: absolute;
@@ -239,7 +257,7 @@
     background: var(--tan);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-3);
-    backdrop-filter: blur(20px);
+   
     padding: 22px;
     box-shadow: var(--shadow-3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     position: relative;
@@ -515,7 +533,7 @@
 
   .tm-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 420px) { .tm-stat-row { grid-template-columns: 1fr; } }
-  .tm-stat { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-3); padding: 20px; backdrop-filter: blur(12px); text-align: center; }
+  .tm-stat { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-3); padding: 20px; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); text-align: center; }
   .tm-stat-value { font-family: var(--font-display); font-weight: 600; font-size: var(--text-2xl); color: var(--maroon); font-variant-numeric: tabular-nums; line-height: 1; }
   .tm-stat-label { font-size: var(--text-2xs); color: var(--ink-dim); margin-top: 8px; letter-spacing: 0.02em; }
 
@@ -545,7 +563,7 @@
     background: var(--tan-light);
     border-radius: var(--radius-3);
     padding: 30px 26px;
-    backdrop-filter: blur(12px);
+   
     box-shadow: var(--shadow-2);
     transition: background var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
   }
@@ -839,7 +857,7 @@
     background: var(--tan);
     border-radius: var(--radius-4);
     padding: 56px 44px;
-    backdrop-filter: blur(16px);
+   
   }
   .cta-card::before {
     content: '';
@@ -1509,6 +1527,7 @@
       var scrollable = document.documentElement.scrollHeight - window.innerHeight;
       var pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
       navEl.style.setProperty('--scroll-progress', Math.max(0, Math.min(100, pct)) + '%');
+      navEl.classList.toggle('scrolled', window.scrollY > 8);
       progressTicking = false;
     };
     updateScrollProgress();

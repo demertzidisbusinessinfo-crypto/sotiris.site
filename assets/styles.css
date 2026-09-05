@@ -241,7 +241,10 @@ body.auth main {
 nav {
   position: relative;
   z-index: 2;
-  backdrop-filter: blur(16px);
+  /* saturate compensates for the desaturation a blur causes, so the warm
+     ground still reads warm through the bar */
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   background: rgba(239, 232, 223, 0.75);
   border-bottom: 1px solid var(--glass-border);
 }
@@ -370,6 +373,7 @@ footer {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-3);
   padding: 36px;
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
 }
 
@@ -531,11 +535,13 @@ footer {
 @media (prefers-reduced-transparency: reduce) {
   nav {
     background: var(--bg);
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
   .form-card {
     background: #FBF8F4;
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
@@ -552,7 +558,7 @@ footer {
     --ink-dim: #2C3A3C;
     --ink-faint: #4A4436;
   }
-  nav { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  nav { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
   .field input { border-width: 2px; }
   .ambient, .noise { display: none; }
 }
