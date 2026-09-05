@@ -124,7 +124,7 @@
   --dur-fast:  180ms;
   --dur-base:  240ms;
   --dur-slow:  400ms;
-  --dur-reveal: 560ms;     /* scroll reveals: one value, replacing 0.55/0.6/0.625/0.7/0.8/0.9s */
+  --dur-reveal: 700ms;    /* scroll reveals: one value, replacing 0.55/0.6/0.625/0.7/0.8/0.9s */
   --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 
