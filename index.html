@@ -250,7 +250,7 @@
     display: block;
     transform: translateY(110%);
     opacity: 0;
-    transition: transform var(--dur-reveal) var(--ease-out), 1, 0.36, 1), opacity var(--dur-reveal) var(--ease-out);
+    transition: transform var(--dur-reveal) var(--ease-out), opacity var(--dur-reveal) var(--ease-out);
   }
   h1.play .reveal-inner { transform: translateY(0); opacity: 1; }
   h1 .reveal-line:nth-child(1) .reveal-inner { transition-delay: 0.05s; }
@@ -528,7 +528,7 @@
     opacity: 0; transform: translateY(9px);
   }
   .dp-file-row > svg { width: 16px; height: 16px; color: var(--skyblue); flex-shrink: 0; }
-  #dashboard-preview.dp-play .dp-file-row { opacity: 1; transform: none; transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out), 1, 0.36, 1); }
+  #dashboard-preview.dp-play .dp-file-row { opacity: 1; transform: none; transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out); }
   #dashboard-preview.dp-play .dp-file-row:nth-child(1) { transition-delay: 0.19s; }
   #dashboard-preview.dp-play .dp-file-row:nth-child(2) { transition-delay: 0.35s; }
   #dashboard-preview.dp-play .dp-file-row:nth-child(3) { transition-delay: 0.51s; }
@@ -660,7 +660,7 @@
   .service-card.stagger-item {
     opacity: 0;
     transform: translateY(18px);
-    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out), 1, 0.36, 1), background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out), background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
   }
   .service-card.stagger-item.visible { opacity: 1; transform: none; }
   .services-grid .service-card:nth-child(1) { transition-delay: 0s; }
@@ -856,7 +856,7 @@
     grid-template-columns: 0.9fr 1.1fr;
     gap: 48px;
     align-items: start;
-    transition: transform var(--dur-slow) var(--ease-out), 1, 0.36, 1), box-shadow var(--dur-slow) var(--ease-out);
+    transition: transform var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out);
     cursor: default;
     box-shadow: var(--shadow-3);
   }
@@ -966,7 +966,7 @@
   .reveal {
     opacity: 0;
     transform: translateY(18px);
-    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out), 1, 0.36, 1);
+    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
   }
   .reveal.visible { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) {
@@ -987,7 +987,7 @@
 
   #dashboard-preview.dp-play .dp-file-row:hover {
       transform: translateY(-5px) scale(1.035);
-      transition: transform var(--dur-base) var(--ease-out), 1, 0.36, 1), box-shadow var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+      transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
       transition-delay: 0s;
       background: rgba(255,255,255,0.08);
       border-color: rgba(150,192,206,0.45);
