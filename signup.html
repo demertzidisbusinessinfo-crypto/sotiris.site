@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#EFE8DF">
 <title>Sign Up — Sotiris Demertzidis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Playfair+Display:ital,wght@1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/styles.css">
 <style>
 
@@ -25,7 +26,7 @@
   .chooser-head h1 {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(2rem, 4vw, 2.7rem);
+    font-size: var(--text-display);
     line-height: 1.1;
     letter-spacing: -0.02em;
     margin-bottom: 14px;
@@ -37,7 +38,7 @@
     font-weight: 600;
   }
   .chooser-head p {
-    font-size: 16px;
+    font-size: var(--text-md);
     color: var(--ink-dim);
   }
 
@@ -56,10 +57,10 @@
     position: relative;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 18px;
+    border-radius: var(--radius-3);
     padding: 40px 32px;
     backdrop-filter: blur(16px);
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -68,12 +69,12 @@
   .path-card:hover {
     transform: translateY(-4px);
     border-color: var(--accent-soft);
-    box-shadow: 0 16px 40px rgba(15, 65, 74, 0.1);
+    box-shadow: var(--shadow-2);
   }
 
   .path-mark {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: var(--text-xs);
     color: var(--ink-faint);
     letter-spacing: 0.04em;
     margin-bottom: 22px;
@@ -82,13 +83,13 @@
   .path-card h2 {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 24px;
+    font-size: var(--text-xl);
     letter-spacing: -0.01em;
     margin-bottom: 10px;
   }
 
   .path-card p {
-    font-size: 14.5px;
+    font-size: var(--text-sm);
     color: var(--ink-dim);
     margin-bottom: 28px;
   }
@@ -96,13 +97,13 @@
   .path-cta {
     font-family: var(--font-body);
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--text-sm);
     padding: 12px 22px;
-    border-radius: 10px;
+    border-radius: var(--radius-2);
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: box-shadow 0.25s ease, transform 0.2s ease;
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
     margin-top: auto;
   }
 
@@ -112,7 +113,7 @@
     box-shadow: 0 0 0 0 rgba(127,3,3,0.35);
   }
   .path-card.client:hover .path-cta {
-    box-shadow: 0 6px 24px rgba(127,3,3,0.3);
+    box-shadow: var(--shadow-accent);
   }
 
   .path-card.partner .path-cta {
@@ -121,10 +122,10 @@
     box-shadow: 0 0 0 0 rgba(15,65,74,0.3);
   }
   .path-card.partner:hover .path-cta {
-    box-shadow: 0 6px 24px rgba(15,65,74,0.28);
+    box-shadow: var(--shadow-accent-soft);
   }
 
-  .path-cta svg { width: 15px; height: 15px; transition: transform 0.2s ease; }
+  .path-cta svg { width: 15px; height: 15px; transition: transform var(--dur-fast) var(--ease-out); }
   .path-card:hover .path-cta svg { transform: translateX(3px); }
 
   footer {
@@ -136,7 +137,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 13px;
+    font-size: var(--text-xs);
     color: var(--ink-faint);
   }
   @media (max-width: 500px) {
