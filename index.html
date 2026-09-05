@@ -3,9 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#7F0303">
+<meta name="theme-color" content="#EFE8DF">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237F0303'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-style='italic' font-weight='600' font-size='34' fill='%23EFE8DF' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
 <title>Sotiris Demertzidis — Content Strategy for Coaches & Creators</title>
+<!-- head:phase8 -->
+<meta name="description" content="Done-for-you video design for coaches and creators. I find the emotion in your raw footage and turn it into content that earns trust — and give you a dashboard to watch it work.">
+<link rel="canonical" href="https://www.sotirisdemertzidis.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.sotirisdemertzidis.com/">
+<meta property="og:title" content="Sotiris Demertzidis — Content Strategy for Coaches & Creators">
+<meta property="og:description" content="Done-for-you video design for coaches and creators. I find the emotion in your raw footage and turn it into content that earns trust — and give you a dashboard to watch it work.">
+<meta property="og:image" content="https://www.sotirisdemertzidis.com/assets/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sotiris Demertzidis — done-for-you video design for coaches and creators">
+<meta property="og:site_name" content="Sotiris Demertzidis">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sotiris Demertzidis — Content Strategy for Coaches & Creators">
+<meta name="twitter:description" content="Done-for-you video design for coaches and creators. I find the emotion in your raw footage and turn it into content that earns trust — and give you a dashboard to watch it work.">
+<meta name="twitter:image" content="https://www.sotirisdemertzidis.com/assets/og-card.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Playfair+Display:ital,wght@1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -109,6 +126,35 @@
     transition: opacity var(--dur-base) var(--ease-out);
   }
   nav.scrolled::before { opacity: 1; }
+
+  /* Wayfinding. The page has five sections and the bar offered no way to
+     reach any of them — it was two calls to action and nothing else. */
+  .nav-links { display: none; gap: var(--space-5); }
+  @media (min-width: 900px) { .nav-links { display: flex; } }
+  .nav-links a {
+    position: relative;
+    font-size: var(--text-xs);
+    color: var(--ink-dim);
+    padding: 4px 0;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;          /* grows from the leading edge, not the middle */
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .nav-links a:hover { color: var(--ink); }
+  }
+  .nav-links a[aria-current="true"] { color: var(--ink); }
+  .nav-links a[aria-current="true"]::after { transform: scaleX(1); }
   nav::after {
     content: '';
     position: absolute;
@@ -798,7 +844,10 @@
   }
 
   /* About */
-  .about-section { padding: 20px 0 40px; }
+  /* Was 20px/40px against a 88px baseline — a quarter of the room its
+     neighbours get. The card inside carries its own 48px, so this is the
+     baseline minus that. */
+  .about-section { padding: 40px 0; }
   .about-card {
     background: var(--tan);
     border-radius: var(--radius-4);
@@ -905,15 +954,9 @@
   .cta-card h2 { margin-bottom: 16px; }
   .cta-card p { color: var(--ink-dim); font-size: var(--text-sm); margin-bottom: 32px; }
 
-  footer {
-    border-top: 1px solid var(--glass-border);
-    padding: 32px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: var(--text-xs);
-    color: var(--ink-faint);
-  }
+  /* Outside <main> now, so width, gutters and layout come from the shared
+     rule; the hairline above it is the only thing specific to this page. */
+  footer { border-top: 1px solid var(--glass-border); }
   @media (max-width: 600px) {
     footer { flex-direction: column; gap: 12px; text-align: center; }
   }
@@ -1003,9 +1046,17 @@
 </div>
 <div class="noise"></div>
 
+<a class="skip-link" href="#main">Skip to main content</a>
+
 <nav>
   <div class="nav-inner">
     <div class="logo">Sotiris <span>Demertzidis</span></div>
+    <div class="nav-links">
+      <a href="#services">Work</a>
+      <a href="#dashboard-preview">Dashboard</a>
+      <a href="#about">About</a>
+      <a href="#results">Proof</a>
+    </div>
     <div class="nav-actions">
       <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="nav-cta">Book a call</a>
       <a href="signup" class="nav-terminal">
@@ -1016,10 +1067,10 @@
   </div>
 </nav>
 
-<div class="wrap">
+<main id="main" class="wrap">
 
   <!-- HERO -->
-  <section class="hero" style="padding-top: 96px;">
+  <section class="hero">
     <div>
       <div class="eyebrow"><span class="dot"></span> DFY CREATIVE VIDEO DESIGN FOR COACHES AND CREATORS</div>
       <h1 id="hero-h1"><span class="reveal-line"><span class="reveal-inner">Your content could give the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.45s;">right</span> message through the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.6s;">right</span> visual design.</span></span></h1>
@@ -1056,7 +1107,7 @@
   </section>
 
   <!-- WORKED WITH -->
-  <div class="worked-with reveal">
+  <section class="worked-with reveal" aria-label="Clients I have worked with">
     <span class="worked-with-label">Worked with:</span>
     <div class="client-row">
 
@@ -1152,7 +1203,7 @@
       </div>
 
     </div>
-  </div>
+  </section>
 
   <!-- SERVICES -->
   <section id="services">
@@ -1307,7 +1358,7 @@
   </section>
 
   <!-- ABOUT -->
-  <section class="about-section">
+  <section class="about-section" id="about">
     <div class="about-card reveal">
       <div>
         <div class="about-eyebrow">ABOUT</div>
@@ -1393,15 +1444,15 @@
     </div>
   </section>
 
-  <footer>
-    <div>© 2026 Sotiris Demertzidis</div>
-    <div class="footer-links">
-      <a href="https://www.instagram.com/sotiris.dmrtz/" target="_blank" rel="noopener">Instagram</a>
-      <a href="mailto:demertzidisbusinessinfo@gmail.com">Email</a>
-    </div>
-  </footer>
+</main>
 
-</div>
+<footer>
+  <div>&copy; 2026 Sotiris Demertzidis</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/sotiris.dmrtz/" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:demertzidisbusinessinfo@gmail.com">Email</a>
+  </div>
+</footer>
 
 <script src="/assets/app.js"></script>
 <script>
@@ -1549,6 +1600,28 @@
     else whenVisible(dpSection, function () { play(true); });
   })();
 
+  // Scroll spy for the nav links. Rides the rAF-throttled scroll handler
+  // below rather than adding an observer of its own: the answer changes on
+  // every scroll frame, which is not what a one-shot observer is for.
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+  var spyTargets = navLinks.map(function (a) {
+    return { link: a, el: document.querySelector(a.getAttribute('href')) };
+  }).filter(function (t) { return t.el; });
+
+  function markCurrentSection() {
+    if (!spyTargets.length) return;
+    var line = window.scrollY + window.innerHeight * 0.35;
+    var current = null;
+    spyTargets.forEach(function (t) {
+      if (t.el.getBoundingClientRect().top + window.scrollY <= line) current = t;
+    });
+    // nothing is "current" once the footer is in view and the last section has passed
+    spyTargets.forEach(function (t) {
+      if (t === current) t.link.setAttribute('aria-current', 'true');
+      else t.link.removeAttribute('aria-current');
+    });
+  }
+
   // Nav hairline: fills left-to-right as a scroll progress bar
   var navEl = document.querySelector('nav');
   if (navEl) {
@@ -1558,6 +1631,7 @@
       var pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
       navEl.style.setProperty('--scroll-progress', Math.max(0, Math.min(100, pct)) + '%');
       navEl.classList.toggle('scrolled', window.scrollY > 8);
+      markCurrentSection();
       progressTicking = false;
     };
     updateScrollProgress();
