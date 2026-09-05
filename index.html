@@ -303,25 +303,38 @@
     border-radius: var(--radius-1);
   }
   .baf-designed .baf-tag { left: auto; right: 10px; background: rgba(127,3,3,0.68); }
+  /* The handle is a full-width layer moved with translateX only. It used to be
+     a 2px strip positioned with `left`, which forces layout on every frame of
+     a drag — the one property this gesture must not touch. */
   .baf-handle {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 50%;
-    width: 2px;
-    background: #fff;
-    cursor: ew-resize;
-    touch-action: none;
+    left: 0;
+    width: 100%;
     z-index: 3;
+    pointer-events: none;
+    will-change: transform;
+    transform: translateX(50%);
   }
-  .baf-handle::after {
-    content: '⟷';
+  .baf-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: #fff;
+  }
+  .baf-grip {
     position: absolute;
     top: 50%;
-    left: 50%;
+    left: 0;
     transform: translate(-50%, -50%);
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
+    pointer-events: auto;
+    cursor: ew-resize;
     background: #fff;
     color: var(--midnight);
     border-radius: 50%;
@@ -330,6 +343,17 @@
     justify-content: center;
     font-size: 14px;
     box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    transition: transform var(--dur-press) var(--ease-out);
+  }
+  /* Feedback on grab, not on release. */
+  .baf-frame.dragging .baf-grip { transform: translate(-50%, -50%) scale(0.92); }
+
+  /* The handle spans the whole frame, so the global focus ring would draw a
+     rectangle around the entire image. Put the ring on the grip instead —
+     !important because the global rule uses it too. */
+  .baf-handle:focus-visible { outline: none !important; }
+  .baf-handle:focus-visible .baf-grip {
+    box-shadow: 0 0 0 3px var(--accent), 0 6px 16px rgba(0,0,0,0.3);
   }
 
   .baf-grain {
@@ -1019,7 +1043,13 @@
             <span class="baf-tag">DESIGNED</span>
           </div>
           <div class="baf-grain"></div>
-          <div class="baf-handle" id="hero-baf-handle"></div>
+          <div class="baf-handle" id="hero-baf-handle" role="slider" tabindex="0"
+               aria-label="Reveal the designed version"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+               aria-valuetext="50% designed">
+            <span class="baf-line" aria-hidden="true"></span>
+            <span class="baf-grip" aria-hidden="true">⟷</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1726,23 +1756,151 @@
     }
   });
 
-  // Hero raw/designed drag reveal
-  var heroBaf = document.getElementById('hero-baf');
-  var heroBafHandle = document.getElementById('hero-baf-handle');
-  var heroBafDesigned = document.getElementById('hero-baf-designed');
-  if (heroBaf && heroBafHandle) {
-    var heroBafDragging = false;
-    var setHeroBaf = function (clientX) {
-      var rect = heroBaf.getBoundingClientRect();
-      var pct = Math.max(4, Math.min(96, ((clientX - rect.left) / rect.width) * 100));
-      heroBafHandle.style.left = pct + '%';
-      heroBafDesigned.style.clipPath = 'inset(0 0 0 ' + pct + '%)';
-    };
-    heroBafHandle.addEventListener('pointerdown', function (e) { heroBafDragging = true; heroBafHandle.setPointerCapture(e.pointerId); });
-    heroBafHandle.addEventListener('pointermove', function (e) { if (heroBafDragging) setHeroBaf(e.clientX); });
-    heroBafHandle.addEventListener('pointerup', function () { heroBafDragging = false; });
-    heroBaf.addEventListener('pointerdown', function (e) { if (e.target === heroBaf || e.target.closest('.baf-side')) setHeroBaf(e.clientX); });
-  }
+  // ---------------------------------------------------------------------
+  // Hero raw/designed reveal.
+  //
+  // This is the product demo, so it gets the full gesture stack: grab it
+  // anywhere and it moves with your hand instead of jumping to it, a flick
+  // carries and settles, the ends resist rather than stop dead, and the
+  // whole thing is drivable from the keyboard.
+  // ---------------------------------------------------------------------
+  (function () {
+    var frame = document.getElementById('hero-baf');
+    var handle = document.getElementById('hero-baf-handle');
+    var top_ = document.getElementById('hero-baf-designed');
+    if (!frame || !handle || !top_) return;
+
+    var pct = 50;           // committed position, 0-100
+    var raf = 0;            // spring frame
+    var painting = false;   // rAF paint latch
+    var dragging = false;
+    var pointerId = null;
+    var grabPct = 0;        // where on the frame the grab landed
+    var startPct = 50;      // divider position when the grab began
+    var hist = [];          // recent {p, t} samples, for release velocity
+
+    function paint() {
+      painting = false;
+      var shown = pct < 0 ? 0 : (pct > 100 ? 100 : pct);
+      top_.style.clipPath = 'inset(0 0 0 ' + shown + '%)';
+      handle.style.transform = 'translateX(' + shown + '%)';
+      var n = Math.round(shown);
+      handle.setAttribute('aria-valuenow', n);
+      handle.setAttribute('aria-valuetext', n + '% designed');
+    }
+    function schedule() {
+      if (!painting) { painting = true; requestAnimationFrame(paint); }
+    }
+
+    // No rubber-banding here, deliberately. The divider is positioned
+    // absolutely from the pointer and physically cannot leave the frame, so
+    // resistance past the edge would compute a value that never gets painted —
+    // and because the position is absolute rather than accumulated, overshoot
+    // creates no dead zone to compensate for on the way back. The frame edge
+    // is a real wall, so it stops there.
+    function clamp(p) { return p < 0 ? 0 : (p > 100 ? 100 : p); }
+
+    // Where a flick would come to rest. Exponential decay, the same curve
+    // scroll deceleration uses — not the v^2/2a from a physics textbook.
+    function project(v) {
+      // 0.998 is the scroll-deceleration constant and throws far: a gentle
+      // 60%/s flick would carry the divider 30 points across the frame. A
+      // divider wants control rather than distance, so this is the snappier
+      // 0.99 — the same flick coasts about 6 points.
+      var d = 0.99;
+      return (v / 1000) * d / (1 - d);
+    }
+
+    function stopSpring() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+    // Critically damped spring, started at the finger's release velocity and
+    // integrated from the current on-screen value, so grabbing it mid-flight
+    // never produces a jump.
+    function settle(to, v0) {
+      stopSpring();
+      if (prefersReducedMotion) { pct = to; schedule(); return; }
+      var omega = 2 * Math.PI / 0.4;          // response 0.4s, damping ratio 1
+      var x = pct - to, v = v0, last = performance.now();
+      raf = requestAnimationFrame(function step(now) {
+        var dt = (now - last) / 1000;
+        if (dt > 1 / 30) dt = 1 / 30;         // a backgrounded tab must not explode
+        last = now;
+        v += (-omega * omega * x - 2 * omega * v) * dt;
+        x += v * dt;
+        pct = to + x;
+        schedule();
+        if (Math.abs(x) > 0.04 || Math.abs(v) > 0.4) raf = requestAnimationFrame(step);
+        else { raf = 0; pct = to; schedule(); }
+      });
+    }
+
+    function pctFrom(e) {
+      var r = frame.getBoundingClientRect();
+      return ((e.clientX - r.left) / r.width) * 100;
+    }
+
+    frame.addEventListener('pointerdown', function (e) {
+      if (dragging) return;                          // a second finger does not steal the drag
+      if (e.button !== undefined && e.button !== 0) return;
+      dragging = true;
+      pointerId = e.pointerId;
+      stopSpring();                                  // grab it mid-flight and it is yours
+      frame.setPointerCapture(pointerId);
+      frame.classList.add('dragging');
+      grabPct = pctFrom(e);
+      startPct = pct;                                // respect where they grabbed; never jump
+      hist = [{ p: pct, t: performance.now() }];
+      handle.focus({ preventScroll: true });
+      e.preventDefault();
+    });
+
+    frame.addEventListener('pointermove', function (e) {
+      if (!dragging || e.pointerId !== pointerId) return;
+      pct = clamp(startPct + (pctFrom(e) - grabPct));
+      hist.push({ p: pct, t: performance.now() });
+      if (hist.length > 6) hist.shift();
+      schedule();
+    });
+
+    function end(e) {
+      if (!dragging || (e && e.pointerId !== pointerId)) return;
+      dragging = false;
+      frame.classList.remove('dragging');
+      if (pointerId !== null && frame.hasPointerCapture(pointerId)) {
+        frame.releasePointerCapture(pointerId);
+      }
+      pointerId = null;
+
+      var v = 0;                                     // percent per second
+      if (hist.length > 1) {
+        var a = hist[0], b = hist[hist.length - 1], dt = b.t - a.t;
+        if (dt > 8) v = ((b.p - a.p) / dt) * 1000;
+      }
+      var target = pct + project(v);
+      if (target < 0) target = 0;
+      if (target > 100) target = 100;
+      settle(target, v);
+    }
+    frame.addEventListener('pointerup', end);
+    frame.addEventListener('pointercancel', end);
+
+    // Keyboard is a repeated action, so nothing animates on this path — an
+    // arrow key held down should step, not queue up springs.
+    handle.addEventListener('keydown', function (e) {
+      var step = e.shiftKey ? 10 : 2, next = null;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = pct - step;
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = pct + step;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = 100;
+      if (next === null) return;
+      e.preventDefault();
+      stopSpring();
+      pct = next < 0 ? 0 : (next > 100 ? 100 : next);
+      schedule();
+    });
+
+    paint();
+  })();
 
 </script>
 
