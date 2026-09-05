@@ -1,0 +1,10 @@
+# https://www.sotirisdemertzidis.com
+User-agent: *
+Allow: /
+
+# The dashboards and the money app carry <meta name="robots" content="noindex">.
+# They are deliberately NOT disallowed here: a crawler has to be able to fetch
+# a page to read the noindex on it. Blocking them here would leave them
+# indexable-by-reference instead.
+
+Sitemap: https://www.sotirisdemertzidis.com/sitemap.xml
