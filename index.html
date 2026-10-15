@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#EFE8DF">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<title>Sotiris Demertzidis — DFY Editing for Coaches & Founders</title>
+<!-- head:phase8 -->
+<meta name="description" content="Done-for-you video design for coaches and founders. I find the emotion in your raw footage and turn it into content that earns trust — and give you a dashboard to watch it work.">
+<link rel="canonical" href="https://www.sotirisdemertzidis.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.sotirisdemertzidis.com/">
+<meta property="og:title" content="Sotiris Demertzidis — DFY Editing for Coaches & Founders">
+<meta property="og:description" content="Done-for-you video design for coaches and founders. I find the emotion in your raw footage and turn it into content that earns trust — and give you a dashboard to watch it work.">
+<meta property="og:image" content="https://www.sotirisdemertzidis.com/assets/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sotiris Demertzidis — done-for-you video design for coaches and founders">
+<meta property="og:site_name" content="Sotiris Demertzidis">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sotiris Demertzidis — DFY Editing for Coaches & Founders">
+<meta name="twitter:description" content="Done-for-you video design for coaches and founders. I find the emotion in your raw footage and turn it into content that earns trust — and give you a dashboard to watch it work.">
+<meta name="twitter:image" content="https://www.sotirisdemertzidis.com/assets/og-card.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Playfair+Display:ital,wght@1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<style>
+:root {
+  --ink: #000000;
+}
+
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Ambient background — anchored to the page, scrolls with content */
+  .ambient {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .ambient-blob { position: absolute; inset: 0; }
+  /* Glows spread down the whole page so the side margins never read flat.
+     Static (no drift) — they stay fixed relative to the page as it scrolls. */
+  .ambient-blob-1 {
+    background: radial-gradient(ellipse 900px 640px at 12% 4%, rgba(216, 186, 152, 0.40), transparent 60%);
+  }
+  .ambient-blob-2 {
+    background: radial-gradient(ellipse 760px 620px at 92% 20%, rgba(150, 192, 206, 0.26), transparent 60%);
+  }
+  .ambient-blob-3 {
+    background: radial-gradient(ellipse 820px 640px at 6% 46%, rgba(216, 186, 152, 0.32), transparent 58%);
+  }
+  .ambient-blob-4 {
+    background: radial-gradient(ellipse 780px 640px at 96% 66%, rgba(150, 192, 206, 0.24), transparent 58%);
+  }
+  .ambient-blob-5 {
+    background: radial-gradient(ellipse 900px 720px at 50% 96%, rgba(127, 3, 3, 0.07), transparent 60%);
+  }
+
+  .noise {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.24;
+    mix-blend-mode: multiply;
+    background-image: var(--grain);
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  .client-avatar-wrap:focus-visible {
+    outline: 2px solid var(--maroon);
+    outline-offset: 3px;
+    border-radius: var(--radius-1);
+  }
+
+  @media (max-width: 480px) {
+    .wrap, .nav-inner { padding-left: 20px; padding-right: 20px; }
+  }
+
+  /* ---------- NAV ---------- */
+  /* The only nav on the site that actually floats over content. The blur,
+     background and border come from the shared sheet; only these differ. */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom-color: transparent;
+    transition: border-color var(--dur-base) var(--ease-out);
+  }
+  nav.scrolled { border-bottom-color: var(--glass-border); }
+
+  /* A soft edge where content passes under the bar, instead of a hard 1px
+     rule drawn whether or not anything is behind it yet. */
+  nav::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 16px;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(to bottom, rgba(239, 232, 223, 0.6), transparent);
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+  nav.scrolled::before { opacity: 1; }
+
+  /* Wayfinding. The page has five sections and the bar offered no way to
+     reach any of them — it was two calls to action and nothing else. */
+  .nav-links { display: none; gap: var(--space-5); }
+  @media (min-width: 900px) { .nav-links { display: flex; } }
+  .nav-links a {
+    position: relative;
+    font-size: var(--text-xs);
+    color: var(--ink-dim);
+    padding: 4px 0;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;          /* grows from the leading edge, not the middle */
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .nav-links a:hover { color: var(--ink); }
+  }
+  .nav-links a[aria-current="true"] { color: var(--ink); }
+  .nav-links a[aria-current="true"]::after { transform: scaleX(1); }
+  nav::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 2px;
+    width: var(--scroll-progress, 0%);
+    background: var(--maroon);
+  }
+  .nav-cta {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: var(--radius-2);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 0 rgba(127,3,3,0.35);
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out);
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .nav-terminal {
+    font-family: var(--font-body);
+    font-weight: 500;
+    padding: 7px 18px;
+    border-radius: var(--radius-2);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 0 rgba(127,3,3,0.35);
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.25;
+  }
+  .nav-terminal .terminal-title {
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+  .nav-terminal .terminal-sub {
+    font-size: var(--text-2xs);
+    font-weight: 400;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    color: rgba(255,255,255,0.75);
+  }
+
+  @media (max-width: 480px) {
+    .nav-inner { padding-top: 14px; padding-bottom: 14px; }
+    .logo { font-size: var(--text-sm); }
+    .nav-actions { gap: 8px; }
+    .nav-cta { padding: 8px 12px; font-size: var(--text-xs); }
+    .nav-terminal { padding: 6px 12px; }
+    .nav-terminal .terminal-title { font-size: var(--text-xs); }
+    .nav-terminal .terminal-sub { display: none; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    padding: 96px 0 80px;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 56px 0 48px; }
+  }
+  .eyebrow { letter-spacing: 0; margin-bottom: 24px; }
+
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-display);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    margin-bottom: 22px;
+  }
+  h1 .accent-italic {
+    color: var(--maroon);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  h1 .reveal-line { display: block; overflow: hidden; }
+  h1 .reveal-inner {
+    display: block;
+    transform: translateY(110%);
+    opacity: 0;
+    transition: transform var(--dur-reveal) var(--ease-out), opacity var(--dur-reveal) var(--ease-out);
+  }
+  h1.play .reveal-inner { transform: translateY(0); opacity: 1; }
+  h1 .reveal-line:nth-child(1) .reveal-inner { transition-delay: 0.05s; }
+  h1 .reveal-line:nth-child(2) .reveal-inner { transition-delay: 0.18s; }
+  h1 .reveal-line:nth-child(3) .reveal-inner { transition-delay: 0.31s; }
+
+  @keyframes accent-pop-flash {
+    0% { background: transparent; }
+    45% { background: rgba(127, 3, 3, 0.14); }
+    100% { background: transparent; }
+  }
+  h1 .accent-pop {
+    padding: 0 2px;
+    margin: 0 -2px;
+    border-radius: var(--radius-1);
+    animation: accent-pop-flash 0.9s ease both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    h1 .reveal-inner { transform: none; opacity: 1; transition: none; }
+    h1 .accent-pop { animation: none; }
+  }
+
+  .hero-sub {
+    font-size: var(--text-md);
+    color: var(--ink-dim);
+    max-width: 480px;
+    margin-bottom: 34px;
+  }
+
+  .hero-ctas { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+  .btn-primary {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    padding: 13px 24px;
+    border-radius: var(--radius-2);
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out);
+    box-shadow: 0 0 0 0 rgba(127,3,3,0.35);
+  }
+
+  /* ---------- SIGNATURE: Clip breakdown card ---------- */
+  .clip-card {
+    background: var(--tan);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-3);
+   
+    padding: 22px;
+    box-shadow: var(--shadow-3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    position: relative;
+  }
+  @media (prefers-reduced-motion: reduce) {
+  }
+
+  /* Raw vs. designed drag reveal */
+  .baf-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-2);
+    overflow: hidden;
+    user-select: none;
+    touch-action: none;
+  }
+  .baf-side {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+  }
+  .baf-designed { clip-path: inset(0 0 0 50%); }
+  .baf-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .baf-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.06em;
+    color: #fff;
+    background: rgba(15,65,74,0.6);
+    padding: 3px 8px;
+    border-radius: var(--radius-1);
+  }
+  .baf-designed .baf-tag { left: auto; right: 10px; background: rgba(127,3,3,0.68); }
+  /* The handle is a full-width layer moved with translateX only. It used to be
+     a 2px strip positioned with `left`, which forces layout on every frame of
+     a drag — the one property this gesture must not touch. */
+  .baf-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 3;
+    pointer-events: none;
+    will-change: transform;
+    transform: translateX(50%);
+  }
+  .baf-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: #fff;
+  }
+  .baf-grip {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    pointer-events: auto;
+    cursor: ew-resize;
+    background: #fff;
+    color: var(--midnight);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    transition: transform var(--dur-press) var(--ease-out);
+  }
+  /* Feedback on grab, not on release. */
+  .baf-frame.dragging .baf-grip { transform: translate(-50%, -50%) scale(0.92); }
+
+  /* The handle spans the whole frame, so the global focus ring would draw a
+     rectangle around the entire image. Put the ring on the grip instead —
+     !important because the global rule uses it too. */
+  .baf-handle:focus-visible { outline: none !important; }
+  .baf-handle:focus-visible .baf-grip {
+    box-shadow: 0 0 0 3px var(--accent), 0 6px 16px rgba(0,0,0,0.3);
+  }
+
+  .baf-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.28;
+    mix-blend-mode: overlay;
+    background-image: var(--grain);
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section { padding: 88px 0; position: relative; }
+  .section-head { max-width: 620px; margin-bottom: 52px; }
+  .section-eyebrow {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: var(--text-xs);
+    color: var(--accent-soft);
+    letter-spacing: 0;
+    margin-bottom: 14px;
+    display: block;
+  }
+  h2 .accent-italic {
+    color: var(--maroon);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-h2);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+    margin-bottom: 14px;
+  }
+  .section-sub { color: var(--ink-dim); font-size: var(--text-sm); }
+:root {
+  --dp-rev: #C42032;
+  --dp-cash: #7B47E0;
+  --dp-panel-ink: #E8F0F2;
+}
+
+
+  .dp-wrap { display: grid; gap: 22px; }
+  .dp-grid-2 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 22px; align-items: stretch; }
+  @media (max-width: 860px) { .dp-grid-2 { grid-template-columns: 1fr; } }
+
+  /* Shared dark "device" panel — same look as the live dashboard chart */
+  .dp-panel {
+    position: relative;
+    border-radius: var(--radius-3);
+    background: linear-gradient(160deg, #111C21 0%, #0A1013 100%);
+    border: 1px solid rgba(150,192,206,0.18);
+    box-shadow: 0 26px 60px -26px rgba(0,0,0,0.7);
+    color: var(--dp-panel-ink);
+    overflow: hidden;
+  }
+  .dp-panel::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 420px 220px at 12% -10%, rgba(196,32,50,0.16), transparent 65%),
+      radial-gradient(ellipse 400px 220px at 88% 110%, rgba(123,71,224,0.16), transparent 65%);
+  }
+  .dp-panel > * { position: relative; z-index: 1; }
+  /* futuristic scanning sheen */
+  .dp-panel::after {
+    content: ''; position: absolute; top: 0; left: -60%; width: 45%; height: 100%; z-index: 2;
+    background: linear-gradient(100deg, transparent, rgba(150,192,206,0.10), transparent);
+    transform: skewX(-18deg); pointer-events: none;
+  }
+  .dp-chart-card { padding: 26px 30px; }
+  .dp-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(150,192,206,0.9); border: 1px solid rgba(150,192,206,0.3); border-radius: var(--radius-pill);
+    padding: 4px 11px; margin-bottom: 18px;
+  }
+  .dp-live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; animation: dp-pulse 2s infinite; }
+  @keyframes dp-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
+    70% { box-shadow: 0 0 0 7px rgba(74,222,128,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+  }
+
+  .dp-chart-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .dp-chart-title { font-family: var(--font-display); font-weight: 600; font-size: var(--text-md); color: #F4F9FA; }
+  .dp-range-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .dp-range-btn {
+    font-family: var(--font-mono); font-size: var(--text-2xs); font-weight: 600; letter-spacing: 0.04em;
+    padding: 6px 12px; border-radius: var(--radius-2); border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04); color: rgba(232,240,242,0.62); cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-press) var(--ease-out);
+  }
+  .dp-range-btn.active { background: rgba(150,192,206,0.18); border-color: rgba(150,192,206,0.6); color: #fff; }
+
+  .dp-stats-row { display: flex; gap: 34px; flex-wrap: wrap; margin-bottom: 16px; }
+  .dp-stat { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .dp-stat-dot { width: 8px; height: 8px; border-radius: 50%; align-self: center; }
+  .dp-stat-label { font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.07em; color: rgba(232,240,242,0.5); font-weight: 600; }
+  .dp-stat-value { font-family: var(--font-mono); font-weight: 600; font-size: var(--text-lg); color: #fff; font-variant-numeric: tabular-nums; }
+  .dp-stat-change { font-family: var(--font-mono); font-size: var(--text-2xs); font-weight: 600; color: #4ADE80; }
+
+  .dp-canvas-wrap { position: relative; width: 100%; }
+  .dp-canvas-wrap svg { width: 100%; height: auto; display: block; }
+  .dp-line { fill: none; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
+  /* line draw is handled in JS (per-range, replays on range click); area + dots fade via the plot's .shown class */
+  #dp-plot .dp-area { opacity: 0; transition: opacity var(--dur-reveal) var(--ease-out) var(--dur-slow); }
+  #dp-plot.shown .dp-area { opacity: 1; }
+  #dp-plot .dp-dot { opacity: 0; transition: opacity var(--dur-reveal) var(--ease-out) var(--dur-reveal); }
+  #dp-plot.shown .dp-dot { opacity: 1; }
+
+  /* brand identity files panel */
+  .dp-brand-panel { padding: 24px 26px; }
+  .dp-brand-title { font-family: var(--font-display); font-weight: 600; font-size: var(--text-sm); color: #F4F9FA; margin-bottom: 16px; display: flex; align-items: center; gap: 9px; }
+  .dp-brand-title svg { width: 17px; height: 17px; color: var(--skyblue); flex-shrink: 0; }
+  .dp-file-list { display: grid; gap: 9px; }
+  .dp-file-row {
+    display: flex; align-items: center; gap: 11px;
+    padding: 12px 14px; border-radius: var(--radius-2);
+    background: rgba(255,255,255,0.045); border: 1px solid rgba(150,192,206,0.14);
+    font-size: var(--text-xs); color: rgba(232,240,242,0.88);
+    opacity: 0; transform: translateY(9px);
+  }
+  .dp-file-row > svg { width: 16px; height: 16px; color: var(--skyblue); flex-shrink: 0; }
+  #dashboard-preview.dp-play .dp-file-row { opacity: 1; transform: none; transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out); }
+  #dashboard-preview.dp-play .dp-file-row:nth-child(1) { transition-delay: 0.19s; }
+  #dashboard-preview.dp-play .dp-file-row:nth-child(2) { transition-delay: 0.35s; }
+  #dashboard-preview.dp-play .dp-file-row:nth-child(3) { transition-delay: 0.51s; }
+  #dashboard-preview.dp-play .dp-file-row:nth-child(4) { transition-delay: 0.67s; }
+  .dp-file-check { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.05em; text-transform: uppercase; color: #4ADE80; }
+  .dp-file-check svg { width: 14px; height: 14px; color: #4ADE80; }
+
+  /* counters panel */
+  .dp-counter-panel { padding: 24px 24px; display: flex; align-items: center; }
+  .dp-counter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+  @media (max-width: 420px) { .dp-counter-row { grid-template-columns: 1fr; } }
+  .dp-counter { background: rgba(255,255,255,0.04); border: 1px solid rgba(150,192,206,0.16); border-radius: var(--radius-3); padding: 20px 16px; text-align: center; }
+  .dp-counter-label { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.06em; text-transform: uppercase; color: rgba(232,240,242,0.58); }
+  .dp-counter-sub { font-size: var(--text-2xs); color: rgba(150,192,206,0.7); margin-top: 3px; }
+  .dp-counter-value { font-family: var(--font-mono); font-weight: 600; font-size: var(--text-2xl); line-height: 1; color: #fff; margin-top: 12px; font-variant-numeric: tabular-nums; }
+
+  .dp-caption { font-size: var(--text-xs); color: var(--ink-faint); text-align: center; margin-top: 2px; font-style: italic; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dp-live-dot { animation: none; }
+    #dashboard-preview .dp-line { stroke-dashoffset: 0; }
+    .dp-area, .dp-dot, .dp-file-row { opacity: 1 !important; transform: none !important; }
+  }
+
+  /* ---------- RESULTS / TESTIMONIAL ---------- */
+  .tm-grid { display: grid; grid-template-columns: 300px 1fr; gap: 34px; align-items: center; }
+  @media (max-width: 880px) { .tm-grid { grid-template-columns: 1fr; } }
+
+  .tm-video {
+    position: relative; width: 100%; max-width: 300px; margin: 0 auto; aspect-ratio: 9 / 16;
+    border-radius: var(--radius-3); overflow: hidden;
+    background: #0A1013; cursor: pointer; box-shadow: var(--shadow-3);
+  }
+  .tm-video-poster { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tm-video::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.5)); pointer-events: none; }
+  .tm-video.playing::after, .tm-video.playing .tm-play, .tm-video.playing .tm-video-badge { display: none; }
+  .tm-play {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 74px; height: 74px; border-radius: 50%; border: none; cursor: pointer; z-index: 2;
+    background: rgba(127,3,3,0.92); color: #fff; display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-accent); transition: transform var(--dur-press) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .tm-play svg { width: 26px; height: 26px; margin-left: 3px; }
+  .tm-play::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.5);
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+  /* The ring used to pulse forever to say "playable". The triangle already
+     says that; the ring now answers the pointer instead. */
+  @media (hover: hover) and (pointer: fine) {
+    .tm-play:hover::before { animation: tm-ring 2.4s ease-out infinite; opacity: 1; }
+  }
+  .tm-play:focus-visible::before { animation: tm-ring 2.4s ease-out infinite; opacity: 1; }
+  @keyframes tm-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.5); opacity: 0; } }
+  .tm-video-badge {
+    position: absolute; left: 14px; bottom: 12px; z-index: 2;
+    font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.04em; color: #fff;
+    background: rgba(0,0,0,0.42); border: 1px solid rgba(255,255,255,0.22); padding: 4px 10px; border-radius: var(--radius-pill);
+  }
+  .tm-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  .tm-proof { display: flex; flex-direction: column; gap: 20px; justify-content: center; }
+  .tm-quote { background: var(--tan-light); border-radius: var(--radius-3); padding: 26px 28px; box-shadow: var(--shadow-2); }
+  .tm-quote-mark { width: 30px; height: 30px; color: var(--maroon); opacity: 0.5; margin-bottom: 4px; }
+  .tm-quote p { font-family: var(--font-body); font-style: normal; font-weight: 500; font-size: var(--text-md); line-height: 1.6; color: var(--ink); }
+  .tm-quote-by { margin-top: 14px; font-size: var(--text-xs); color: var(--ink-dim); font-weight: 600; }
+
+  .tm-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 420px) { .tm-stat-row { grid-template-columns: 1fr; } }
+  .tm-stat { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-3); padding: 20px; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); text-align: center; }
+  .tm-stat-value { font-family: var(--font-display); font-weight: 600; font-size: var(--text-2xl); color: var(--maroon); font-variant-numeric: tabular-nums; line-height: 1; }
+  .tm-stat-label { font-size: var(--text-2xs); color: var(--ink-dim); margin-top: 8px; letter-spacing: 0.02em; }
+
+  .tm-shots { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 36px; }
+  .tm-shot { width: 100%; max-width: 560px; margin: 0; }
+  .tm-shot-img { position: relative; border-radius: var(--radius-2); overflow: hidden; background: var(--bg-elevated); border: 1px solid var(--glass-border); min-height: 72px; display: flex; align-items: center; justify-content: center; }
+  .tm-shot-img img { width: 100%; height: auto; display: block; }
+  .tm-shot-img.tm-shot-missing { min-height: 96px; }
+  .tm-shot-img.tm-shot-missing::after { content: 'Screenshot goes here'; position: absolute; font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--ink-faint); padding: 0 10px; text-align: center; }
+  .tm-shot figcaption { text-align: center; margin-top: 8px; font-size: var(--text-xs); color: var(--ink-dim); }
+  .tm-shot-tag { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--accent-dim); color: var(--maroon); margin-right: 6px; }
+  .tm-shot-arrow { font-size: 22px; color: var(--maroon); font-weight: 600; line-height: 1; }
+
+  @media (prefers-reduced-motion: reduce) { .tm-play::before { animation: none; } }
+
+  /* Services */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 900px) {
+    .services-grid { grid-template-columns: 1fr; }
+  }
+  .service-card {
+    position: relative;
+    background: var(--tan-light);
+    border-radius: var(--radius-3);
+    padding: 30px 26px;
+   
+    box-shadow: var(--shadow-2);
+    transition: background var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+
+  /* While the cursor is over the card the transform must track it 1:1.
+     A transition on transform here restarts a tween every frame, which is
+     the lag the old version had. Only the release eases. */
+  .service-card.tilting {
+    transition: background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+  .service-card::after,
+  .clip-card::after,
+  .cta-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.09;
+    mix-blend-mode: multiply;
+    background-image: var(--grain);
+  }
+  .services-grid { perspective: 800px; }
+  .service-card.stagger-item {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out), background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+  .service-card.stagger-item.visible { opacity: 1; transform: none; }
+  .services-grid .service-card:nth-child(1) { transition-delay: 0s; }
+  .services-grid .service-card:nth-child(2) { transition-delay: 0.12s; }
+  .services-grid .service-card:nth-child(3) { transition-delay: 0.24s; }
+  .services-grid .service-card.visible { transition-delay: 0s; }
+  @media (prefers-reduced-motion: reduce) {
+    .service-card.stagger-item { opacity: 1; transform: none; transition: none; }
+  }
+  .service-icon {
+    margin-bottom: 20px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--maroon);
+  }
+  .service-card h3 {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .service-card p { font-size: var(--text-sm); color: var(--ink-dim); }
+
+  /* Worked With */
+  .worked-with {
+    padding: 48px 0;
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    text-align: center;
+  }
+  .worked-with-label {
+    display: block;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: var(--text-lg);
+    color: var(--maroon);
+    margin-bottom: 28px;
+  }
+  .client-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 28px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  @media (max-width: 700px) {
+    .client-row { max-width: 100%; gap: 16px; }
+  }
+  /* Phone only: 4 avatars in one row was overflowing and forcing horizontal
+     scroll. Switch to a centered 2x2 grid instead. */
+  @media (max-width: 560px) {
+    .client-row {
+      display: grid;
+      grid-template-columns: repeat(2, auto);
+      justify-content: center;
+      gap: 32px 40px;
+    }
+  }
+  @media (max-width: 420px) {
+    .client-row { gap: 24px 32px; }
+    .client-avatar-wrap { width: 84px; height: 84px; }
+    .client-avatar { width: 84px; height: 84px; }
+  }
+  .client-avatar-wrap {
+    position: relative;
+    width: 96px;
+    height: 96px;
+  }
+  .client-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1.5px var(--glass-border);
+    cursor: pointer;
+    transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+    display: block;
+  }
+
+  /* Instagram-style popover */
+  .ig-popover {
+    --shift: 0px;
+    position: absolute;
+    bottom: calc(100% + 14px);
+    left: 50%;
+    transform: translateX(calc(-50% + var(--shift))) translateY(8px);
+    width: 280px;
+    background: #ffffff;
+    border-radius: var(--radius-3);
+    padding: 18px;
+    box-shadow: var(--shadow-3);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+    z-index: 60;
+    text-align: left;
+  }
+.client-avatar-wrap:focus-visible .ig-popover,
+.client-avatar-wrap.open .ig-popover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(calc(-50% + var(--shift))) translateY(0);
+  }
+
+  .ig-popover::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #ffffff;
+  }
+  .ig-popover-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .ig-popover-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .ig-popover-idbox { min-width: 0; }
+  .ig-popover-name {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--text-sm);
+    color: #262626;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .ig-verified { flex-shrink: 0; }
+  .ig-popover-sub {
+    font-size: var(--text-xs);
+    color: #737373;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+  .ig-popover-stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 4px;
+    border-top: 1px solid #efefef;
+    border-bottom: 1px solid #efefef;
+    margin-bottom: 12px;
+  }
+  .ig-popover-stats div {
+    text-align: center;
+    flex: 1;
+  }
+  .ig-popover-stats strong {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: #262626;
+  }
+  .ig-popover-stats span {
+    font-size: var(--text-2xs);
+    color: #737373;
+  }
+  .ig-popover-bio {
+    font-size: var(--text-xs);
+    color: #262626;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 560px) {
+    .ig-popover { width: 220px; }
+  }
+
+  /* About */
+  /* Was 20px/40px against a 88px baseline — a quarter of the room its
+     neighbours get. The card inside carries its own 48px, so this is the
+     baseline minus that. */
+  .about-section { padding: 40px 0; }
+  .about-card {
+    background: var(--tan);
+    border-radius: var(--radius-4);
+    padding: 48px;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 48px;
+    align-items: start;
+    transition: transform var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out);
+    cursor: default;
+    box-shadow: var(--shadow-3);
+  }
+  @media (max-width: 800px) {
+    .about-card { grid-template-columns: 1fr; padding: 36px 28px; }
+  }
+  .about-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    margin-bottom: 18px;
+  }
+  .about-eyebrow::before {
+    content: '';
+    width: 22px;
+    height: 1px;
+    background: var(--maroon);
+    display: inline-block;
+  }
+  .about-heading {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-h2);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+  }
+  .about-heading .accent-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--maroon);
+  }
+  .about-body p {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-md);
+    line-height: 1.65;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .about-body p strong {
+    font-style: normal;
+    font-weight: 600;
+  }
+  .about-body p:last-child { margin-bottom: 0; }
+  .about-body p.casual {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+  .about-body p.casual strong {
+    font-weight: 700;
+  }
+
+  /* CTA */
+  .cta-section {
+    text-align: center;
+    padding: 100px 0 110px;
+  }
+  .cta-card {
+    position: relative;
+    isolation: isolate;
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--tan);
+    border-radius: var(--radius-4);
+    padding: 56px 44px;
+   
+  }
+  .cta-card::before {
+    content: '';
+    position: absolute;
+    inset: -1.5px;
+    border-radius: var(--radius-4);
+    padding: 1.5px;
+    background: conic-gradient(from var(--cta-ang, 20deg), var(--maroon), var(--tan-light), var(--skyblue), var(--maroon));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+  }
+  @property --cta-ang {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 20deg;
+  }
+  @media (prefers-reduced-motion: reduce) {
+  }
+  .cta-card h2 { margin-bottom: 16px; }
+  .cta-card p { color: var(--ink-dim); font-size: var(--text-sm); margin-bottom: 32px; }
+
+  /* Outside <main> now, so width, gutters and layout come from the shared
+     rule; the hairline above it is the only thing specific to this page. */
+  footer { border-top: 1px solid var(--glass-border); }
+  @media (max-width: 600px) {
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+  .footer-links { display: flex; gap: 24px; }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+/* ---------- Pointer-only hover ----------
+   A touch screen has no hover to leave, so an ungated :hover latches
+   after a tap and the control stays lit until you tap something else. */
+@media (hover: hover) and (pointer: fine) {
+  .nav-cta:hover { box-shadow: var(--shadow-accent); transform: translateY(-1px); }
+
+  .nav-terminal:hover { box-shadow: var(--shadow-accent); transform: translateY(-1px); }
+
+  .btn-primary:hover { box-shadow: var(--shadow-accent); transform: translateY(-1px); }
+
+  .dp-range-btn:hover { border-color: rgba(150,192,206,0.55); color: #fff; }
+
+  #dashboard-preview.dp-play .dp-file-row:hover {
+      transform: translateY(-5px) scale(1.035);
+      transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+      transition-delay: 0s;
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(150,192,206,0.45);
+      box-shadow: 0 16px 32px -12px rgba(0,0,0,0.78);
+      position: relative;
+      z-index: 3;
+    }
+
+  .tm-play:hover { transform: translate(-50%,-50%) scale(1.08); background: var(--maroon); }
+
+  .service-card:hover {
+      background: var(--tan);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-2);
+    }
+
+  .client-avatar-wrap:hover .client-avatar {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 2px var(--maroon);
+    }
+
+  .client-avatar-wrap:hover .ig-popover {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(calc(-50% + var(--shift))) translateY(0);
+    }
+
+  .about-card:hover {
+      transform: scale(1.015);
+      box-shadow: var(--shadow-3);
+    }
+
+  footer a:hover { color: var(--ink-dim); }
+}
+
+/* ---------- Press ----------
+   Feedback on pointer-down, not on release: waiting for the click to
+   land is exactly the lag that makes an interface feel dead. */
+.nav-cta:active,
+.nav-terminal:active,
+.btn-primary:active,
+.dp-range-btn:active,
+.tm-play:active {
+  transform: scale(var(--press));
+}
+</style>
+</head>
+<body>
+
+<div class="ambient">
+  <div class="ambient-blob ambient-blob-5"></div>
+  <div class="ambient-blob ambient-blob-4"></div>
+  <div class="ambient-blob ambient-blob-3"></div>
+  <div class="ambient-blob ambient-blob-2"></div>
+  <div class="ambient-blob ambient-blob-1"></div>
+</div>
+<div class="noise"></div>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Sotiris <span>Demertzidis</span></div>
+    <div class="nav-links">
+      <a href="#services">Work</a>
+      <a href="#dashboard-preview">Dashboard</a>
+      <a href="#about">About</a>
+      <a href="#results">Proof</a>
+    </div>
+    <div class="nav-actions">
+      <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="nav-cta">Book a call</a>
+      <a href="signup" class="nav-terminal">
+        <span class="terminal-title">Sign Up</span>
+        <span class="terminal-sub">client terminal</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> DFY CREATIVE VIDEO DESIGN FOR COACHES AND FOUNDERS</div>
+      <h1 id="hero-h1"><span class="reveal-line"><span class="reveal-inner">Your content could give the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.45s;">right</span> message through the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.6s;">right</span> visual design.</span></span></h1>
+      <p class="hero-sub">I find emotion in your raw videos and turn it into visual design — not just a motion graphic, but a done-for-you service that takes care of your personal brand's video design so you can scale.</p>
+      <div class="hero-ctas">
+        <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="btn-primary">Book a call →</a>
+      </div>
+    </div>
+
+    <div class="reveal" id="hero-clip-wrap">
+      <div class="clip-card">
+        <div class="baf-frame" id="hero-baf">
+          <div class="baf-side baf-raw">
+            <img class="baf-img" src="assets/hero-raw.jpg" width="900" height="506" decoding="async"
+                 alt="A raw talking-head clip straight out of the camera">
+            <span class="baf-tag">RAW</span>
+          </div>
+          <div class="baf-side baf-designed" id="hero-baf-designed">
+            <img class="baf-img" src="assets/hero-designed.jpg" width="900" height="506" decoding="async"
+                 alt="The same clip after design: a browser-window graphic and typography over the shot">
+            <span class="baf-tag">DESIGNED</span>
+          </div>
+          <div class="baf-grain"></div>
+          <div class="baf-handle" id="hero-baf-handle" role="slider" tabindex="0"
+               aria-label="Reveal the designed version"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+               aria-valuetext="50% designed">
+            <span class="baf-line" aria-hidden="true"></span>
+            <span class="baf-grip" aria-hidden="true">⟷</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKED WITH -->
+  <section class="worked-with reveal" aria-label="Clients I have worked with">
+    <span class="worked-with-label">Worked with:</span>
+    <div class="client-row">
+
+      <div class="client-avatar-wrap" tabindex="0">
+        <img class="client-avatar" width="96" height="96" decoding="async" src="assets/avatar-matthew.jpg" alt="Matthew Feola">
+        <div class="ig-popover">
+          <div class="ig-popover-header">
+            <img class="ig-popover-avatar" width="52" height="52" loading="lazy" decoding="async" src="assets/avatar-matthew.jpg" alt="Matthew Feola">
+            <div class="ig-popover-idbox">
+              <div class="ig-popover-name">feolamatthew <svg aria-hidden="true" class="ig-verified" viewBox="0 0 24 24" width="14" height="14"><path fill="#3897f0" d="M12 2l2.4 1.2 2.6-.7 1.6 2.2 2.7.6.2 2.7 2 1.8-1.2 2.5.7 2.6-2.2 1.6-.6 2.7-2.7.2-1.8 2-2.5-1.2-2.6.7-1.6-2.2-2.7-.6-.2-2.7-2-1.8 1.2-2.5-.7-2.6 2.2-1.6.6-2.7 2.7-.2z"/><path fill="#fff" d="M9.8 12.4l1.6 1.6 3.2-3.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="ig-popover-sub">Matthew Feola · UGC Coach</div>
+            </div>
+          </div>
+          <div class="ig-popover-stats">
+            <div><strong>140</strong><span>posts</span></div>
+            <div><strong>6,285</strong><span>followers</span></div>
+            <div><strong>234</strong><span>following</span></div>
+          </div>
+          <div class="ig-popover-bio">
+            i help ugc creators hit their first $10k/mo<br>
+            $110k+/mo in student revenue<br>
+            dm me "ugc" to get started
+          </div>
+        </div>
+      </div>
+
+      <div class="client-avatar-wrap" tabindex="0">
+        <img class="client-avatar" width="96" height="96" decoding="async" src="assets/avatar-josh.jpg" alt="Josh Chang">
+        <div class="ig-popover">
+          <div class="ig-popover-header">
+            <img class="ig-popover-avatar" width="52" height="52" loading="lazy" decoding="async" src="assets/avatar-josh.jpg" alt="Josh Chang">
+            <div class="ig-popover-idbox">
+              <div class="ig-popover-name">thejoshchang <svg aria-hidden="true" class="ig-verified" viewBox="0 0 24 24" width="14" height="14"><path fill="#3897f0" d="M12 2l2.4 1.2 2.6-.7 1.6 2.2 2.7.6.2 2.7 2 1.8-1.2 2.5.7 2.6-2.2 1.6-.6 2.7-2.7.2-1.8 2-2.5-1.2-2.6.7-1.6-2.2-2.7-.6-.2-2.7-2-1.8 1.2-2.5-.7-2.6 2.2-1.6.6-2.7 2.7-.2z"/><path fill="#fff" d="M9.8 12.4l1.6 1.6 3.2-3.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="ig-popover-sub">Josh Chang</div>
+            </div>
+          </div>
+          <div class="ig-popover-stats">
+            <div><strong>56</strong><span>posts</span></div>
+            <div><strong>59,863</strong><span>followers</span></div>
+            <div><strong>568</strong><span>following</span></div>
+          </div>
+          <div class="ig-popover-bio">
+            founder @changconsulting.co<br>
+            scaling coaches & brands with organic content<br>
+            dm me "scale" to work with me 1:1
+          </div>
+        </div>
+      </div>
+
+      <div class="client-avatar-wrap" tabindex="0">
+        <img class="client-avatar" width="96" height="96" decoding="async" src="assets/avatar-lj.jpg" alt="LJ Elizarde">
+        <div class="ig-popover">
+          <div class="ig-popover-header">
+            <img class="ig-popover-avatar" width="52" height="52" loading="lazy" decoding="async" src="assets/avatar-lj.jpg" alt="LJ Elizarde">
+            <div class="ig-popover-idbox">
+              <div class="ig-popover-name">ljelizarde_ <svg aria-hidden="true" class="ig-verified" viewBox="0 0 24 24" width="14" height="14"><path fill="#3897f0" d="M12 2l2.4 1.2 2.6-.7 1.6 2.2 2.7.6.2 2.7 2 1.8-1.2 2.5.7 2.6-2.2 1.6-.6 2.7-2.7.2-1.8 2-2.5-1.2-2.6.7-1.6-2.2-2.7-.6-.2-2.7-2-1.8 1.2-2.5-.7-2.6 2.2-1.6.6-2.7 2.7-.2z"/><path fill="#fff" d="M9.8 12.4l1.6 1.6 3.2-3.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="ig-popover-sub">LJ Elizarde | LA Barber & Coach</div>
+            </div>
+          </div>
+          <div class="ig-popover-stats">
+            <div><strong>913</strong><span>posts</span></div>
+            <div><strong>126k</strong><span>followers</span></div>
+            <div><strong>1,103</strong><span>following</span></div>
+          </div>
+          <div class="ig-popover-bio">
+            I help barbers scale to $22k/mo<br>
+            DM me "Beyond" for 1-1 mentorship<br>
+            learn how I do it for free/book a haircut 👇
+          </div>
+        </div>
+      </div>
+
+      <div class="client-avatar-wrap" tabindex="0">
+        <img class="client-avatar" width="96" height="96" decoding="async" src="assets/avatar-kelly.jpg" alt="Kelly">
+        <div class="ig-popover">
+          <div class="ig-popover-header">
+            <img class="ig-popover-avatar" width="52" height="52" loading="lazy" decoding="async" src="assets/avatar-kelly.jpg" alt="Kelly">
+            <div class="ig-popover-idbox">
+              <div class="ig-popover-name">kellycocaa</div>
+              <div class="ig-popover-sub">Kelly 🇨🇴 | Latina Discipline & Fat Loss Coach</div>
+            </div>
+          </div>
+          <div class="ig-popover-stats">
+            <div><strong>737</strong><span>posts</span></div>
+            <div><strong>87.2k</strong><span>followers</span></div>
+            <div><strong>381</strong><span>following</span></div>
+          </div>
+          <div class="ig-popover-bio">
+            Helping driven Latinas master food & discipline so they can wear what they want ✨<br>
+            DM "FIT" for 1:1 Coaching 💜
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">WHAT I DO</span>
+      <h2>Build a personal brand that <span class="accent-italic">feels</span> like you.</h2>
+      <p class="section-sub">You already did the hard part — showing up and saying something real. I handle the rest.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card stagger-item">
+        <div class="service-icon">1)</div>
+        <h3>Getting to know your story</h3>
+        <p>We dig into your story and your ICP — who you're really talking to and why they should care — so every piece of content we make actually sounds like you and lands with the right people.</p>
+      </div>
+      <div class="service-card stagger-item">
+        <div class="service-icon">2)</div>
+        <h3>Every second, designed</h3>
+        <p>Every second of visual design, every cut, every frame is made to count — built to hit an emotion first, because content that makes someone feel something is what earns their trust, and trust is what turns a viewer into a client.</p>
+      </div>
+      <div class="service-card stagger-item">
+        <div class="service-icon">3)</div>
+        <h3>Editing</h3>
+        <p>We're on deadline, every time, and we own 100% of the video editing process from start to finish — so you get your time back to scale your business instead of babysitting your content.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRACKING DASHBOARD PREVIEW -->
+  <section id="dashboard-preview">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">WHEN WE PARTNER UP</span>
+      <h2>Have your own <span class="accent-italic">Tracking Dashboard</span>.</h2>
+      <p class="section-sub">The moment we align on a partnership, a private dashboard becomes yours — watch revenue and cash collected climb day by day, keep count of the leads your content pulls in, and hold every brand asset in one place. Here's a look at what's waiting for you.</p>
+    </div>
+
+    <div class="dp-wrap reveal">
+      <!-- Tracker graph — shown first -->
+      <div class="dp-panel dp-chart-card">
+        <span class="dp-badge"><span class="dp-live-dot"></span> Live preview</span>
+        <div class="dp-chart-head">
+          <div class="dp-chart-title">Revenue &amp; cash collected</div>
+          <div class="dp-range-group" role="group" aria-label="Chart range">
+            <button type="button" class="dp-range-btn" data-range="1w">1W</button>
+            <button type="button" class="dp-range-btn" data-range="1m">1M</button>
+            <button type="button" class="dp-range-btn active" data-range="3m">3M</button>
+            <button type="button" class="dp-range-btn" data-range="6m">6M</button>
+            <button type="button" class="dp-range-btn" data-range="all">All</button>
+          </div>
+        </div>
+
+        <div class="dp-stats-row">
+          <div class="dp-stat">
+            <span class="dp-stat-dot" style="background: var(--dp-rev);"></span>
+            <span class="dp-stat-label">Total revenue</span>
+            <span class="dp-stat-value" data-count="112" data-prefix="$" data-suffix="k">$0k</span>
+            <span class="dp-stat-change">&#9650; 23%</span>
+          </div>
+          <div class="dp-stat">
+            <span class="dp-stat-dot" style="background: var(--dp-cash);"></span>
+            <span class="dp-stat-label">Total cash collected</span>
+            <span class="dp-stat-value" data-count="88" data-prefix="$" data-suffix="k">$0k</span>
+            <span class="dp-stat-change">&#9650; 19%</span>
+          </div>
+        </div>
+
+        <div class="dp-canvas-wrap">
+          <svg viewBox="0 0 640 272" role="img" aria-label="Sample revenue and cash collected climbing over eight months">
+            <defs>
+              <linearGradient id="dpRevGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#C42032" stop-opacity="0.38"/>
+                <stop offset="100%" stop-color="#C42032" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="dpCashGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7B47E0" stop-opacity="0.34"/>
+                <stop offset="100%" stop-color="#7B47E0" stop-opacity="0"/>
+              </linearGradient>
+              <filter id="dpGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3.2" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- grid -->
+            <line x1="64" y1="20" x2="622" y2="20" stroke="rgba(150,192,206,0.10)" stroke-width="1"/>
+            <text x="54" y="23.5" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$120k</text>
+            <line x1="64" y1="71.5" x2="622" y2="71.5" stroke="rgba(150,192,206,0.10)" stroke-width="1"/>
+            <text x="54" y="75" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$90k</text>
+            <line x1="64" y1="123" x2="622" y2="123" stroke="rgba(150,192,206,0.10)" stroke-width="1"/>
+            <text x="54" y="126.5" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$60k</text>
+            <line x1="64" y1="174.5" x2="622" y2="174.5" stroke="rgba(150,192,206,0.10)" stroke-width="1"/>
+            <text x="54" y="178" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$30k</text>
+            <line x1="64" y1="226" x2="622" y2="226" stroke="rgba(150,192,206,0.28)" stroke-width="1"/>
+            <text x="54" y="229.5" text-anchor="end" font-size="10" font-family="ui-monospace, monospace" fill="rgba(232,240,242,0.45)">$0</text>
+
+            <!-- x-axis labels + plot are rendered by JS per selected range -->
+            <g id="dp-xlabels"></g>
+            <g id="dp-plot"></g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="dp-grid-2">
+        <!-- Brand identity files -->
+        <div class="dp-panel dp-brand-panel">
+          <div class="dp-brand-title">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Brand identity — all in one place
+          </div>
+          <div class="dp-file-list">
+            <div class="dp-file-row">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Dream Follower / ICP
+              <span class="dp-file-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved</span>
+            </div>
+            <div class="dp-file-row">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Brand Identity
+              <span class="dp-file-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved</span>
+            </div>
+            <div class="dp-file-row">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Competitor Research
+              <span class="dp-file-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved</span>
+            </div>
+            <div class="dp-file-row">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Style / Inspiration
+              <span class="dp-file-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leads + videos counters -->
+        <div class="dp-panel dp-counter-panel">
+          <div class="dp-counter-row">
+            <div class="dp-counter">
+              <div class="dp-counter-label">Videos completed</div>
+              <div class="dp-counter-sub">this month</div>
+              <div class="dp-counter-value" data-count="27">0</div>
+            </div>
+            <div class="dp-counter">
+              <div class="dp-counter-label">Leads from content</div>
+              <div class="dp-counter-sub">this month</div>
+              <div class="dp-counter-value" data-count="214">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dp-caption">Preview only — sample numbers. Your real figures fill in as we work together.</div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about-section" id="about">
+    <div class="about-card reveal">
+      <div>
+        <div class="about-eyebrow">ABOUT</div>
+        <h2 class="about-heading">The story your client needs to hear <span class="accent-italic">before buying</span>.</h2>
+      </div>
+      <div class="about-body">
+        <p>I'm Sotiris — I work with coaches and founders who know they can level up their personal brand through creative visual design, and find their ICPs through the internet.</p>
+        <p class="casual">I've worked with coaches pulling in <strong>$100k+ a month</strong>, helping them tighten up their positioning, visuals, and content so their personal brand actually pulls its weight.</p>
+        <p class="casual">Here's the thing — at that level, it's rarely a "content" problem. It's a <strong>clarity</strong> problem. Visuals that don't match, a message that's all over the place, output that looks like everyone else's. End result: people who are genuinely great at what they do, staying invisible online.</p>
+        <p class="casual">That's the gap I close — through editing and visual design that digs out what's actually different about you, then turns it into content that works for you around the clock.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS / TESTIMONIAL -->
+  <section id="results">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">PROOF</span>
+      <h2>From 2,183 to 6,285 followers — and <span class="accent-italic">100+ leads</span>.</h2>
+      <p class="section-sub">Matthew Feola came to me at 2,183 followers. The content we made together pulled in over 100 leads and helped grow him to 6,285 — here's him telling it.</p>
+    </div>
+
+    <div class="tm-grid reveal">
+      <!-- Video: unlisted YouTube, click-to-play facade. Paste the video ID into data-yt below. -->
+      <div class="tm-video" id="tm-video" data-yt="NftjR9i1A2Y" data-poster="">
+        <img class="tm-video-poster" id="tm-poster" width="300" height="533" alt="Matthew Feola's testimonial video" loading="lazy"
+             onerror="this.style.display='none'">
+        <button class="tm-play" type="button" aria-label="Play Matthew's testimonial">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <span class="tm-video-badge">Matthew Feola · UGC coach</span>
+      </div>
+
+      <!-- Proof column -->
+      <div class="tm-proof">
+        <div class="tm-quote">
+          <svg aria-hidden="true" class="tm-quote-mark" viewBox="0 0 24 24" fill="currentColor"><path d="M7.5 5C5 6.5 3.5 9 3.5 12.5V19h6v-7H7c0-2 1-3.5 2.5-4.5L7.5 5zm9 0c-2.5 1.5-4 4-4 7.5V19h6v-7H16c0-2 1-3.5 2.5-4.5L16.5 5z"/></svg>
+          <p id="tm-quote-text">"Sotiris was my editor for my personal brand and, honestly, the best editor I've ever had. Super quick turnaround — genuinely less than six hours, always under 24. The quality was insane, and you don't even need to give him a reference video. Unlike most editors I've worked with, he just gets what you want; after a couple of videos he already had a great idea of the style I was going for. Working with him was an amazing experience — I'd recommend it to anyone."</p>
+          <div class="tm-quote-by">— Matthew Feola, UGC coach</div>
+        </div>
+
+        <div class="tm-stat-row">
+          <div class="tm-stat">
+            <div class="tm-stat-value" id="tm-followers" data-from="2183" data-to="6285">2,183</div>
+            <div class="tm-stat-label">followers &nbsp;•&nbsp; +188%</div>
+          </div>
+          <div class="tm-stat">
+            <div class="tm-stat-value" id="tm-leads" data-to="100" data-suffix="+">0+</div>
+            <div class="tm-stat-label">leads from one video</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Before / after follower screenshots (drop the images into assets/) -->
+    <div class="tm-shots reveal">
+      <figure class="tm-shot">
+        <div class="tm-shot-img tm-shot-missing">
+          <img src="assets/matthew-before.png" width="462" height="152" alt="Matthew's Instagram at 2,183 followers" loading="lazy"
+               onload="this.parentElement.classList.remove('tm-shot-missing')"
+               onerror="this.remove()">
+        </div>
+        <figcaption><span class="tm-shot-tag">Before</span> 2,183 followers</figcaption>
+      </figure>
+      <div class="tm-shot-arrow">↓</div>
+      <figure class="tm-shot">
+        <div class="tm-shot-img tm-shot-missing">
+          <img src="assets/matthew-after.jpg" width="1125" height="323" alt="Matthew's Instagram at 6,285 followers" loading="lazy"
+               onload="this.parentElement.classList.remove('tm-shot-missing')"
+               onerror="this.remove()">
+        </div>
+        <figcaption><span class="tm-shot-tag">After</span> 6,285 followers</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="contact">
+    <div class="cta-card reveal">
+      <h2>Let's find if you are a good fit for this offer.</h2>
+      <p>15 minutes. I'll tell you honestly whether your content has what it needs — no pitch deck required.</p>
+      <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="btn-primary">Book a call →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div>&copy; 2026 Sotiris Demertzidis</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/sotiris.dmrtz/" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:demertzidisbusinessinfo@gmail.com">Email</a>
+  </div>
+</footer>
+
+<script src="/assets/app.js"></script>
+<script>
+
+  // Every count-up on the page runs for the same length of time. There were
+  // three: 1750ms, 1600ms and 700ms, for the same effect.
+  var COUNT_MS = 900;
+
+  // Tracking dashboard preview: clickable ranges, line draw, count-up, staggered files
+  (function () {
+    var dpSection = document.getElementById('dashboard-preview');
+    if (!dpSection) return;
+
+    var plot = document.getElementById('dp-plot');
+    var xlabels = document.getElementById('dp-xlabels');
+    var countEls = dpSection.querySelectorAll('[data-count]');
+    var rangeBtns = dpSection.querySelectorAll('.dp-range-btn');
+
+    // geometry — matches the live dashboard chart
+    var PL = 64, PT = 20, PLOT_W = 558, PLOT_H = 206, BASE_Y = 226, Y_MAX = 120;
+    var DRAW_MS = 560;  // one value, matching --dur-reveal
+
+    function xAt(i, n) { return n > 1 ? PL + (i * PLOT_W) / (n - 1) : PL + PLOT_W / 2; }
+    function yAt(v) { return PT + (1 - v / Y_MAX) * PLOT_H; }
+
+    // Sample data per range — trends up but dips and rises for a natural feel; all end high.
+    var RANGES = {
+      '1w': { labels: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'],
+              rev: [88, 96, 90, 102, 98, 106, 112], cash: [66, 73, 69, 79, 76, 83, 88] },
+      '1m': { labels: ['WK 1', 'WK 2', 'WK 3', 'WK 4', 'NOW'],
+              rev: [72, 88, 80, 100, 112], cash: [55, 67, 61, 78, 88] },
+      '3m': { labels: ['JUN', '', 'JUL', '', 'AUG', '', 'NOW'],
+              rev: [60, 76, 69, 88, 82, 100, 112], cash: [46, 58, 52, 68, 63, 79, 88] },
+      '6m': { labels: ['MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG'],
+              rev: [42, 58, 50, 74, 92, 112], cash: [32, 44, 38, 58, 73, 88] },
+      'all': { labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG'],
+               rev: [20, 34, 27, 46, 40, 64, 82, 112], cash: [14, 25, 20, 34, 30, 50, 66, 88] }
+    };
+    var currentRange = '3m';
+
+    function linePath(vals) {
+      var n = vals.length;
+      return vals.map(function (v, i) { return (i === 0 ? 'M' : 'L') + xAt(i, n).toFixed(1) + ',' + yAt(v).toFixed(1); }).join(' ');
+    }
+    function areaPath(vals) {
+      var n = vals.length;
+      return linePath(vals) + ' L' + xAt(n - 1, n).toFixed(1) + ',' + BASE_Y + ' L' + xAt(0, n).toFixed(1) + ',' + BASE_Y + ' Z';
+    }
+    function dotsFor(vals, color) {
+      var n = vals.length, out = '';
+      for (var i = 0; i < n; i++) {
+        out += '<circle class="dp-dot" cx="' + xAt(i, n).toFixed(1) + '" cy="' + yAt(vals[i]).toFixed(1) +
+          '" r="3.2" fill="' + color + '" stroke="#0A1013" stroke-width="1.5"/>';
+      }
+      var lx = xAt(n - 1, n).toFixed(1), ly = yAt(vals[n - 1]).toFixed(1);
+      out += '<circle class="dp-dot" cx="' + lx + '" cy="' + ly + '" r="7" fill="' + color + '" fill-opacity="0.18"/>' +
+             '<circle class="dp-dot" cx="' + lx + '" cy="' + ly + '" r="3.6" fill="' + color + '" stroke="#0A1013" stroke-width="1.5" filter="url(#dpGlow)"/>';
+      return out;
+    }
+    function xLabelsFor(labels) {
+      var n = labels.length, out = '';
+      for (var i = 0; i < n; i++) {
+        if (!labels[i]) continue;
+        out += '<text x="' + xAt(i, n).toFixed(1) + '" y="246" text-anchor="middle" font-size="10" font-weight="600" ' +
+          'letter-spacing="0.08em" font-family="ui-monospace, monospace" fill="rgba(150,192,206,0.8)">' + labels[i] + '</text>';
+      }
+      return out;
+    }
+
+    function renderChart(key, animate) {
+      var d = RANGES[key];
+      if (!d || !plot) return;
+      currentRange = key;
+      xlabels.innerHTML = xLabelsFor(d.labels);
+      plot.innerHTML =
+        '<path class="dp-area" fill="url(#dpRevGrad)" d="' + areaPath(d.rev) + '"/>' +
+        '<path class="dp-area" fill="url(#dpCashGrad)" d="' + areaPath(d.cash) + '"/>' +
+        '<path class="dp-line" id="dp-line-rev" stroke="#C42032" filter="url(#dpGlow)" d="' + linePath(d.rev) + '"/>' +
+        '<path class="dp-line" id="dp-line-cash" stroke="#7B47E0" filter="url(#dpGlow)" d="' + linePath(d.cash) + '"/>' +
+        dotsFor(d.rev, '#C42032') + dotsFor(d.cash, '#7B47E0');
+
+      var lines = plot.querySelectorAll('.dp-line');
+      plot.classList.remove('shown');
+      lines.forEach(function (line) {
+        var len = line.getTotalLength();
+        line.style.transition = 'none';
+        line.style.strokeDasharray = len;
+        line.style.strokeDashoffset = (animate && !prefersReducedMotion) ? len : 0;
+      });
+      // force reflow so the reset offset is committed before animating
+      void plot.getBoundingClientRect();
+      requestAnimationFrame(function () {
+        lines.forEach(function (line, idx) {
+          if (animate && !prefersReducedMotion) {
+            line.style.transition = 'stroke-dashoffset ' + DRAW_MS + 'ms cubic-bezier(0.22,1,0.36,1) ' + (idx * 120) + 'ms';
+          }
+          line.style.strokeDashoffset = '0';
+        });
+        plot.classList.add('shown');
+      });
+    }
+
+    var counted = false;
+    function runCounts() {
+      if (counted) return;
+      counted = true;
+      countEls.forEach(function (el) {
+        var target = parseFloat(el.getAttribute('data-count')) || 0;
+        var prefix = el.getAttribute('data-prefix') || '';
+        var suffix = el.getAttribute('data-suffix') || '';
+        if (prefersReducedMotion) { el.textContent = prefix + target + suffix; return; }
+        var duration = COUNT_MS, startTime = null;
+        function tick(ts) {
+          if (startTime === null) startTime = ts;
+          var p = Math.min((ts - startTime) / duration, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = prefix + Math.round(target * eased) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    // Range buttons: switch dataset and replay the line-draw animation
+    rangeBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-range');
+        if (!RANGES[key]) return;
+        rangeBtns.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderChart(key, true);
+      });
+    });
+
+    var played = false;
+    function play(animate) {
+      if (played) return;
+      played = true;
+      dpSection.classList.add('dp-play');
+      renderChart(currentRange, animate);
+      runCounts();
+    }
+
+    if (prefersReducedMotion) play(false);
+    else whenVisible(dpSection, function () { play(true); });
+  })();
+
+  // Scroll spy for the nav links. Rides the rAF-throttled scroll handler
+  // below rather than adding an observer of its own: the answer changes on
+  // every scroll frame, which is not what a one-shot observer is for.
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+  var spyTargets = navLinks.map(function (a) {
+    return { link: a, el: document.querySelector(a.getAttribute('href')) };
+  }).filter(function (t) { return t.el; });
+
+  function markCurrentSection() {
+    if (!spyTargets.length) return;
+    var line = window.scrollY + window.innerHeight * 0.35;
+    var current = null;
+    spyTargets.forEach(function (t) {
+      if (t.el.getBoundingClientRect().top + window.scrollY <= line) current = t;
+    });
+    // nothing is "current" once the footer is in view and the last section has passed
+    spyTargets.forEach(function (t) {
+      if (t === current) t.link.setAttribute('aria-current', 'true');
+      else t.link.removeAttribute('aria-current');
+    });
+  }
+
+  // Nav hairline: fills left-to-right as a scroll progress bar
+  var navEl = document.querySelector('nav');
+  if (navEl) {
+    var progressTicking = false;
+    var updateScrollProgress = function () {
+      var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+      navEl.style.setProperty('--scroll-progress', Math.max(0, Math.min(100, pct)) + '%');
+      navEl.classList.toggle('scrolled', window.scrollY > 8);
+      markCurrentSection();
+      progressTicking = false;
+    };
+    updateScrollProgress();
+    window.addEventListener('scroll', function () {
+      if (!progressTicking) {
+        requestAnimationFrame(updateScrollProgress);
+        progressTicking = true;
+      }
+    }, { passive: true });
+    window.addEventListener('resize', updateScrollProgress);
+  }
+
+  // Hero headline line-reveal
+  var heroH1 = document.getElementById('hero-h1');
+  if (heroH1) {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { heroH1.classList.add('play'); });
+    });
+  }
+
+  // Services: staggered group reveal
+  var servicesGrid = document.querySelector('.services-grid');
+  if (servicesGrid) {
+    var staggerItems = servicesGrid.querySelectorAll('.stagger-item');
+    function showCards() { staggerItems.forEach(function (el) { el.classList.add('visible'); }); }
+    if (prefersReducedMotion) showCards();
+    else whenVisible(servicesGrid, showCards);
+
+    // Services: magnetic tilt.
+    //
+    // The old version wrote card.style.transform on every raw mousemove while
+    // .service-card carried a 240ms transform transition, so every mouse pixel
+    // restarted a quarter-second tween and the card lagged the cursor. The
+    // write is rAF-throttled now, and .tilting drops the transition for the
+    // duration of the gesture, so tracking is 1:1 and only the release eases.
+    //
+    // The perspective belongs to .services-grid (800px). The old inline
+    // transform declared its own 700px, which fought it.
+    if (!prefersReducedMotion && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      staggerItems.forEach(function (card) {
+        var frame = 0, mx = 0, my = 0;
+
+        function paint() {
+          frame = 0;
+          card.style.transform =
+            'rotateY(' + (mx * 8).toFixed(2) + 'deg) rotateX(' + (-my * 8).toFixed(2) + 'deg) translateY(-3px)';
+        }
+
+        card.addEventListener('mousemove', function (e) {
+          var rect = card.getBoundingClientRect();
+          mx = (e.clientX - rect.left) / rect.width - 0.5;
+          my = (e.clientY - rect.top) / rect.height - 0.5;
+          card.classList.add('tilting');
+          if (!frame) frame = requestAnimationFrame(paint);
+        });
+
+        card.addEventListener('mouseleave', function () {
+          if (frame) { cancelAnimationFrame(frame); frame = 0; }
+          card.classList.remove('tilting');   // the return eases back
+          card.style.transform = '';
+        });
+      });
+    }
+  }
+
+  // Results / testimonial: click-to-play video facade + count-up stats
+  (function () {
+    var section = document.getElementById('results');
+    if (!section) return;
+
+    var video = document.getElementById('tm-video');
+    if (video) {
+      var ytId = (video.getAttribute('data-yt') || '').trim();
+      var customPoster = (video.getAttribute('data-poster') || '').trim();
+      var poster = document.getElementById('tm-poster');
+      // Poster: a custom image if given, else the video's own YouTube thumbnail.
+      if (poster) {
+        if (customPoster) {
+          poster.src = customPoster;
+        } else if (ytId) {
+          poster.src = 'https://img.youtube.com/vi/' + ytId + '/maxresdefault.jpg';
+          poster.onerror = function () { poster.src = 'https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg'; };
+        } else {
+          poster.style.display = 'none'; // nothing to show yet — dark card + play button
+        }
+      }
+
+      video.addEventListener('click', function () {
+        var id = (video.getAttribute('data-yt') || '').trim();
+        if (!id) return; // no video linked yet — paste the unlisted YouTube ID into data-yt
+        var iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0';
+        iframe.title = 'Matthew testimonial';
+        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+        iframe.setAttribute('allowfullscreen', '');
+        video.classList.add('playing');
+        video.appendChild(iframe);
+      });
+    }
+
+    var counted = false;
+    function runStats() {
+      if (counted) return;
+      counted = true;
+      section.querySelectorAll('[data-to]').forEach(function (el) {
+        var to = parseFloat(el.getAttribute('data-to')) || 0;
+        var from = parseFloat(el.getAttribute('data-from')) || 0;
+        var suffix = el.getAttribute('data-suffix') || '';
+        if (prefersReducedMotion) { el.textContent = to.toLocaleString('en-US') + suffix; return; }
+        var duration = COUNT_MS, start = null;
+        function tick(ts) {
+          if (start === null) start = ts;
+          var p = Math.min((ts - start) / duration, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(from + (to - from) * eased).toLocaleString('en-US') + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    if (prefersReducedMotion) runStats();
+    else whenVisible(section, runStats);
+  })();
+
+  // Scroll reveal
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && revealEls.length) {
+    revealEls.forEach(function (el) {
+      whenVisible(el, function (target) { target.classList.add('visible'); });
+    });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('visible'); });
+  }
+
+  // Tap-to-open Instagram popovers on touch devices, with edge clamping
+  var avatarWraps = document.querySelectorAll('.client-avatar-wrap');
+
+  function parseStatTarget(str) {
+    var m = str.trim().match(/^([\d,]+\.?\d*)(k?)$/i);
+    if (!m) return null;
+    return {
+      value: parseFloat(m[1].replace(/,/g, '')),
+      isK: /k/i.test(m[2]),
+      decimals: m[1].indexOf('.') > -1 ? 1 : 0
+    };
+  }
+  function formatStat(value, isK, decimals) {
+    return isK ? value.toFixed(decimals) + 'k' : Math.round(value).toLocaleString();
+  }
+  function animatePopoverStats(wrap) {
+    if (prefersReducedMotion) return;
+    wrap.querySelectorAll('.ig-popover-stats strong').forEach(function (el) {
+      if (!el.dataset.target) el.dataset.target = el.textContent.trim();
+      var target = parseStatTarget(el.dataset.target);
+      if (!target) return;
+      var start = performance.now(), duration = COUNT_MS;
+      function tick(now) {
+        var p = Math.min(1, (now - start) / duration);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = formatStat(target.value * eased, target.isK, target.decimals);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = el.dataset.target;
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  function positionPopover(wrap) {
+    var pop = wrap.querySelector('.ig-popover');
+    pop.style.setProperty('--shift', '0px');
+    var rect = pop.getBoundingClientRect();
+    var margin = 12;
+    var shift = 0;
+    if (rect.left < margin) shift = margin - rect.left;
+    else if (rect.right > window.innerWidth - margin) shift = (window.innerWidth - margin) - rect.right;
+    if (shift) pop.style.setProperty('--shift', shift + 'px');
+    animatePopoverStats(wrap);
+  }
+  avatarWraps.forEach(function (wrap) {
+    wrap.addEventListener('mouseenter', function () { positionPopover(wrap); });
+    wrap.addEventListener('click', function (e) {
+      if (window.matchMedia('(hover: hover)').matches) return;
+      e.preventDefault();
+      var isOpen = wrap.classList.contains('open');
+      avatarWraps.forEach(function (w) { w.classList.remove('open'); });
+      if (!isOpen) {
+        wrap.classList.add('open');
+        positionPopover(wrap);
+      }
+    });
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.client-avatar-wrap')) {
+      avatarWraps.forEach(function (w) { w.classList.remove('open'); });
+    }
+  });
+
+  // ---------------------------------------------------------------------
+  // Hero raw/designed reveal.
+  //
+  // This is the product demo, so it gets the full gesture stack: grab it
+  // anywhere and it moves with your hand instead of jumping to it, a flick
+  // carries and settles, the ends resist rather than stop dead, and the
+  // whole thing is drivable from the keyboard.
+  // ---------------------------------------------------------------------
+  (function () {
+    var frame = document.getElementById('hero-baf');
+    var handle = document.getElementById('hero-baf-handle');
+    var top_ = document.getElementById('hero-baf-designed');
+    if (!frame || !handle || !top_) return;
+
+    var pct = 50;           // committed position, 0-100
+    var raf = 0;            // spring frame
+    var painting = false;   // rAF paint latch
+    var dragging = false;
+    var pointerId = null;
+    var grabPct = 0;        // where on the frame the grab landed
+    var startPct = 50;      // divider position when the grab began
+    var hist = [];          // recent {p, t} samples, for release velocity
+
+    function paint() {
+      painting = false;
+      var shown = pct < 0 ? 0 : (pct > 100 ? 100 : pct);
+      top_.style.clipPath = 'inset(0 0 0 ' + shown + '%)';
+      handle.style.transform = 'translateX(' + shown + '%)';
+      var n = Math.round(shown);
+      handle.setAttribute('aria-valuenow', n);
+      handle.setAttribute('aria-valuetext', n + '% designed');
+    }
+    function schedule() {
+      if (!painting) { painting = true; requestAnimationFrame(paint); }
+    }
+
+    // No rubber-banding here, deliberately. The divider is positioned
+    // absolutely from the pointer and physically cannot leave the frame, so
+    // resistance past the edge would compute a value that never gets painted —
+    // and because the position is absolute rather than accumulated, overshoot
+    // creates no dead zone to compensate for on the way back. The frame edge
+    // is a real wall, so it stops there.
+    function clamp(p) { return p < 0 ? 0 : (p > 100 ? 100 : p); }
+
+    // Where a flick would come to rest. Exponential decay, the same curve
+    // scroll deceleration uses — not the v^2/2a from a physics textbook.
+    function project(v) {
+      // 0.998 is the scroll-deceleration constant and throws far: a gentle
+      // 60%/s flick would carry the divider 30 points across the frame. A
+      // divider wants control rather than distance, so this is the snappier
+      // 0.99 — the same flick coasts about 6 points.
+      var d = 0.99;
+      return (v / 1000) * d / (1 - d);
+    }
+
+    function stopSpring() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+    // Critically damped spring, started at the finger's release velocity and
+    // integrated from the current on-screen value, so grabbing it mid-flight
+    // never produces a jump.
+    function settle(to, v0) {
+      stopSpring();
+      if (prefersReducedMotion) { pct = to; schedule(); return; }
+      var omega = 2 * Math.PI / 0.4;          // response 0.4s, damping ratio 1
+      var x = pct - to, v = v0, last = performance.now();
+      raf = requestAnimationFrame(function step(now) {
+        var dt = (now - last) / 1000;
+        if (dt > 1 / 30) dt = 1 / 30;         // a backgrounded tab must not explode
+        last = now;
+        v += (-omega * omega * x - 2 * omega * v) * dt;
+        x += v * dt;
+        pct = to + x;
+        schedule();
+        if (Math.abs(x) > 0.04 || Math.abs(v) > 0.4) raf = requestAnimationFrame(step);
+        else { raf = 0; pct = to; schedule(); }
+      });
+    }
+
+    function pctFrom(e) {
+      var r = frame.getBoundingClientRect();
+      return ((e.clientX - r.left) / r.width) * 100;
+    }
+
+    frame.addEventListener('pointerdown', function (e) {
+      if (dragging) return;                          // a second finger does not steal the drag
+      if (e.button !== undefined && e.button !== 0) return;
+      dragging = true;
+      pointerId = e.pointerId;
+      stopSpring();                                  // grab it mid-flight and it is yours
+      frame.setPointerCapture(pointerId);
+      frame.classList.add('dragging');
+      grabPct = pctFrom(e);
+      startPct = pct;                                // respect where they grabbed; never jump
+      hist = [{ p: pct, t: performance.now() }];
+      handle.focus({ preventScroll: true });
+      e.preventDefault();
+    });
+
+    frame.addEventListener('pointermove', function (e) {
+      if (!dragging || e.pointerId !== pointerId) return;
+      pct = clamp(startPct + (pctFrom(e) - grabPct));
+      hist.push({ p: pct, t: performance.now() });
+      if (hist.length > 6) hist.shift();
+      schedule();
+    });
+
+    function end(e) {
+      if (!dragging || (e && e.pointerId !== pointerId)) return;
+      dragging = false;
+      frame.classList.remove('dragging');
+      if (pointerId !== null && frame.hasPointerCapture(pointerId)) {
+        frame.releasePointerCapture(pointerId);
+      }
+      pointerId = null;
+
+      var v = 0;                                     // percent per second
+      if (hist.length > 1) {
+        var a = hist[0], b = hist[hist.length - 1], dt = b.t - a.t;
+        if (dt > 8) v = ((b.p - a.p) / dt) * 1000;
+      }
+      var target = pct + project(v);
+      if (target < 0) target = 0;
+      if (target > 100) target = 100;
+      settle(target, v);
+    }
+    frame.addEventListener('pointerup', end);
+    frame.addEventListener('pointercancel', end);
+
+    // Keyboard is a repeated action, so nothing animates on this path — an
+    // arrow key held down should step, not queue up springs.
+    handle.addEventListener('keydown', function (e) {
+      var step = e.shiftKey ? 10 : 2, next = null;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = pct - step;
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = pct + step;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = 100;
+      if (next === null) return;
+      e.preventDefault();
+      stopSpring();
+      pct = next < 0 ? 0 : (next > 100 ? 100 : next);
+      schedule();
+    });
+
+    paint();
+  })();
+
+</script>
+
+</body>
+</html>
