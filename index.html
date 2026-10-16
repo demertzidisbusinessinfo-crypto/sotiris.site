@@ -1038,6 +1038,70 @@
   transform: scale(var(--press));
 }
 </style>
+<style id="quiz-styles">
+  /* ---------- Fit quiz (added; uses the page's own tokens) ---------- */
+  .quiz-section { text-align: center; padding: 100px 0 0; }
+  .quiz-section + .cta-section { padding-top: 56px; }
+  .quiz-card { text-align: left; max-width: 680px; scroll-margin-top: 96px; }
+  .quiz-card h2 { margin-bottom: 14px; }
+  .quiz-card p { color: var(--ink); margin-bottom: 16px; }
+  .quiz-card .quiz-lead { margin-bottom: 28px; }
+  .quiz-card button.btn-primary { border: 0; cursor: pointer; }
+  .quiz-card button.btn-primary:active { transform: scale(var(--press)); }
+  .quiz-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+  .quiz-link {
+    font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; color: var(--ink);
+    text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; padding: 0; cursor: pointer;
+  }
+  .quiz-meta {
+    font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink); margin-bottom: 12px;
+  }
+  .quiz-bar { height: 4px; border-radius: var(--radius-pill); background: rgba(15, 65, 74, 0.16); overflow: hidden; margin-bottom: 30px; }
+  .quiz-bar > span { display: block; height: 100%; background: var(--accent); border-radius: var(--radius-pill); transition: width var(--dur-slow) var(--ease-out); }
+  .quiz-q { font-size: clamp(1.3rem, 2.8vw, var(--text-xl)); line-height: 1.2; margin-bottom: 22px; }
+  .quiz-q:focus { outline: none; }
+  .quiz-opts { display: grid; gap: 10px; }
+  .quiz-opt {
+    display: flex; align-items: center; gap: 14px; width: 100%; min-height: 54px; text-align: left;
+    font-family: var(--font-body); font-weight: 500; font-size: var(--text-sm); line-height: 1.35; color: var(--ink);
+    background: rgba(255, 255, 255, 0.55); border: 1px solid var(--glass-border); border-radius: var(--radius-3);
+    padding: 14px 18px; cursor: pointer;
+    transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), transform var(--dur-press) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+  .quiz-opt:active { transform: scale(var(--press)); }
+  .quiz-opt.selected { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 1px var(--accent); }
+  .quiz-key {
+    flex: none; width: 26px; height: 26px; border-radius: var(--radius-1); display: grid; place-items: center;
+    font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--ink);
+    border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.6);
+  }
+  .quiz-opt.selected .quiz-key { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .quiz-back {
+    margin-top: 22px; background: none; border: 0; padding: 4px 0; cursor: pointer;
+    font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; color: var(--ink);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .quiz-back[hidden] { display: none; }
+  .quiz-badge {
+    display: inline-flex; align-items: center; font-family: var(--font-serif); font-style: italic; font-weight: 600;
+    font-size: var(--text-sm); color: var(--maroon); background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--glass-border); padding: 6px 12px; border-radius: var(--radius-pill); margin-bottom: 20px;
+  }
+  .quiz-result .quiz-actions { margin-top: 26px; }
+  @media (hover: hover) and (pointer: fine) {
+    .quiz-opt:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.85); transform: translateY(-1px); }
+    .quiz-link:hover, .quiz-back:hover { color: var(--accent); }
+  }
+  @media (max-width: 600px) {
+    .quiz-section { padding-top: 72px; }
+    .quiz-card { padding: 34px 22px; }
+    .quiz-opt { padding: 13px 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-opt, .quiz-bar > span { transition: none; }
+  }
+</style>
 </head>
 <body>
 
@@ -1081,6 +1145,7 @@
       <p class="hero-sub">I find emotion in your raw videos and turn it into visual design — not just a motion graphic, but a done-for-you service that takes care of your personal brand's video design so you can scale.</p>
       <div class="hero-ctas">
         <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="btn-primary">Book a call →</a>
+        <a href="#quiz" class="btn-quiet">See if you're a fit</a>
       </div>
     </div>
 
@@ -1436,6 +1501,20 @@
         </div>
         <figcaption><span class="tm-shot-tag">After</span> 6,285 followers</figcaption>
       </figure>
+    </div>
+  </section>
+
+  <!-- FIT QUIZ -->
+  <section class="quiz-section" id="quiz-section">
+    <div class="cta-card quiz-card reveal" id="quiz">
+      <div id="quiz-stage">
+        <h2 id="quiz-title" tabindex="-1">See if you're a good fit for this offer.</h2>
+        <p class="quiz-lead">Six quick questions, about a minute. You'll get an honest read on whether done-for-you video design makes sense for you right now, and what to do next either way.</p>
+        <div class="quiz-actions">
+          <button type="button" class="btn-primary" id="quiz-start">Take the quiz →</button>
+          <a class="quiz-link" href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener">or book a call directly</a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1982,5 +2061,179 @@
 
 </script>
 
+<script>
+/* Fit quiz: self-contained, touches nothing else on the page. */
+(function () {
+  var card = document.getElementById('quiz');
+  var stage = document.getElementById('quiz-stage');
+  if (!card || !stage) return;
+
+  var CALENDLY = 'https://calendly.com/demertzidisbusinessinfo/one-to-one';
+  var INSTAGRAM = 'https://www.instagram.com/sotiris.dmrtz/';
+
+  var QUESTIONS = [
+    { id: 'niche', q: 'What best describes you?', opts: [
+      { t: 'Business or sales coach', s: 2, v: 'business' },
+      { t: 'UGC or creator-economy coach', s: 2, v: 'ugc' },
+      { t: 'Another kind of coach or consultant', s: 2, v: 'other' },
+      { t: "A creator, I don't have a coaching offer yet", s: 0, v: 'creator' }
+    ]},
+    { id: 'pain', q: 'Which sounds most like your content right now?', opts: [
+      { t: 'I have lots of long-form, but almost no short-form', s: 3, v: 'repurpose' },
+      { t: "My videos get engagement, but it doesn't turn into leads", s: 3, v: 'leads' },
+      { t: "I post consistently, but it looks like everyone else's", s: 2, v: 'standout' },
+      { t: "I'm barely posting at the moment", s: 1, v: 'consistency' }
+    ]},
+    { id: 'time', q: 'How is your time for filming and editing both long and short-form?', opts: [
+      { t: "I'm running out of it, content keeps slipping", s: 3, v: 'tight' },
+      { t: 'Filming is fine, but editing eats my week', s: 3, v: 'editing' },
+      { t: 'I have plenty of time for it', s: 1, v: 'plenty' },
+      { t: 'I have a team that handles it', s: 0, v: 'team' }
+    ]},
+    { id: 'editor', q: 'Who edits your videos today?', opts: [
+      { t: "An editor, but it's slow, inconsistent or generic", s: 3, v: 'weak' },
+      { t: 'Me, on my own', s: 2, v: 'me' },
+      { t: 'Nobody yet', s: 2, v: 'nobody' },
+      { t: "A team I'm happy with", s: 0, v: 'team' }
+    ]},
+    { id: 'offer', q: 'Is your coaching offer already bringing in clients?', opts: [
+      { t: 'Yes, consistently', s: 3, v: 'consistent' },
+      { t: "Occasionally, I'm still figuring it out", s: 2, v: 'occasional' },
+      { t: 'Not launched yet', s: 0, v: 'none' }
+    ]},
+    { id: 'invest', q: 'Are you open to investing in done-for-you video design, if it is the right fit?', opts: [
+      { t: 'Yes, if it is the right fit', s: 3, v: 'yes' },
+      { t: "Maybe, I'd need to see how it works first", s: 2, v: 'maybe' },
+      { t: "No, I'm only looking for free / DIY tips", s: 0, v: 'diy' }
+    ]}
+  ];
+
+  var DIAGNOSIS = {
+    repurpose: "You're sitting on content you've already made. The gap isn't more filming. It's turning your long-form into short-form that carries emotion, so every clip can bring people in on its own.",
+    leads: "Your videos earn attention, but nothing moves people to act. The gap is design: every second should lead the viewer a step closer to your offer, not just keep them watching.",
+    standout: "You're showing up, but your visuals blend in. The gap is a look and message that are unmistakably yours, so the right people recognise you in a second.",
+    consistency: "The ideas are there, but the production isn't keeping up. The gap is a done-for-you pipeline, so posting stops depending on your energy that week."
+  };
+
+  var LATER = {
+    offer: { h: 'Your offer comes first.', p: "Content works best when there's already an offer people are buying. Get that moving first, and design and editing will multiply it. When it's live, come back and take the quiz again." },
+    diy: { h: "This isn't the right fit right now.", p: "What I do is done-for-you, so it only makes sense if you're open to handing the work off. If that changes, I'd be glad to talk." },
+    covered: { h: "It sounds like you're covered.", p: "You already have a team you're happy with, so there's no reason to change that. If that ever shifts, you know where to find me." },
+    low: { h: 'Not a clear fit just yet.', p: "Based on your answers, the timing probably isn't right. Follow along on Instagram, where I share what's working in content for coaches, and retake this whenever things change." }
+  };
+
+  var answers = [];
+  var step = 0;
+  var locked = false;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  function keepInView() {
+    if (card.getBoundingClientRect().top < 80) {
+      card.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    }
+  }
+
+  function focusTitle() {
+    var el = stage.querySelector('[data-focus]');
+    if (el) { el.focus({ preventScroll: true }); }
+  }
+
+  function renderIntro() {
+    answers = []; step = 0;
+    stage.innerHTML =
+      '<h2 id="quiz-title" tabindex="-1" data-focus>See if you\'re a good fit for this offer.</h2>' +
+      '<p class="quiz-lead">Six quick questions, about a minute. You\'ll get an honest read on whether done-for-you video design makes sense for you right now, and what to do next either way.</p>' +
+      '<div class="quiz-actions"><button type="button" class="btn-primary" id="quiz-start">Take the quiz →</button>' +
+      '<a class="quiz-link" href="' + CALENDLY + '" target="_blank" rel="noopener">or book a call directly</a></div>';
+    focusTitle();
+    keepInView();
+  }
+
+  function renderQuestion() {
+    var q = QUESTIONS[step];
+    var picked = answers[step];
+    var html = '';
+    html += '<div class="quiz-meta">Question ' + (step + 1) + ' of ' + QUESTIONS.length + '</div>';
+    html += '<div class="quiz-bar" role="progressbar" aria-label="Quiz progress" aria-valuemin="1" aria-valuemax="' + QUESTIONS.length + '" aria-valuenow="' + (step + 1) + '"><span style="width:' + (((step + 1) / QUESTIONS.length) * 100) + '%"></span></div>';
+    html += '<h2 class="quiz-q" id="quiz-q" tabindex="-1" data-focus>' + esc(q.q) + '</h2>';
+    html += '<div class="quiz-opts" role="group" aria-labelledby="quiz-q">';
+    q.opts.forEach(function (o, i) {
+      var sel = picked && picked.v === o.v;
+      html += '<button type="button" class="quiz-opt' + (sel ? ' selected' : '') + '" data-i="' + i + '" aria-pressed="' + (sel ? 'true' : 'false') + '"><span class="quiz-key" aria-hidden="true">' + String.fromCharCode(65 + i) + '</span><span>' + esc(o.t) + '</span></button>';
+    });
+    html += '</div>';
+    html += '<button type="button" class="quiz-back" id="quiz-back"' + (step === 0 ? ' hidden' : '') + '>← Back</button>';
+    stage.innerHTML = html;
+    focusTitle();
+    keepInView();
+  }
+
+  function tally() {
+    var score = 0, by = {};
+    answers.forEach(function (a, i) { score += a.s; by[QUESTIONS[i].id] = a.v; });
+    var tier, reason = '';
+    if (by.offer === 'none') { tier = 'later'; reason = 'offer'; }
+    else if (by.invest === 'diy') { tier = 'later'; reason = 'diy'; }
+    else if (by.time === 'team' && by.editor === 'team') { tier = 'later'; reason = 'covered'; }
+    else if (score >= 12) { tier = 'strong'; }
+    else if (score >= 8) { tier = 'maybe'; }
+    else { tier = 'later'; reason = 'low'; }
+    return { score: score, by: by, tier: tier, reason: reason };
+  }
+
+  function bookingUrl(r) {
+    var content = (r.by.pain || 'na') + '-' + (r.by.niche || 'na');
+    return CALENDLY + '?utm_source=website&utm_medium=quiz&utm_campaign=' + r.tier + '&utm_content=' + encodeURIComponent(content);
+  }
+
+  function renderResult() {
+    var r = tally();
+    var html = '<div class="quiz-result">';
+    if (r.tier === 'strong' || r.tier === 'maybe') {
+      var strong = r.tier === 'strong';
+      html += '<div class="quiz-badge">' + (strong ? 'Strong fit' : 'Potential fit') + '</div>';
+      html += '<h2 id="quiz-result-h" tabindex="-1" data-focus>' + (strong ? "You're exactly who I built this for." : "There's something here. Let's see if it's worth it.") + '</h2>';
+      html += '<p>' + esc(DIAGNOSIS[r.by.pain]) + '</p>';
+      html += '<p>' + (strong
+        ? "The next step is a 15-minute call. I'll look at your content with you and tell you honestly what I'd do."
+        : "A quiz can't give a clear yes or no, and that's what the call is for. 15 minutes, honest answer either way.") + '</p>';
+      html += '<div class="quiz-actions"><a class="btn-primary" href="' + esc(bookingUrl(r)) + '" target="_blank" rel="noopener">Book your 15-min call →</a><button type="button" class="quiz-link" id="quiz-retake">Retake the quiz</button></div>';
+    } else {
+      var m = LATER[r.reason];
+      html += '<div class="quiz-badge">Not right now</div>';
+      html += '<h2 id="quiz-result-h" tabindex="-1" data-focus>' + esc(m.h) + '</h2>';
+      html += '<p>' + esc(m.p) + '</p>';
+      html += '<div class="quiz-actions"><a class="btn-primary" href="' + INSTAGRAM + '" target="_blank" rel="noopener">Follow on Instagram →</a><button type="button" class="quiz-link" id="quiz-retake">Retake the quiz</button></div>';
+    }
+    html += '</div>';
+    stage.innerHTML = html;
+    focusTitle();
+    keepInView();
+  }
+
+  stage.addEventListener('click', function (e) {
+    var t = e.target.closest('button');
+    if (!t) return;
+    if (t.id === 'quiz-start') { answers = []; step = 0; renderQuestion(); return; }
+    if (t.id === 'quiz-retake') { renderIntro(); return; }
+    if (t.id === 'quiz-back') { if (step > 0) { step--; renderQuestion(); } return; }
+    if (t.classList.contains('quiz-opt')) {
+      if (locked) return;
+      locked = true;
+      var i = parseInt(t.getAttribute('data-i'), 10);
+      answers[step] = QUESTIONS[step].opts[i];
+      Array.prototype.forEach.call(stage.querySelectorAll('.quiz-opt'), function (b) { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
+      t.classList.add('selected');
+      t.setAttribute('aria-pressed', 'true');
+      setTimeout(function () {
+        locked = false;
+        if (step < QUESTIONS.length - 1) { step++; renderQuestion(); } else { renderResult(); }
+      }, reduceMotion ? 0 : 220);
+    }
+  });
+})();
+</script>
 </body>
 </html>
