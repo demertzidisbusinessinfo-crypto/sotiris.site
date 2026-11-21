@@ -490,7 +490,7 @@
 </div>
 
 <!-- ---------------- entry sheet ---------------- -->
-<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Add entry">
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Add entry" inert>
   <div class="sheet-head">
     <button type="button" id="sheet-cancel">Cancel</button>
     <div class="seg" id="seg">
@@ -798,6 +798,8 @@
 
   // ---------------- entry sheet ----------------
 
+  var sheetOpener = null;
+
   function openSheet(direction) {
     draft.direction = direction;
     draft.amount = '0';
@@ -811,10 +813,21 @@
     renderAmount();
     renderDirection();
     renderTiles();
+    sheetOpener = document.activeElement;
+    // The page behind goes inert so Tab and screen readers stay in the sheet.
+    $('screen-app').inert = true;
+    $('sheet').inert = false;
     $('sheet').classList.add('on');
+    $('sheet-cancel').focus();
   }
 
-  function closeSheet() { $('sheet').classList.remove('on'); }
+  function closeSheet() {
+    $('sheet').classList.remove('on');
+    $('sheet').inert = true;
+    $('screen-app').inert = false;
+    if (sheetOpener) sheetOpener.focus();
+    sheetOpener = null;
+  }
 
   function pressKey(k) {
     if (k === 'del') {
