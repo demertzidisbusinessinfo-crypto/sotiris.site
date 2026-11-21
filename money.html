@@ -770,11 +770,11 @@
         }).join('')
       : '<div class="empty">Nothing logged yet.</div>';
 
-    Array.prototype.forEach.call($('feed').querySelectorAll('.feed-row'), function (row) {
+    Array.prototype.forEach.call($('feed').querySelectorAll('.feed-row'), function (row, index) {
       var button = row.querySelector('.feed-delete');
       button.setAttribute('aria-label', 'Delete ' + row.querySelector('.feed-note').textContent + ', ' +
         row.querySelector('.feed-amt').textContent + ', ' + row.querySelector('.feed-meta').textContent);
-      button.addEventListener('click', function () { removeEntry(row.dataset.id, row.dataset.repeat === '1'); });
+      button.addEventListener('click', function () { removeEntry(row.dataset.id, row.dataset.repeat === '1', index); });
     });
   }
 
@@ -880,7 +880,7 @@
     toast(draft.repeat ? 'Saved — repeats every month.' : 'Saved.');
   }
 
-  async function removeEntry(id, isRepeat) {
+  async function removeEntry(id, isRepeat, focusIndex) {
     var ok = window.confirm(isRepeat
       ? 'This is a monthly entry. Deleting it removes every month it covers. Delete it?'
       : 'Delete this entry?');
@@ -891,6 +891,11 @@
 
     entries = entries.filter(function (r) { return r.id !== id; });
     render();
+    if (typeof focusIndex === 'number') {
+      var buttons = $('feed').querySelectorAll('.feed-delete');
+      var target = buttons[Math.min(focusIndex, buttons.length - 1)] || document.querySelector('.go-out');
+      target.focus();
+    }
     toast('Deleted.');
   }
 
