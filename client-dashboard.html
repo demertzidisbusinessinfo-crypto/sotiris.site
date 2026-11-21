@@ -1838,7 +1838,7 @@
     document.getElementById('frame-link-input').value = profile.frame_link || '';
     const frameCurrent = document.getElementById('frame-current');
     if (profile.frame_link) {
-      frameCurrent.innerHTML = 'Current: <a href="' + escapeHtml(profile.frame_link) + '" target="_blank" rel="noopener">' + escapeHtml(profile.frame_link) + '</a>';
+      frameCurrent.innerHTML = 'Current: <a href="' + escapeHtmlAttribute(profile.frame_link) + '" target="_blank" rel="noopener">' + escapeHtml(profile.frame_link) + '</a>';
     } else {
       frameCurrent.textContent = 'No link saved yet.';
     }
@@ -1997,7 +1997,7 @@
       if (link) {
         currentHtml +=
           '<div class="brand-current-row"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
-          '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a></div>';
+          '<a href="' + escapeHtmlAttribute(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a></div>';
       }
       if (filePath) {
         currentHtml +=
@@ -2012,7 +2012,7 @@
         '<div class="sub-title">' + escapeHtml(section.title) + '</div>' +
         currentHtml +
         '<div class="brand-input-row">' +
-          '<input type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link" class="brand-link-input" data-key="' + section.key + '" value="' + escapeHtml(link || '') + '">' +
+          '<input type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link" class="brand-link-input" data-key="' + section.key + '" value="' + escapeHtmlAttribute(link) + '">' +
           '<input type="file" class="brand-file-input" data-key="' + section.key + '">' +
           '<button class="brand-save-btn" data-key="' + section.key + '">Save</button>' +
         '</div>';

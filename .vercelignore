@@ -1,4 +1,5 @@
 supabase/
+tests/
 
 # Source masters and OS cruft — kept on disk, never deployed.
 assets/755033407_1044424601309054_8876889588487636502_n.png

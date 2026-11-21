@@ -21,6 +21,15 @@ var supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient)
   ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
   : null;
 
+function escapeHtmlAttribute(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 /* ---------- Form errors ----------
    Errors belong next to the form, not in a browser dialog you have
    to dismiss before you can see the field you got wrong.

@@ -811,7 +811,7 @@
       frameDisplay.classList.remove('empty');
       frameDisplay.innerHTML =
         '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
-        '<a href="' + escapeHtml(safeLink) + '" target="_blank" rel="noopener">' + escapeHtml(safeLink) + '</a>';
+        '<a href="' + escapeHtmlAttribute(safeLink) + '" target="_blank" rel="noopener">' + escapeHtml(safeLink) + '</a>';
       frameOpenBtn.disabled = false;
       frameOpenBtn.dataset.href = safeLink;
     } else {
@@ -854,7 +854,7 @@
       row.className = 'brand-item-row';
       row.innerHTML =
         '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
-        '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a>';
+        '<a href="' + escapeHtmlAttribute(link) + '" target="_blank" rel="noopener">' + escapeHtml(link) + '</a>';
       container.appendChild(row);
     }
 
@@ -863,7 +863,7 @@
       row.className = 'brand-item-row';
       row.innerHTML =
         '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
-        '<a href="#" data-filepath="' + escapeHtml(filePath) + '">' + escapeHtml(filePath.split('/').pop()) + '</a>';
+        '<a href="#" data-filepath="' + escapeHtmlAttribute(filePath) + '">' + escapeHtml(filePath.split('/').pop()) + '</a>';
 
       const link_el = row.querySelector('a');
       link_el.addEventListener('click', async function (e) {
