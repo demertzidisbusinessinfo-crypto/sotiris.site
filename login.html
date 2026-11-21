@@ -32,45 +32,209 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Playfair+Display:ital,wght@1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/styles.css">
 <style>
+  /* ---------- Login: the editorial split ----------
+     One statement on the left, the form on the right, a hairline between them.
+     No card, no glass, no ambient wash: flat ground and one-pixel rules.
+     Colours, type and the shared field and button rules are untouched; this
+     block only re-lays-out this page. */
+  nav {
+    background: none;
+    border-bottom: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .nav-inner,
+  footer {
+    width: calc(100% - 64px);
+    max-width: 1116px;
+  }
+  .nav-inner {
+    padding: 26px 0;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  footer {
+    padding: 24px 0 32px;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .login-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  }
+
+  .login-intro { padding: 64px 64px 64px clamp(0px, 3.4vw, 48px); }
+  .login-kicker {
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-soft);
+    margin-bottom: 26px;
+  }
+  .login-intro h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-display);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+  }
+  .login-intro h1 em {
+    display: block;
+    margin-top: 0.12em;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--accent);
+  }
+  .login-lede {
+    max-width: 26em;
+    margin-top: 34px;
+    font-size: var(--text-lg);
+    line-height: var(--leading-normal);
+    color: var(--ink-dim);
+  }
+
+  .form-shell {
+    max-width: none;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 0 48px clamp(40px, 7vw, 96px);
+    border-left: 1px solid var(--glass-border);
+  }
+  .form-head,
+  .form-panel,
+  .pending-panel { max-width: 440px; }
+  .form-head {
+    text-align: left;
+    margin-bottom: 40px;
+  }
+  .form-head h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-h2);
+    line-height: 1.15;
+    letter-spacing: var(--tracking-display);
+    margin-bottom: 12px;
+  }
+  .form-head p { font-size: var(--text-md); }
+
+  .field { margin-bottom: 24px; }
+  .field label {
+    font-weight: 500;
+    color: var(--ink);
+    text-transform: none;
+    letter-spacing: 0;
+    margin-bottom: 10px;
+  }
+  /* 16px, not the shared 15px: iOS zooms the page on focus below that. */
+  .field input {
+    font-size: 1rem;
+    padding: 16px;
+    border-radius: var(--radius-1);
+  }
+  .field-input input { padding-right: 50px; }
+  .pw-toggle { right: 8px; }
+  .form-error { border-radius: var(--radius-1); }
+  .btn-submit {
+    padding: 17px 24px;
+    border-radius: var(--radius-1);
+    margin-top: 32px;
+  }
 
   .signup-prompt {
+    margin-top: 14px;
     text-align: center;
-    margin-top: 26px;
-  }
-  .signup-prompt p {
     font-size: var(--text-sm);
     color: var(--ink-dim);
-    margin-bottom: 14px;
   }
-  @media (max-width: 500px) {
-    footer { flex-direction: column; gap: 10px; text-align: center; }
-    .form-card { padding: 28px 24px; }
+  .signup-prompt a {
+    display: inline-block;
+    padding: 12px 4px;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--glass-border);
+    text-underline-offset: 4px;
+    transition: text-decoration-color var(--dur-fast) var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .signup-prompt a:hover { text-decoration-color: currentColor; }
+  }
+
+  .pending-panel {
+    text-align: left;
+    padding: 0;
+  }
+  .pending-icon { margin: 0 0 24px; }
+  .pending-panel .pending-sub {
+    max-width: none;
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--ink-dim);
+  }
+
+  @media (max-width: 1000px) {
+    .login-intro { padding: 48px 40px 48px 0; }
+    .login-lede { font-size: var(--text-md); }
+    .form-shell { padding-left: 40px; }
+  }
+
+  /* One column: the statement sits above the form and the rule turns
+     horizontal. */
+  @media (max-width: 720px) {
+    body.auth main {
+      align-items: flex-start;
+      padding: 32px 0 48px;
+    }
+    .login-split { grid-template-columns: minmax(0, 1fr); }
+    .login-intro { padding: 0 0 28px; }
+    .login-kicker { margin-bottom: 16px; }
+    .login-lede { margin-top: 18px; }
+    .form-shell {
+      padding: 28px 0 0;
+      border-left: 0;
+      border-top: 1px solid var(--glass-border);
+    }
+    .form-head { margin-bottom: 28px; }
+    .form-head,
+    .form-panel,
+    .pending-panel { max-width: none; }
+  }
+  @media (max-width: 640px) {
+    .nav-inner,
+    footer { width: calc(100% - 32px); }
+    .nav-inner { padding: 18px 0; }
+    footer { padding: 22px 0 28px; }
   }
 </style>
 </head>
 <body class="auth">
 <a class="skip-link" href="#main">Skip to main content</a>
 
-<div class="ambient"></div>
-<div class="noise"></div>
-
 <nav>
   <div class="nav-inner">
     <div class="logo">Sotiris <span>Demertzidis</span></div>
-    <a href="/" class="nav-back">← Back</a>
+    <a href="/" class="nav-back">Back to site</a>
   </div>
 </nav>
 
 <main id="main">
   <div class="wrap">
-    <div class="form-shell">
-      <div class="form-head" id="form-head">
-        <span class="eyebrow"><span class="dot"></span> Client Terminal</span>
-        <h1>Log in to your <span class="accent-italic">account</span></h1>
-        <p>Enter your email and password to continue.</p>
-      </div>
+    <div class="login-split">
+      <section class="login-intro">
+        <p class="login-kicker">Client Terminal</p>
+        <h1>Your brand. <em>All in one place.</em></h1>
+        <p class="login-lede">Your materials, progress and content performance. One calm workspace.</p>
+      </section>
 
-      <div class="form-card">
+      <section class="form-shell">
+        <div class="form-head" id="form-head">
+          <h2>Welcome back.</h2>
+          <p>Log in to continue to your account.</p>
+        </div>
+
         <div class="form-panel" id="form-panel">
           <form id="login-form">
             <div class="field">
@@ -81,7 +245,7 @@
             <div class="field">
               <label for="password">Password</label>
               <div class="field-input">
-                <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" spellcheck="false" required>
+                <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" spellcheck="false" required>
                 <button type="button" class="pw-toggle" data-pw="password" aria-pressed="false" aria-label="Show password"><svg class="eye-shut" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg></button>
               </div>
             </div>
@@ -89,10 +253,7 @@
             <button type="submit" class="btn-submit" id="submit-btn">Log in</button>
           </form>
 
-          <div class="signup-prompt">
-            <p>Don't have an account yet?</p>
-            <a href="signup" class="btn-quiet">Sign up</a>
-          </div>
+          <p class="signup-prompt">Don't have an account? <a href="signup">Sign up</a></p>
         </div>
 
         <div class="pending-panel" id="pending-panel">
@@ -102,7 +263,7 @@
           <h2>Wait for your account to be verified by an admin</h2>
           <p class="pending-sub">Sotiris will contact you when your account is verified.</p>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </main>
