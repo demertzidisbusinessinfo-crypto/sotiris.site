@@ -42,6 +42,18 @@ function showError(message, focusId) {
   box.focus();
 }
 
+Array.prototype.forEach.call(document.querySelectorAll('.pw-toggle'), function (btn) {
+  btn.addEventListener('click', function () {
+    var input = document.getElementById(btn.getAttribute('data-pw'));
+    if (!input) return;
+    var showing = input.type === 'text';
+    input.type = showing ? 'password' : 'text';
+    btn.setAttribute('aria-pressed', String(!showing));
+    btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+    input.focus({ preventScroll: true });
+  });
+});
+
 /* ---------- Reduced motion ----------
    Read live rather than once at load: someone can turn the setting
    on while the page is open, and every page used to miss that. */
