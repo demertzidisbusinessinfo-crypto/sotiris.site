@@ -890,6 +890,11 @@
     if (res.error) { toast('Could not delete: ' + res.error.message); return; }
 
     entries = entries.filter(function (r) { return r.id !== id; });
+    if (typeof focusIndex === 'number') {
+      focusIndex = Array.prototype.filter.call($('feed').querySelectorAll('.feed-row'), function (row, index) {
+        return index < focusIndex && row.dataset.id !== id;
+      }).length;
+    }
     render();
     if (typeof focusIndex === 'number') {
       var buttons = $('feed').querySelectorAll('.feed-delete');
