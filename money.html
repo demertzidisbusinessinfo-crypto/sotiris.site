@@ -305,6 +305,18 @@
   .key:active { background: var(--surface-2); }
 
   .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 22px; }
+  .tiles:empty { display: none; }
+  .category-notice {
+    margin: 0 0 22px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--ink-dim);
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  .category-notice a { color: var(--ink); }
   .tile {
     transition: transform var(--dur-press) var(--ease-out);
     padding: 15px 14px;
@@ -523,6 +535,12 @@
 
     <div id="cat-block">
       <div class="sec-head">Category</div>
+      <p class="category-notice" id="category-status" role="status">Loading categories…</p>
+      <p class="category-notice" id="category-setup" hidden>
+        No expense categories yet. Open your <a id="category-dashboard" href="/client-dashboard">dashboard</a>
+        and use the Finances tab to set up categories, then reload Money.
+        No Finances tab? <a href="mailto:demertzidisbusinessinfo@gmail.com">Contact support</a>.
+      </p>
       <div class="tiles" id="tiles"></div>
     </div>
 
@@ -564,10 +582,12 @@
   var userId = null;
   var isAdmin = false;
   var categories = [];
+  var categoriesLoaded = false;
   var entries = [];
   var settings = { display_currency: 'EUR', eur_usd_rate: FALLBACK_RATE };
 
   var range = 30;
+  var saving = false;
   var draft = { direction: 'out', amount: '0', currency: 'EUR', category_id: null, repeat: false };
 
   function $(id) { return document.getElementById(id); }
@@ -763,6 +783,8 @@
   }
 
   function renderTiles() {
+    $('category-status').hidden = categoriesLoaded;
+    $('category-setup').hidden = !categoriesLoaded || categories.length > 0;
     $('tiles').innerHTML = categories.map(function (c) {
       var on = c.id === draft.category_id ? ' on' : '';
       var p = c.kind === 'personal' ? ' personal' : '';
@@ -791,9 +813,15 @@
       b.className = on ? 'on ' + draft.direction : '';
     });
     $('cat-block').style.display = draft.direction === 'out' ? 'block' : 'none';
+    updateSaveButton();
+  }
+
+  function updateSaveButton() {
+    var isIncome = draft.direction === 'in';
     var save = $('save-btn');
-    save.textContent = draft.direction === 'in' ? 'Add income' : 'Add expense';
-    save.className = 'save' + (draft.direction === 'in' ? ' in' : '');
+    save.textContent = isIncome ? 'Add income' : 'Add expense';
+    save.className = 'save' + (isIncome ? ' in' : '');
+    save.disabled = saving || (!isIncome && !categories.length);
   }
 
   // ---------------- entry sheet ----------------
@@ -834,27 +862,32 @@
   }
 
   async function save() {
+    if (saving || (draft.direction === 'out' && !categories.length)) return;
     var amount = parseFloat(draft.amount);
     if (!isFinite(amount) || amount <= 0) { toast('Enter an amount above zero.'); return; }
     if (draft.direction === 'out' && !draft.category_id) { toast('Pick a category.'); return; }
     var date = $('e-date').value;
     if (!date) { toast('Pick a date.'); return; }
 
-    var btn = $('save-btn');
-    btn.disabled = true;
+    saving = true;
+    updateSaveButton();
 
-    var res = await db.from('finance_entries').insert({
-      user_id: userId,
-      direction: draft.direction,
-      amount: amount,
-      currency: draft.currency,
-      category_id: draft.direction === 'out' ? draft.category_id : null,
-      note: $('e-note').value.trim() || null,
-      entry_date: date,
-      recurring: draft.repeat
-    }).select().single();
-
-    btn.disabled = false;
+    var res;
+    try {
+      res = await db.from('finance_entries').insert({
+        user_id: userId,
+        direction: draft.direction,
+        amount: amount,
+        currency: draft.currency,
+        category_id: draft.direction === 'out' ? draft.category_id : null,
+        note: $('e-note').value.trim() || null,
+        entry_date: date,
+        recurring: draft.repeat
+      }).select().single();
+    } finally {
+      saving = false;
+      updateSaveButton();
+    }
 
     if (res.error) { toast('Could not save: ' + res.error.message); return; }
 
@@ -928,10 +961,12 @@
         ? 'The finance tables are not set up yet. Run <b>supabase/finances.sql</b> in the Supabase SQL editor, then pull down to reload.'
         : 'Could not load: ' + esc(err.message);
       $('setup-notice').style.display = 'block';
+      $('category-status').textContent = 'Could not load categories. Reload Money to try again.';
       return;
     }
 
     categories = out[0].data || [];
+    categoriesLoaded = true;
     entries = out[1].data || [];
     if (out[2] && out[2].data) {
       // A client stays on dollars whatever is stored, so a preference saved
@@ -943,6 +978,8 @@
     draft.currency = settings.display_currency;
     draft.category_id = categories.length ? categories[0].id : null;
 
+    renderTiles();
+    updateSaveButton();
     render();
     // Only the two-currency view needs a rate to reconcile.
     if (isAdmin) { showRate(''); fetchRate(); }
@@ -1016,6 +1053,7 @@
   function start(session) {
     userId = session.user.id;
     isAdmin = (session.user.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    if (isAdmin) $('category-dashboard').href = '/admin-dashboard';
     applyCurrencyMode();
     $('screen-login').classList.remove('on');
     $('screen-app').classList.add('on');
