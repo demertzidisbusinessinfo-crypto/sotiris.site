@@ -897,12 +897,13 @@
       showRate('');
       if (changed) {
         render();
-        db.from('finance_settings').upsert({
+        var saved = await db.from('finance_settings').upsert({
           user_id: userId,
           display_currency: settings.display_currency,
           eur_usd_rate: r,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
+        if (saved.error) { toast('Could not save rate: ' + saved.error.message); }
       }
     } catch (err) {
       showRate('saved');
