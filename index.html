@@ -987,9 +987,9 @@
     --desk-ink-dim: rgba(237, 230, 220, 0.68);
     --desk-line: rgba(237, 230, 220, 0.12);
     --desk-glow: var(--tan);
-    --desk-move: 1500ms;
+    --desk-move: 900ms;
     --desk-move-out: 900ms;
-    --desk-fade: 500ms;
+    --desk-fade: 300ms;
     --desk-ease: cubic-bezier(0.22, 0.75, 0.25, 1);
     --desk-ease-in: cubic-bezier(0.5, 0, 0.2, 1);
     position: relative;
@@ -2384,7 +2384,7 @@
 </script>
 <script>
 /* Desk scene: self-contained, touches nothing else on the page.
-   Mouse: rest on a hotspot for a second to zoom toward it; moving off it
+   Mouse: rest on a hotspot for half a second to zoom toward it; moving off it
    (the board included) resets. A click skips the wait.
    Keyboard: focus zooms, blur or Escape resets.
    Touch: tap toggles, tapping anywhere else closes. */
@@ -2395,7 +2395,7 @@
   var hotspots = Array.prototype.slice.call(scene.querySelectorAll('.desk-hotspot'));
   var boards = Array.prototype.slice.call(stage.querySelectorAll('.desk-board'));
   var coarse = window.matchMedia('(pointer: coarse)');
-  var HOLD = 1000;
+  var HOLD = 500;
   var active = null;
   var arming = null;
   var leaveTimer = null;
