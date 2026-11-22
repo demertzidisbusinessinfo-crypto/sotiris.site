@@ -987,9 +987,11 @@
     --desk-ink-dim: rgba(237, 230, 220, 0.68);
     --desk-line: rgba(237, 230, 220, 0.12);
     --desk-glow: var(--tan);
-    --desk-move: 900ms;
+    --desk-move: 1500ms;
+    --desk-move-out: 900ms;
     --desk-fade: 500ms;
     --desk-ease: cubic-bezier(0.22, 0.75, 0.25, 1);
+    --desk-ease-in: cubic-bezier(0.5, 0, 0.2, 1);
     position: relative;
   }
   .desk-scene {
@@ -1009,10 +1011,12 @@
     transform-origin: 50% 50%;
     /* A long, soft ease on transform only, so the move stays on the
        compositor and holds the display's frame rate. */
-    transition: transform var(--desk-move) var(--desk-ease);
+    transition: transform var(--desk-move-out) var(--desk-ease);
     will-change: transform;
     backface-visibility: hidden;
   }
+  /* Zooming in is slower than zooming out, and the board waits for it. */
+  .desk-scene.is-zoomed .desk-camera { transition: transform var(--desk-move) var(--desk-ease-in); }
   /* Each move parks its object in the half of the scene the board leaves free. */
   .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.3) translate3d(19%, 1%, 0); }
   .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.2) translate3d(-22.5%, 3%, 0); }
@@ -1069,6 +1073,38 @@
     position: absolute; inset: 0; z-index: 2; pointer-events: none;
     background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
   }
+
+  /* Hand: reaches in from the front of the desk and points at the cursor.
+     The script moves it; it only shows for a mouse or trackpad. */
+  .desk-hand {
+    display: none;
+    position: absolute; left: 0; top: 0; z-index: 1;
+    width: 11cqw; margin-left: -5.5cqw;
+    transform-origin: 50% 0;
+    will-change: transform, opacity;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 700ms var(--desk-ease);
+  }
+  @media (hover: hover) and (pointer: fine) { .desk-hand { display: block; } }
+  .desk-scene.is-inview .desk-hand { opacity: 1; }
+  .desk-scene.is-zoomed .desk-hand { opacity: 0; transition-duration: 350ms; }
+  .desk-hand-art { display: block; width: 100%; height: auto; filter: drop-shadow(0 0.5cqw 0.8cqw rgba(0, 0, 0, 0.55)); }
+  /* Fills while the cursor rests on an object; the zoom starts when it closes. */
+  .desk-hand-ring {
+    position: absolute; left: 50%; top: 0;
+    width: 4.4cqw; height: 4.4cqw; margin: -2.2cqw 0 0 -2.2cqw;
+    transform: rotate(-90deg);
+    opacity: 0;
+    transition: opacity 200ms linear;
+  }
+  .desk-hand-ring circle {
+    fill: none; stroke: var(--desk-glow); stroke-width: 2.5; stroke-linecap: round;
+    stroke-dasharray: 100; stroke-dashoffset: 100;
+  }
+  .desk-scene.is-arming .desk-hand-ring { opacity: 1; }
+  .desk-scene.is-arming .desk-hand-ring circle { animation: desk-hold 1s linear forwards; }
+  @keyframes desk-hold { to { stroke-dashoffset: 0; } }
 
   /* Hotspots */
   .desk-hotspot {
@@ -1269,7 +1305,7 @@
     visibility: visible;
     pointer-events: auto;
     transform: none;
-    transition: opacity var(--desk-fade) var(--desk-ease), transform var(--desk-fade) var(--desk-ease), visibility 0s;
+    transition: opacity var(--desk-fade) var(--desk-ease) var(--desk-move), transform var(--desk-fade) var(--desk-ease) var(--desk-move), visibility 0s linear var(--desk-move);
   }
   .desk-board--clipping { right: 3%; --desk-link: 17%; --desk-link-y: 42%; }
   .desk-board--creative-direction { right: 3%; --desk-link: 13%; --desk-link-y: 40%; }
@@ -1297,8 +1333,8 @@
   }
   .desk-board--editing::before { right: auto; left: 100%; transform-origin: 0 50%; }
   .desk-board--editing::after { right: auto; left: calc(100% + var(--desk-link)); margin: -4px 0 0 -4px; }
-  .desk-board.is-active::before { transform: none; transition-delay: calc(var(--desk-move) * 0.45); }
-  .desk-board.is-active::after { opacity: 1; transition-delay: calc(var(--desk-move) * 0.8); }
+  .desk-board.is-active::before { transform: none; transition-delay: calc(var(--desk-move) + var(--desk-fade) * 0.5); }
+  .desk-board.is-active::after { opacity: 1; transition-delay: calc(var(--desk-move) + var(--desk-fade)); }
   #desk .section-head { max-width: none; margin-bottom: 6px; container-type: inline-size; }
   #desk-title {
     font-weight: 700;
@@ -1367,6 +1403,7 @@
     .desk-board--default h3 { margin-bottom: 4px; }
     /* One board at a time: the outgoing board hides at once, the incoming one fades in. */
     .desk-board:not(.is-active) { transition: none; }
+    .desk-board.is-active { transition-delay: 0s; }
     /* Gentler zoom so every hotspot stays tappable. */
     .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.12) translate3d(4%, 1%, 0); }
     .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.12) translate3d(0, 2%, 0); }
@@ -1388,6 +1425,7 @@
     .desk-board, .desk-board.is-active { transform: none; }
     .desk-board::before, .desk-board::after { display: none; }
     .desk-hotspot::after { animation: none; }
+    .desk-hand { display: none; }
   }
 </style>
 </head>
@@ -1657,6 +1695,26 @@
             <span class="desk-monitor-foot" aria-hidden="true"></span>
             <span class="desk-tag" aria-hidden="true">03 Editing</span>
           </button>
+        </div>
+        <div class="desk-hand" aria-hidden="true">
+          <svg class="desk-hand-art" viewBox="0 0 120 900" focusable="false">
+            <defs>
+              <linearGradient id="desk-skin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c4977a"/><stop offset="1" stop-color="#8e6650"/></linearGradient>
+              <linearGradient id="desk-sleeve" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#23262d"/><stop offset="1" stop-color="#0f1115"/></linearGradient>
+            </defs>
+            <path d="M33 244 L20 900 L116 900 L101 244 Z" fill="url(#desk-sleeve)"/>
+            <rect x="42" y="190" width="54" height="50" fill="url(#desk-skin)"/>
+            <rect x="21" y="120" width="19" height="62" rx="9.5" transform="rotate(-14 30 151)" fill="#b3876c"/>
+            <path d="M39 126 C39 111 49 105 61 107 L97 114 C106 116 110 124 109 136 L104 196 C103 208 96 214 86 214 L52 214 C42 214 37 206 38 196 Z" fill="url(#desk-skin)"/>
+            <rect x="67" y="97" width="15" height="38" rx="7.5" fill="#a67c62"/>
+            <rect x="82" y="104" width="14" height="35" rx="7" fill="#9b735b"/>
+            <rect x="95" y="113" width="12" height="31" rx="6" fill="#8e6650"/>
+            <rect x="44" y="2" width="22" height="134" rx="11" fill="url(#desk-skin)"/>
+            <rect x="49.5" y="7" width="11" height="15" rx="5" fill="rgba(255, 255, 255, 0.2)"/>
+            <path d="M47 70 h16 M47 104 h16 M70 118 h9 M85 123 h8 M97 130 h7" stroke="rgba(40, 20, 12, 0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <rect x="30" y="224" width="74" height="28" rx="6" fill="#2b2f37"/>
+          </svg>
+          <svg class="desk-hand-ring" viewBox="0 0 40 40" focusable="false"><circle cx="20" cy="20" r="15.915"/></svg>
         </div>
         <div class="desk-vignette" aria-hidden="true"></div>
         <div class="noise desk-noise" aria-hidden="true"></div>
@@ -2379,8 +2437,9 @@
 </script>
 <script>
 /* Desk scene: self-contained, touches nothing else on the page.
-   Mouse: hover a hotspot to zoom toward it, leave to reset.
-   Keyboard: focus does the same, blur or Escape resets.
+   Mouse: rest on a hotspot for a second to zoom toward it; moving off it
+   (the board included) resets. A click skips the wait.
+   Keyboard: focus zooms, blur or Escape resets.
    Touch: tap toggles, tapping anywhere else closes. */
 (function () {
   var scene = document.querySelector('.desk-scene');
@@ -2388,12 +2447,17 @@
   var stage = scene.parentNode;
   var hotspots = Array.prototype.slice.call(scene.querySelectorAll('.desk-hotspot'));
   var boards = Array.prototype.slice.call(stage.querySelectorAll('.desk-board'));
+  var hand = scene.querySelector('.desk-hand');
   var coarse = window.matchMedia('(pointer: coarse)');
+  var HOLD = 1000;
   var active = null;
+  var arming = null;
+  var armStart = 0;
   var leaveTimer = null;
-  var enterTimer = null;
+  var holdTimer = null;
   var lastPointerDown = 0;
   var lastPointerType = '';
+  var pointerX = -1, pointerY = -1;
 
   function isTap(pointerType) {
     return pointerType === 'touch' || (pointerType !== 'mouse' && coarse.matches);
@@ -2402,6 +2466,7 @@
 
   function setActive(service) {
     clearTimeout(leaveTimer);
+    leaveTimer = null;
     service = service || null;
     if (service === active) return;
     if (active) scene.classList.remove('is-zoom-' + active);
@@ -2417,6 +2482,7 @@
     boards.forEach(function (b) {
       b.classList.toggle('is-active', (b.getAttribute('data-service') || null) === active);
     });
+    wake();
   }
 
   function keyboardFocused() {
@@ -2426,65 +2492,94 @@
     return el.getAttribute('data-service');
   }
 
-  // The camera slides the object away from a resting cursor, so "still
-  // hovering" also counts the spot the object started at and its board.
-  var pointerX = -1, pointerY = -1;
+  // The camera slides the object away from a resting cursor, so "still on
+  // it" also counts the spot the object started at. The board never counts.
   function stillHovering() {
     if (!active) return false;
     var h = scene.querySelector('.desk-hotspot.is-active');
-    var b = stage.querySelector('.desk-board.is-active');
-    if ((h && h.matches(':hover')) || (b && b.matches(':hover'))) return true;
     if (!h) return false;
+    if (h.matches(':hover')) return true;
     var r = scene.getBoundingClientRect();
     var x = pointerX - r.left - scene.clientLeft, y = pointerY - r.top - scene.clientTop;
     return x >= h.offsetLeft && x <= h.offsetLeft + h.offsetWidth &&
            y >= h.offsetTop && y <= h.offsetTop + h.offsetHeight;
   }
   function scheduleLeave() {
-    clearTimeout(leaveTimer);
+    if (leaveTimer) return;
     leaveTimer = setTimeout(function () {
+      leaveTimer = null;
       if (!stillHovering()) setActive(keyboardFocused());
     }, 120);
+  }
+
+  function hotspotUnderPointer() {
+    var el = pointerX < 0 ? null : document.elementFromPoint(pointerX, pointerY);
+    return el && el.closest ? el.closest('.desk-hotspot') : null;
+  }
+  function disarm() {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    if (!arming) return;
+    arming = null;
+    scene.classList.remove('is-arming');
+  }
+  // The cursor has to rest on an object for HOLD ms before it opens.
+  function arm(h) {
+    var service = h.getAttribute('data-service');
+    if (service === active || service === arming) return;
+    if (stillHovering()) return;
+    disarm();
+    arming = service;
+    armStart = performance.now();
+    void scene.offsetWidth; // restart the ring animation
+    scene.classList.add('is-arming');
+    holdTimer = setTimeout(function () {
+      var ok = hotspotUnderPointer() === h;
+      disarm();
+      if (ok) setActive(service);
+    }, HOLD);
+    wake();
+  }
+
+  function track(h) {
+    if (h) arm(h); else disarm();
+    if (active && keyboardFocused() !== active) {
+      if (stillHovering()) { clearTimeout(leaveTimer); leaveTimer = null; }
+      else scheduleLeave();
+    }
+    wake();
   }
   stage.addEventListener('pointermove', function (e) {
     if (isTap(e.pointerType)) return;
     pointerX = e.clientX; pointerY = e.clientY;
-    if (!active || keyboardFocused() === active) return;
-    if (stillHovering()) clearTimeout(leaveTimer);
-    else if (!e.target.closest('.desk-hotspot')) scheduleLeave();
+    track(e.target.closest ? e.target.closest('.desk-hotspot') : null);
+  });
+  // A camera move can bring an object under a cursor that is not moving.
+  scene.querySelector('.desk-camera').addEventListener('transitionend', function (e) {
+    if (e.target === e.currentTarget && pointerX >= 0) track(hotspotUnderPointer());
   });
   stage.addEventListener('pointerleave', function (e) {
     if (isTap(e.pointerType)) return;
     pointerX = pointerY = -1;
-    scheduleLeave();
+    disarm();
+    if (active && keyboardFocused() !== active) scheduleLeave();
+    wake();
   });
 
   hotspots.forEach(function (h) {
     var service = h.getAttribute('data-service');
 
-    h.addEventListener('pointerenter', function (e) {
-      if (isTap(e.pointerType)) return;
-      pointerX = e.clientX; pointerY = e.clientY;
-      // Hover intent: a cursor only passing over on its way elsewhere does nothing.
-      clearTimeout(enterTimer);
-      enterTimer = setTimeout(function () {
-        if (h.matches(':hover')) setActive(service);
-      }, active ? 60 : 110);
-    });
-    h.addEventListener('pointerleave', function (e) {
-      if (!isTap(e.pointerType)) scheduleLeave();
-    });
     h.addEventListener('focus', function () {
-      if (!pointerRecent()) setActive(service);
+      if (!pointerRecent()) { disarm(); setActive(service); }
     });
     h.addEventListener('blur', function () {
       if (pointerRecent()) return;
       setTimeout(function () {
-        var hovered = !isTap(lastPointerType) && scene.querySelector('.desk-hotspot:hover');
-        setActive(keyboardFocused() || (hovered ? hovered.getAttribute('data-service') : null));
+        setActive(keyboardFocused() || (stillHovering() ? active : null));
       }, 0);
     });
     h.addEventListener('click', function () {
+      disarm();
       if (pointerRecent() && isTap(lastPointerType)) setActive(active === service ? null : service);
       else setActive(service);
     });
@@ -2502,6 +2597,69 @@
   scene.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && active) setActive(null);
   });
+
+  /* Hand: fades in while the scene is on screen, trails the cursor, and
+     closes the gap to it while an object is arming. */
+  var handOn = !!hand && getComputedStyle(hand).display !== 'none';
+  var inView = false;
+  var raf = 0, last = 0;
+  var hx = null, hy = null, reach = 0;
+
+  function frame(now) {
+    raf = 0;
+    var dt = Math.min(50, now - last);
+    last = now;
+    var r = scene.getBoundingClientRect();
+    var W = scene.clientWidth, H = scene.clientHeight;
+    // The forearm always runs back to the same point in front of the desk.
+    var ax = W * 0.62, ay = H * 1.45;
+    var cx = pointerX - r.left, cy = pointerY - r.top;
+    var over = pointerX >= 0 && cx >= 0 && cx <= W && cy >= 0 && cy <= H;
+    var reachTo = 0;
+    if (arming) {
+      var p = Math.min(1, (now - armStart) / HOLD);
+      reachTo = p * p * (3 - 2 * p);
+    }
+    reach += (reachTo - reach) * (1 - Math.exp(-dt / 80));
+    var tx, ty;
+    if (over) {
+      var dx = cx - ax, dy = cy - ay, d = Math.sqrt(dx * dx + dy * dy) || 1;
+      var gap = W * (0.004 + 0.05 * (1 - reach));
+      tx = cx - dx / d * gap; ty = cy - dy / d * gap;
+    } else {
+      tx = W * 0.6; ty = H * 0.8;
+    }
+    if (hx === null) { hx = tx; hy = ty; }
+    var k = 1 - Math.exp(-dt / 110);
+    hx += (tx - hx) * k;
+    hy += (ty - hy) * k;
+    var a = Math.atan2(hx - ax, ay - hy);
+    hand.style.transform = 'translate3d(' + hx.toFixed(1) + 'px,' + hy.toFixed(1) + 'px,0) rotate(' + a.toFixed(4) + 'rad)';
+    var moving = arming || Math.abs(tx - hx) + Math.abs(ty - hy) > 0.3 || Math.abs(reachTo - reach) > 0.002;
+    if (moving && inView) raf = requestAnimationFrame(frame);
+  }
+  function wake() {
+    if (!handOn || !inView || raf) return;
+    last = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+
+  if (handOn) {
+    last = performance.now();
+    frame(last);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        inView = entries[entries.length - 1].intersectionRatio >= 0.4;
+        scene.classList.toggle('is-inview', inView);
+        wake();
+      }, { threshold: [0.4] }).observe(scene);
+    } else {
+      inView = true;
+      scene.classList.add('is-inview');
+    }
+    window.addEventListener('scroll', wake, { passive: true });
+    window.addEventListener('resize', wake);
+  }
 })();
 </script>
 </body>
