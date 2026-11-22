@@ -1273,7 +1273,8 @@
     visibility: visible;
     pointer-events: auto;
     transform: none;
-    transition: opacity var(--desk-fade) var(--desk-ease) var(--desk-move), transform var(--desk-fade) var(--desk-ease) var(--desk-move), visibility 0s linear var(--desk-move);
+    /* Fades in alongside the zoom and lands with it. */
+    transition: opacity var(--desk-move) var(--desk-ease-in), transform var(--desk-move) var(--desk-ease), visibility 0s;
   }
   .desk-board--clipping { right: 3%; --desk-link: 17%; --desk-link-y: 42%; }
   .desk-board--creative-direction { right: 3%; --desk-link: 13%; --desk-link-y: 40%; }
@@ -1301,8 +1302,8 @@
   }
   .desk-board--editing::before { right: auto; left: 100%; transform-origin: 0 50%; }
   .desk-board--editing::after { right: auto; left: calc(100% + var(--desk-link)); margin: -4px 0 0 -4px; }
-  .desk-board.is-active::before { transform: none; transition-delay: calc(var(--desk-move) + var(--desk-fade) * 0.5); }
-  .desk-board.is-active::after { opacity: 1; transition-delay: calc(var(--desk-move) + var(--desk-fade)); }
+  .desk-board.is-active::before { transform: none; transition-delay: var(--desk-move); }
+  .desk-board.is-active::after { opacity: 1; transition-delay: calc(var(--desk-move) + var(--desk-fade) * 0.5); }
   #desk .section-head { max-width: none; margin-bottom: 6px; container-type: inline-size; }
   #desk-title {
     font-weight: 700;
@@ -1371,7 +1372,7 @@
     .desk-board--default h3 { margin-bottom: 4px; }
     /* One board at a time: the outgoing board hides at once, the incoming one fades in. */
     .desk-board:not(.is-active) { transition: none; }
-    .desk-board.is-active { transition-delay: 0s; }
+    .desk-board.is-active { transition-duration: var(--desk-fade), var(--desk-fade), 0s; }
     /* Gentler zoom so every hotspot stays tappable. */
     .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.12) translate3d(4%, 1%, 0); }
     .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.12) translate3d(0, 2%, 0); }
