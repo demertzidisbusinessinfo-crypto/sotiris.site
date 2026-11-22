@@ -987,9 +987,11 @@
     --desk-ink-dim: rgba(237, 230, 220, 0.68);
     --desk-line: rgba(237, 230, 220, 0.12);
     --desk-glow: var(--tan);
-    --desk-move: 900ms;
+    --desk-move: 1500ms;
+    --desk-move-out: 900ms;
     --desk-fade: 500ms;
     --desk-ease: cubic-bezier(0.22, 0.75, 0.25, 1);
+    --desk-ease-in: cubic-bezier(0.5, 0, 0.2, 1);
     position: relative;
   }
   .desk-scene {
@@ -1009,10 +1011,12 @@
     transform-origin: 50% 50%;
     /* A long, soft ease on transform only, so the move stays on the
        compositor and holds the display's frame rate. */
-    transition: transform var(--desk-move) var(--desk-ease);
+    transition: transform var(--desk-move-out) var(--desk-ease);
     will-change: transform;
     backface-visibility: hidden;
   }
+  /* Zooming in is slower than zooming out, and the board waits for it. */
+  .desk-scene.is-zoomed .desk-camera { transition: transform var(--desk-move) var(--desk-ease-in); }
   /* Each move parks its object in the half of the scene the board leaves free. */
   .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.3) translate3d(19%, 1%, 0); }
   .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.2) translate3d(-22.5%, 3%, 0); }
@@ -1269,7 +1273,7 @@
     visibility: visible;
     pointer-events: auto;
     transform: none;
-    transition: opacity var(--desk-fade) var(--desk-ease), transform var(--desk-fade) var(--desk-ease), visibility 0s;
+    transition: opacity var(--desk-fade) var(--desk-ease) var(--desk-move), transform var(--desk-fade) var(--desk-ease) var(--desk-move), visibility 0s linear var(--desk-move);
   }
   .desk-board--clipping { right: 3%; --desk-link: 17%; --desk-link-y: 42%; }
   .desk-board--creative-direction { right: 3%; --desk-link: 13%; --desk-link-y: 40%; }
@@ -1297,8 +1301,8 @@
   }
   .desk-board--editing::before { right: auto; left: 100%; transform-origin: 0 50%; }
   .desk-board--editing::after { right: auto; left: calc(100% + var(--desk-link)); margin: -4px 0 0 -4px; }
-  .desk-board.is-active::before { transform: none; transition-delay: calc(var(--desk-move) * 0.45); }
-  .desk-board.is-active::after { opacity: 1; transition-delay: calc(var(--desk-move) * 0.8); }
+  .desk-board.is-active::before { transform: none; transition-delay: calc(var(--desk-move) + var(--desk-fade) * 0.5); }
+  .desk-board.is-active::after { opacity: 1; transition-delay: calc(var(--desk-move) + var(--desk-fade)); }
   #desk .section-head { max-width: none; margin-bottom: 6px; container-type: inline-size; }
   #desk-title {
     font-weight: 700;
@@ -1367,6 +1371,7 @@
     .desk-board--default h3 { margin-bottom: 4px; }
     /* One board at a time: the outgoing board hides at once, the incoming one fades in. */
     .desk-board:not(.is-active) { transition: none; }
+    .desk-board.is-active { transition-delay: 0s; }
     /* Gentler zoom so every hotspot stays tappable. */
     .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.12) translate3d(4%, 1%, 0); }
     .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.12) translate3d(0, 2%, 0); }
@@ -2379,8 +2384,9 @@
 </script>
 <script>
 /* Desk scene: self-contained, touches nothing else on the page.
-   Mouse: hover a hotspot to zoom toward it, leave to reset.
-   Keyboard: focus does the same, blur or Escape resets.
+   Mouse: rest on a hotspot for a second to zoom toward it; moving off it
+   (the board included) resets. A click skips the wait.
+   Keyboard: focus zooms, blur or Escape resets.
    Touch: tap toggles, tapping anywhere else closes. */
 (function () {
   var scene = document.querySelector('.desk-scene');
@@ -2389,11 +2395,14 @@
   var hotspots = Array.prototype.slice.call(scene.querySelectorAll('.desk-hotspot'));
   var boards = Array.prototype.slice.call(stage.querySelectorAll('.desk-board'));
   var coarse = window.matchMedia('(pointer: coarse)');
+  var HOLD = 1000;
   var active = null;
+  var arming = null;
   var leaveTimer = null;
-  var enterTimer = null;
+  var holdTimer = null;
   var lastPointerDown = 0;
   var lastPointerType = '';
+  var pointerX = -1, pointerY = -1;
 
   function isTap(pointerType) {
     return pointerType === 'touch' || (pointerType !== 'mouse' && coarse.matches);
@@ -2402,6 +2411,7 @@
 
   function setActive(service) {
     clearTimeout(leaveTimer);
+    leaveTimer = null;
     service = service || null;
     if (service === active) return;
     if (active) scene.classList.remove('is-zoom-' + active);
@@ -2426,65 +2436,86 @@
     return el.getAttribute('data-service');
   }
 
-  // The camera slides the object away from a resting cursor, so "still
-  // hovering" also counts the spot the object started at and its board.
-  var pointerX = -1, pointerY = -1;
+  // The camera slides the object away from a resting cursor, so "still on
+  // it" also counts the spot the object started at. The board never counts.
   function stillHovering() {
     if (!active) return false;
     var h = scene.querySelector('.desk-hotspot.is-active');
-    var b = stage.querySelector('.desk-board.is-active');
-    if ((h && h.matches(':hover')) || (b && b.matches(':hover'))) return true;
     if (!h) return false;
+    if (h.matches(':hover')) return true;
     var r = scene.getBoundingClientRect();
     var x = pointerX - r.left - scene.clientLeft, y = pointerY - r.top - scene.clientTop;
     return x >= h.offsetLeft && x <= h.offsetLeft + h.offsetWidth &&
            y >= h.offsetTop && y <= h.offsetTop + h.offsetHeight;
   }
   function scheduleLeave() {
-    clearTimeout(leaveTimer);
+    if (leaveTimer) return;
     leaveTimer = setTimeout(function () {
+      leaveTimer = null;
       if (!stillHovering()) setActive(keyboardFocused());
     }, 120);
+  }
+
+  function hotspotUnderPointer() {
+    var el = pointerX < 0 ? null : document.elementFromPoint(pointerX, pointerY);
+    return el && el.closest ? el.closest('.desk-hotspot') : null;
+  }
+  function disarm() {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    arming = null;
+  }
+  // The cursor has to rest on an object for HOLD ms before it opens.
+  function arm(h) {
+    var service = h.getAttribute('data-service');
+    if (service === active || service === arming) return;
+    if (stillHovering()) return;
+    disarm();
+    arming = service;
+    holdTimer = setTimeout(function () {
+      var ok = hotspotUnderPointer() === h;
+      disarm();
+      if (ok) setActive(service);
+    }, HOLD);
+  }
+
+  function track(h) {
+    if (h) arm(h); else disarm();
+    if (active && keyboardFocused() !== active) {
+      if (stillHovering()) { clearTimeout(leaveTimer); leaveTimer = null; }
+      else scheduleLeave();
+    }
   }
   stage.addEventListener('pointermove', function (e) {
     if (isTap(e.pointerType)) return;
     pointerX = e.clientX; pointerY = e.clientY;
-    if (!active || keyboardFocused() === active) return;
-    if (stillHovering()) clearTimeout(leaveTimer);
-    else if (!e.target.closest('.desk-hotspot')) scheduleLeave();
+    track(e.target.closest ? e.target.closest('.desk-hotspot') : null);
+  });
+  // A camera move can bring an object under a cursor that is not moving.
+  scene.querySelector('.desk-camera').addEventListener('transitionend', function (e) {
+    if (e.target === e.currentTarget && pointerX >= 0) track(hotspotUnderPointer());
   });
   stage.addEventListener('pointerleave', function (e) {
     if (isTap(e.pointerType)) return;
     pointerX = pointerY = -1;
-    scheduleLeave();
+    disarm();
+    if (active && keyboardFocused() !== active) scheduleLeave();
   });
 
   hotspots.forEach(function (h) {
     var service = h.getAttribute('data-service');
 
-    h.addEventListener('pointerenter', function (e) {
-      if (isTap(e.pointerType)) return;
-      pointerX = e.clientX; pointerY = e.clientY;
-      // Hover intent: a cursor only passing over on its way elsewhere does nothing.
-      clearTimeout(enterTimer);
-      enterTimer = setTimeout(function () {
-        if (h.matches(':hover')) setActive(service);
-      }, active ? 60 : 110);
-    });
-    h.addEventListener('pointerleave', function (e) {
-      if (!isTap(e.pointerType)) scheduleLeave();
-    });
     h.addEventListener('focus', function () {
-      if (!pointerRecent()) setActive(service);
+      if (!pointerRecent()) { disarm(); setActive(service); }
     });
     h.addEventListener('blur', function () {
       if (pointerRecent()) return;
       setTimeout(function () {
-        var hovered = !isTap(lastPointerType) && scene.querySelector('.desk-hotspot:hover');
-        setActive(keyboardFocused() || (hovered ? hovered.getAttribute('data-service') : null));
+        setActive(keyboardFocused() || (stillHovering() ? active : null));
       }, 0);
     });
     h.addEventListener('click', function () {
+      disarm();
       if (pointerRecent() && isTap(lastPointerType)) setActive(active === service ? null : service);
       else setActive(service);
     });
