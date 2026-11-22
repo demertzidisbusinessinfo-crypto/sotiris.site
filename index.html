@@ -2289,14 +2289,25 @@
     stage.classList.toggle('is-zoomed', !!active);
     if (active) scene.classList.add('is-zoom-' + active);
     hotspots.forEach(function (h) {
-      var on = h.getAttribute('data-service') === active;
-      h.classList.toggle('is-active', on);
-      h.setAttribute('aria-expanded', on ? 'true' : 'false');
+      h.classList.toggle('is-active', h.getAttribute('data-service') === active);
     });
+    syncExpanded();
     boards.forEach(function (b) {
       b.classList.toggle('is-active', b.getAttribute('data-service') === active);
     });
   }
+
+  // Boards only collapse when they overlay the scene. Stacked under it on
+  // narrow screens they are always visible, so nothing is "collapsed".
+  var stacked = window.matchMedia('(max-width: 760px)');
+  function syncExpanded() {
+    hotspots.forEach(function (h) {
+      if (stacked.matches) h.removeAttribute('aria-expanded');
+      else h.setAttribute('aria-expanded', h.getAttribute('data-service') === active ? 'true' : 'false');
+    });
+  }
+  stacked.addEventListener('change', syncExpanded);
+  syncExpanded();
 
   function keyboardFocused() {
     var el = document.activeElement;
