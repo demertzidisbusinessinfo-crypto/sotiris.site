@@ -987,6 +987,9 @@
     --desk-ink-dim: rgba(237, 230, 220, 0.68);
     --desk-line: rgba(237, 230, 220, 0.12);
     --desk-glow: var(--tan);
+    --desk-move: 900ms;
+    --desk-fade: 500ms;
+    --desk-ease: cubic-bezier(0.22, 0.75, 0.25, 1);
     position: relative;
   }
   .desk-scene {
@@ -1004,23 +1007,38 @@
     position: absolute;
     inset: 0;
     transform-origin: 50% 50%;
-    transition: transform var(--dur-slow) var(--ease-out);
+    /* A long, soft ease on transform only, so the move stays on the
+       compositor and holds the display's frame rate. */
+    transition: transform var(--desk-move) var(--desk-ease);
     will-change: transform;
+    backface-visibility: hidden;
   }
-  .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.3) translate(10%, 1%); }
-  .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.3) translate(0, 3%); }
-  .desk-scene.is-zoom-editing .desk-camera { transform: scale(1.3) translate(-10%, 2%); }
+  .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.3) translate3d(10%, 1%, 0); }
+  .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.3) translate3d(0, 3%, 0); }
+  .desk-scene.is-zoom-editing .desk-camera { transform: scale(1.3) translate3d(-10%, 2%, 0); }
 
   /* Room: wall, lamp, desk surface. Decorative only. */
-  .desk-room { position: absolute; inset: 0; transition: filter var(--dur-base) var(--ease-out); }
-  .desk-scene.is-zoomed .desk-room { filter: brightness(0.7); }
+  .desk-room { position: absolute; inset: 0; }
+  /* One dark sheet over everything but the active hotspot. Only its opacity
+     animates, which is far cheaper per frame than filtering each object. */
+  .desk-dim {
+    position: absolute; inset: -20%; z-index: 1;
+    background: #04050a; opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--desk-fade) var(--desk-ease);
+    will-change: opacity;
+  }
+  .desk-scene.is-zoomed .desk-dim { opacity: 0.62; }
   .desk-wall {
     position: absolute; inset: 0 0 40% 0;
-    background:
-      radial-gradient(circle at 58% 22%, rgba(150, 192, 206, 0.10) 0 1.2%, transparent 1.6%),
-      radial-gradient(circle at 64% 14%, rgba(216, 186, 152, 0.08) 0 0.9%, transparent 1.3%),
-      radial-gradient(circle at 92% 30%, rgba(216, 186, 152, 0.07) 0 1.6%, transparent 2.1%),
-      linear-gradient(180deg, #08090b 0%, #121418 100%);
+    overflow: hidden;
+    background: #05060d;
+  }
+  /* Night city through the window behind the desk */
+  .desk-city { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .desk-wall::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(5, 6, 13, 0.25) 0%, rgba(5, 6, 13, 0) 45%, rgba(5, 6, 13, 0.45) 100%);
   }
   .desk-lamp-glow {
     position: absolute; inset: 0;
@@ -1044,7 +1062,7 @@
       radial-gradient(ellipse 22% 18% at 50% 12%, rgba(150, 192, 206, 0.10), transparent 70%);
     pointer-events: none;
   }
-  .desk-scene .desk-noise { z-index: 3; opacity: 0.16; mix-blend-mode: overlay; }
+  .desk-scene .desk-noise { z-index: 3; opacity: 0.07; mix-blend-mode: normal; }
   .desk-vignette {
     position: absolute; inset: 0; z-index: 2; pointer-events: none;
     background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
@@ -1060,11 +1078,9 @@
     font: inherit;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    transition: filter var(--dur-base) var(--ease-out);
   }
   .desk-hotspot:focus-visible { outline-offset: 6px; border-radius: var(--radius-2); }
-  .desk-scene.is-zoomed .desk-hotspot { filter: brightness(0.4) saturate(0.7); }
-  .desk-scene.is-zoomed .desk-hotspot.is-active { filter: brightness(1.12); }
+  .desk-hotspot.is-active { z-index: 2; filter: brightness(1.2); }
   .desk-hotspot::after {
     content: '';
     position: absolute; top: -4%; right: -4%;
@@ -1083,7 +1099,8 @@
     position: absolute; left: 50%; top: calc(100% + 6px);
     transform: translateX(-50%);
     white-space: nowrap;
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
+    font-weight: 600;
     font-size: 11px;
     font-size: clamp(9px, 1cqw, 12px);
     letter-spacing: var(--tracking-label);
@@ -1231,29 +1248,29 @@
     padding: 20px 22px 22px;
     border-radius: var(--radius-3);
     border: 1px solid var(--desk-line);
-    background: rgba(12, 13, 16, 0.82);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    background: rgba(12, 13, 16, 0.92);
     color: var(--desk-ink);
     box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.8), inset 3px 0 0 var(--accent);
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px);
-    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base);
+    transition: opacity var(--desk-fade) var(--desk-ease), transform var(--desk-fade) var(--desk-ease), visibility 0s linear var(--desk-fade);
   }
   .desk-board.is-active {
     opacity: 1;
     visibility: visible;
     transform: none;
-    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), visibility 0s;
+    transition: opacity var(--desk-fade) var(--desk-ease), transform var(--desk-fade) var(--desk-ease), visibility 0s;
   }
   .desk-board--clipping { right: 24px; top: 24px; }
   .desk-board--creative-direction { right: 24px; bottom: 24px; }
   .desk-board--editing { left: 24px; top: 24px; }
+  .desk-board--default { display: none; }
+  .desk-board--default p { font-weight: 400; }
   .desk-board-eyebrow {
     display: block; margin-bottom: 8px;
-    font-family: var(--font-mono); font-size: var(--text-2xs);
-    letter-spacing: var(--tracking-label); text-transform: uppercase;
+    font-family: var(--font-serif); font-style: italic; font-weight: 600;
+    font-size: var(--text-xs);
     color: var(--desk-glow);
   }
   .desk-board h3 {
@@ -1264,34 +1281,33 @@
   }
   .desk-board p { font-size: var(--text-sm); line-height: var(--leading-normal); color: var(--desk-ink-dim); }
 
-  /* Narrow: boards stack under the scene instead of covering it. All three
-     stay readable; the active one lights up. */
+  /* Narrow: one board under the scene instead of covering it. It shows a
+     default prompt until a hotspot is tapped, then that hotspot's copy. All
+     four share one grid cell, so the board keeps a single height. */
   @media (max-width: 760px) {
     .desk-scene { border-radius: var(--radius-3); }
     .desk-tag { display: none; }
     .desk-hotspot::after { width: 6px; height: 6px; }
     .desk-boards {
       position: static; pointer-events: auto;
-      display: grid; gap: 12px; margin-top: 16px;
+      display: grid; margin-top: 16px;
     }
     .desk-board,
     .desk-board.is-active {
       position: relative; inset: auto; width: auto;
-      visibility: visible;
-      padding: 16px 18px 18px;
+      grid-area: 1 / 1;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 18px 20px 20px;
       background: #111215;
+      transform: none;
     }
-    .desk-board { cursor: pointer; opacity: 1; transform: none; transition: border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
-    .desk-board h3, .desk-board p, .desk-board-eyebrow { transition: opacity var(--dur-base) var(--ease-out); }
-    .desk-stage.is-zoomed .desk-board:not(.is-active) :is(h3, p, .desk-board-eyebrow) { opacity: 0.5; }
-    .desk-board.is-active { transform: translateX(4px); border-color: rgba(216, 186, 152, 0.45); }
+    .desk-board--default h3 { margin-bottom: 4px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .desk-camera,
     .desk-scene .desk-camera { transform: none !important; transition: none; }
-    .desk-board, .desk-board.is-active, .desk-room, .desk-hotspot,
-    .desk-board h3, .desk-board p, .desk-board-eyebrow { transition: none; }
+    .desk-board, .desk-board.is-active, .desk-dim { transition: none; }
     .desk-board { transform: none; }
     .desk-board.is-active { transform: none; }
     .desk-hotspot::after { animation: none; }
@@ -1479,7 +1495,20 @@
       <div class="desk-scene">
         <div class="desk-camera">
           <div class="desk-room" aria-hidden="true">
-            <div class="desk-wall"></div>
+            <div class="desk-wall">
+            <svg class="desk-city" viewBox="0 0 160 60" preserveAspectRatio="xMidYMax slice" focusable="false">
+            <defs><linearGradient id="desk-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05060d"/><stop offset="0.55" stop-color="#101833"/><stop offset="0.85" stop-color="#2a2448"/><stop offset="1" stop-color="#4a2f45"/></linearGradient>
+            <radialGradient id="desk-moon"><stop offset="0" stop-color="#f4efe2"/><stop offset="0.35" stop-color="#f4efe2" stop-opacity="0.9"/><stop offset="0.4" stop-color="#cfd8ea" stop-opacity="0.18"/><stop offset="1" stop-color="#cfd8ea" stop-opacity="0"/></radialGradient></defs>
+            <rect width="160" height="60" fill="url(#desk-sky)"/>
+            <circle cx="118" cy="11" r="9" fill="url(#desk-moon)"/>
+            <g fill="#fff"><circle cx="135.5" cy="9.8" r="0.2" opacity="0.3"/><circle cx="29.1" cy="3.9" r="0.2" opacity="0.7"/><circle cx="35.1" cy="17.9" r="0.15" opacity="0.3"/><circle cx="97.4" cy="11.8" r="0.15" opacity="0.3"/><circle cx="60.9" cy="2.0" r="0.15" opacity="0.7"/><circle cx="102.1" cy="5.5" r="0.12" opacity="0.7"/><circle cx="79.7" cy="14.0" r="0.15" opacity="0.7"/><circle cx="109.5" cy="9.7" r="0.12" opacity="0.3"/><circle cx="133.5" cy="20.4" r="0.15" opacity="0.3"/><circle cx="140.0" cy="15.6" r="0.2" opacity="0.3"/><circle cx="155.9" cy="18.0" r="0.12" opacity="0.5"/><circle cx="33.6" cy="23.9" r="0.2" opacity="0.3"/><circle cx="66.8" cy="19.6" r="0.2" opacity="0.7"/><circle cx="132.6" cy="8.0" r="0.12" opacity="0.5"/><circle cx="151.4" cy="11.6" r="0.15" opacity="0.7"/><circle cx="80.5" cy="18.2" r="0.2" opacity="0.7"/><circle cx="72.4" cy="2.4" r="0.2" opacity="0.3"/><circle cx="68.5" cy="13.8" r="0.12" opacity="0.5"/><circle cx="121.9" cy="2.1" r="0.2" opacity="0.7"/><circle cx="41.8" cy="14.7" r="0.2" opacity="0.3"/><circle cx="87.0" cy="7.2" r="0.12" opacity="0.3"/><circle cx="57.3" cy="11.3" r="0.12" opacity="0.7"/><circle cx="49.7" cy="4.4" r="0.2" opacity="0.5"/><circle cx="107.3" cy="6.9" r="0.12" opacity="0.3"/><circle cx="82.5" cy="12.1" r="0.2" opacity="0.5"/><circle cx="111.7" cy="4.3" r="0.2" opacity="0.3"/><circle cx="94.0" cy="7.0" r="0.2" opacity="0.3"/><circle cx="87.7" cy="20.0" r="0.12" opacity="0.7"/><circle cx="106.6" cy="16.0" r="0.15" opacity="0.5"/><circle cx="133.0" cy="3.9" r="0.15" opacity="0.3"/><circle cx="57.7" cy="6.2" r="0.12" opacity="0.5"/><circle cx="48.6" cy="3.8" r="0.15" opacity="0.5"/><circle cx="154.1" cy="5.0" r="0.15" opacity="0.5"/><circle cx="91.1" cy="8.2" r="0.2" opacity="0.3"/></g>
+            <path fill="#151b30" d="M-2.0 60V47.6H4.6V60ZM5.3 60V37.6H13.0V60ZM13.6 60V47.8H20.0V60ZM21.0 60V39.1H30.8V60ZM31.8 60V44.4H40.4V60ZM40.8 60V45.3H47.1V60ZM43.8 45.3v-3.0h.3V45.3ZM47.8 60V48.3H56.8V60ZM57.3 60V43.1H65.6V60ZM61.3 43.1v-2.3h.3V43.1ZM66.2 60V37.2H72.6V60ZM69.2 37.2v-3.7h.3V37.2ZM73.6 60V45.1H83.5V60ZM78.4 45.1v-2.1h.3V45.1ZM83.9 60V39.7H92.5V60ZM88.0 39.7v-3.6h.3V39.7ZM93.1 60V48.1H100.5V60ZM101.0 60V44.7H106.6V60ZM106.9 60V43.6H115.7V60ZM116.5 60V39.0H123.3V60ZM124.0 60V46.4H131.0V60ZM131.7 60V34.5H137.7V60ZM138.7 60V38.7H144.2V60ZM141.3 38.7v-2.9h.3V38.7ZM145.1 60V37.6H154.2V60ZM155.2 60V48.3H164.9V60Z"/>
+            <g opacity="0.55"><path fill="#f3c98b" d="M-1.1 48.8h0.6v0.7h-0.6zM1.9 48.8h0.6v0.7h-0.6zM3.4 50.7h0.6v0.7h-0.6zM-1.1 54.5h0.6v0.7h-0.6zM0.4 54.5h0.6v0.7h-0.6zM3.4 54.5h0.6v0.7h-0.6zM3.4 56.4h0.6v0.7h-0.6zM1.9 58.3h0.6v0.7h-0.6zM9.2 48.3h0.6v0.7h-0.6zM14.5 52.8h0.6v0.7h-0.6zM16.0 58.5h0.6v0.7h-0.6zM23.4 42.2h0.6v0.7h-0.6zM24.9 42.2h0.6v0.7h-0.6zM21.9 44.1h0.6v0.7h-0.6zM27.9 46.0h0.6v0.7h-0.6zM32.7 45.6h0.6v0.7h-0.6zM32.7 49.4h0.6v0.7h-0.6zM32.7 55.1h0.6v0.7h-0.6zM37.2 57.0h0.6v0.7h-0.6zM38.7 57.0h0.6v0.7h-0.6zM41.7 52.2h0.6v0.7h-0.6zM41.7 56.0h0.6v0.7h-0.6zM53.2 57.1h0.6v0.7h-0.6zM58.2 44.3h0.6v0.7h-0.6zM58.2 53.8h0.6v0.7h-0.6zM68.6 38.4h0.6v0.7h-0.6zM67.1 40.3h0.6v0.7h-0.6zM68.6 40.3h0.6v0.7h-0.6zM68.6 44.1h0.6v0.7h-0.6zM67.1 53.6h0.6v0.7h-0.6zM76.0 55.8h0.6v0.7h-0.6zM82.0 55.8h0.6v0.7h-0.6zM90.8 40.9h0.6v0.7h-0.6zM86.3 44.7h0.6v0.7h-0.6zM86.3 46.6h0.6v0.7h-0.6zM84.8 48.5h0.6v0.7h-0.6zM89.3 54.2h0.6v0.7h-0.6zM86.3 58.0h0.6v0.7h-0.6zM95.5 53.1h0.6v0.7h-0.6zM97.0 56.9h0.6v0.7h-0.6zM101.9 53.5h0.6v0.7h-0.6zM110.8 46.7h0.6v0.7h-0.6zM112.3 50.5h0.6v0.7h-0.6zM120.4 40.2h0.6v0.7h-0.6zM120.4 49.7h0.6v0.7h-0.6zM118.9 53.5h0.6v0.7h-0.6zM127.9 53.3h0.6v0.7h-0.6zM134.1 43.3h0.6v0.7h-0.6zM132.6 45.2h0.6v0.7h-0.6zM132.6 49.0h0.6v0.7h-0.6zM134.1 54.7h0.6v0.7h-0.6zM135.6 56.6h0.6v0.7h-0.6zM142.6 45.6h0.6v0.7h-0.6zM141.1 53.2h0.6v0.7h-0.6zM142.6 53.2h0.6v0.7h-0.6zM152.0 38.8h0.6v0.7h-0.6zM149.0 40.7h0.6v0.7h-0.6zM149.0 42.6h0.6v0.7h-0.6zM152.0 42.6h0.6v0.7h-0.6zM150.5 50.2h0.6v0.7h-0.6zM152.0 55.9h0.6v0.7h-0.6zM160.6 49.5h0.6v0.7h-0.6zM163.6 49.5h0.6v0.7h-0.6zM163.6 51.4h0.6v0.7h-0.6zM159.1 53.3h0.6v0.7h-0.6zM163.6 53.3h0.6v0.7h-0.6z"/><path fill="#9fd0e0" d="M3.4 48.8h0.6v0.7h-0.6zM3.4 52.6h0.6v0.7h-0.6zM7.7 40.7h0.6v0.7h-0.6zM10.7 42.6h0.6v0.7h-0.6zM7.7 46.4h0.6v0.7h-0.6zM9.2 50.2h0.6v0.7h-0.6zM7.7 54.0h0.6v0.7h-0.6zM14.5 56.6h0.6v0.7h-0.6zM24.9 44.1h0.6v0.7h-0.6zM21.9 46.0h0.6v0.7h-0.6zM21.9 51.7h0.6v0.7h-0.6zM44.7 46.5h0.6v0.7h-0.6zM44.7 52.2h0.6v0.7h-0.6zM58.2 46.2h0.6v0.7h-0.6zM64.2 50.0h0.6v0.7h-0.6zM59.7 51.9h0.6v0.7h-0.6zM61.2 53.8h0.6v0.7h-0.6zM67.1 57.4h0.6v0.7h-0.6zM79.0 46.3h0.6v0.7h-0.6zM74.5 48.2h0.6v0.7h-0.6zM77.5 48.2h0.6v0.7h-0.6zM79.0 50.1h0.6v0.7h-0.6zM80.5 50.1h0.6v0.7h-0.6zM74.5 53.9h0.6v0.7h-0.6zM76.0 53.9h0.6v0.7h-0.6zM82.0 53.9h0.6v0.7h-0.6zM84.8 50.4h0.6v0.7h-0.6zM87.8 50.4h0.6v0.7h-0.6zM90.8 52.3h0.6v0.7h-0.6zM89.3 56.1h0.6v0.7h-0.6zM90.8 56.1h0.6v0.7h-0.6zM98.5 49.3h0.6v0.7h-0.6zM94.0 51.2h0.6v0.7h-0.6zM97.0 53.1h0.6v0.7h-0.6zM94.0 55.0h0.6v0.7h-0.6zM103.4 47.8h0.6v0.7h-0.6zM101.9 49.7h0.6v0.7h-0.6zM103.4 53.5h0.6v0.7h-0.6zM101.9 55.4h0.6v0.7h-0.6zM110.8 44.8h0.6v0.7h-0.6zM113.8 50.5h0.6v0.7h-0.6zM112.3 56.2h0.6v0.7h-0.6zM118.9 44.0h0.6v0.7h-0.6zM120.4 45.9h0.6v0.7h-0.6zM120.4 55.4h0.6v0.7h-0.6zM120.4 57.3h0.6v0.7h-0.6zM124.9 47.6h0.6v0.7h-0.6zM124.9 51.4h0.6v0.7h-0.6zM129.4 51.4h0.6v0.7h-0.6zM127.9 55.2h0.6v0.7h-0.6zM127.9 57.1h0.6v0.7h-0.6zM132.6 43.3h0.6v0.7h-0.6zM132.6 52.8h0.6v0.7h-0.6zM139.6 55.1h0.6v0.7h-0.6zM147.5 40.7h0.6v0.7h-0.6zM152.0 44.5h0.6v0.7h-0.6zM146.0 48.3h0.6v0.7h-0.6zM149.0 54.0h0.6v0.7h-0.6zM156.1 57.1h0.6v0.7h-0.6zM159.1 57.1h0.6v0.7h-0.6z"/></g>
+            <path fill="#090c16" d="M-2.0 60V49.0H8.0V60ZM2.9 49.0v-1.7h.3V49.0ZM8.3 60V49.0H21.9V60ZM22.3 60V28.6H35.0V60ZM36.1 60V26.6H47.9V60ZM48.6 60V26.7H55.7V60ZM56.4 60V24.3H64.5V60ZM60.3 24.3v-3.5h.3V24.3ZM65.1 60V45.3H75.6V60ZM76.7 60V40.5H89.1V60ZM89.6 60V45.6H96.6V60ZM97.7 60V38.7H108.3V60ZM109.3 60V25.5H122.7V60ZM123.8 60V26.9H136.5V60ZM130.0 26.9v-2.8h.3V26.9ZM137.3 60V23.7H146.8V60ZM147.8 60V48.4H156.5V60ZM157.1 60V41.0H165.6V60Z"/>
+            <g opacity="0.85"><path fill="#f3c98b" d="M3.4 50.2h0.7v0.9h-0.7zM6.4 55.9h0.7v0.9h-0.7zM6.4 57.8h0.7v0.9h-0.7zM9.2 50.2h0.7v0.9h-0.7zM10.7 50.2h0.7v0.9h-0.7zM18.2 52.1h0.7v0.9h-0.7zM15.2 55.9h0.7v0.9h-0.7zM13.7 57.8h0.7v0.9h-0.7zM30.7 33.6h0.7v0.9h-0.7zM29.2 37.4h0.7v0.9h-0.7zM32.2 41.2h0.7v0.9h-0.7zM23.2 45.0h0.7v0.9h-0.7zM27.7 45.0h0.7v0.9h-0.7zM32.2 46.9h0.7v0.9h-0.7zM33.7 46.9h0.7v0.9h-0.7zM26.2 48.8h0.7v0.9h-0.7zM27.7 48.8h0.7v0.9h-0.7zM29.2 48.8h0.7v0.9h-0.7zM27.7 50.7h0.7v0.9h-0.7zM29.2 52.6h0.7v0.9h-0.7zM24.7 56.4h0.7v0.9h-0.7zM26.2 56.4h0.7v0.9h-0.7zM29.2 56.4h0.7v0.9h-0.7zM41.5 27.8h0.7v0.9h-0.7zM44.5 27.8h0.7v0.9h-0.7zM46.0 27.8h0.7v0.9h-0.7zM38.5 29.7h0.7v0.9h-0.7zM41.5 29.7h0.7v0.9h-0.7zM40.0 31.6h0.7v0.9h-0.7zM38.5 33.5h0.7v0.9h-0.7zM40.0 33.5h0.7v0.9h-0.7zM46.0 33.5h0.7v0.9h-0.7zM38.5 39.2h0.7v0.9h-0.7zM44.5 39.2h0.7v0.9h-0.7zM37.0 44.9h0.7v0.9h-0.7zM41.5 44.9h0.7v0.9h-0.7zM44.5 46.8h0.7v0.9h-0.7zM41.5 48.7h0.7v0.9h-0.7zM44.5 48.7h0.7v0.9h-0.7zM44.5 56.3h0.7v0.9h-0.7zM46.0 56.3h0.7v0.9h-0.7zM43.0 58.2h0.7v0.9h-0.7zM54.0 45.0h0.7v0.9h-0.7zM52.5 50.7h0.7v0.9h-0.7zM51.0 54.5h0.7v0.9h-0.7zM57.3 25.5h0.7v0.9h-0.7zM61.8 29.3h0.7v0.9h-0.7zM61.8 35.0h0.7v0.9h-0.7zM63.3 35.0h0.7v0.9h-0.7zM60.3 36.9h0.7v0.9h-0.7zM61.8 38.8h0.7v0.9h-0.7zM61.8 40.7h0.7v0.9h-0.7zM60.3 46.4h0.7v0.9h-0.7zM61.8 50.2h0.7v0.9h-0.7zM66.0 50.3h0.7v0.9h-0.7zM69.0 54.1h0.7v0.9h-0.7zM73.5 54.1h0.7v0.9h-0.7zM73.5 57.9h0.7v0.9h-0.7zM79.1 43.6h0.7v0.9h-0.7zM83.6 43.6h0.7v0.9h-0.7zM77.6 45.5h0.7v0.9h-0.7zM79.1 45.5h0.7v0.9h-0.7zM82.1 47.4h0.7v0.9h-0.7zM82.1 49.3h0.7v0.9h-0.7zM83.6 49.3h0.7v0.9h-0.7zM83.6 53.1h0.7v0.9h-0.7zM83.6 56.9h0.7v0.9h-0.7zM95.0 46.8h0.7v0.9h-0.7zM95.0 52.5h0.7v0.9h-0.7zM98.6 39.9h0.7v0.9h-0.7zM98.6 41.8h0.7v0.9h-0.7zM104.6 43.7h0.7v0.9h-0.7zM101.6 47.5h0.7v0.9h-0.7zM106.1 47.5h0.7v0.9h-0.7zM103.1 53.2h0.7v0.9h-0.7zM101.6 55.1h0.7v0.9h-0.7zM106.1 55.1h0.7v0.9h-0.7zM100.1 57.0h0.7v0.9h-0.7zM113.2 26.7h0.7v0.9h-0.7zM111.7 28.6h0.7v0.9h-0.7zM120.7 28.6h0.7v0.9h-0.7zM114.7 30.5h0.7v0.9h-0.7zM117.7 32.4h0.7v0.9h-0.7zM114.7 34.3h0.7v0.9h-0.7zM116.2 36.2h0.7v0.9h-0.7zM119.2 38.1h0.7v0.9h-0.7zM120.7 38.1h0.7v0.9h-0.7zM113.2 40.0h0.7v0.9h-0.7zM120.7 40.0h0.7v0.9h-0.7zM116.2 41.9h0.7v0.9h-0.7zM113.2 49.5h0.7v0.9h-0.7zM110.2 51.4h0.7v0.9h-0.7zM113.2 51.4h0.7v0.9h-0.7zM119.2 51.4h0.7v0.9h-0.7zM119.2 53.3h0.7v0.9h-0.7zM120.7 53.3h0.7v0.9h-0.7zM114.7 55.2h0.7v0.9h-0.7zM117.7 55.2h0.7v0.9h-0.7zM111.7 57.1h0.7v0.9h-0.7zM124.7 30.0h0.7v0.9h-0.7zM133.7 30.0h0.7v0.9h-0.7zM130.7 31.9h0.7v0.9h-0.7zM132.2 33.8h0.7v0.9h-0.7zM135.2 39.5h0.7v0.9h-0.7zM130.7 41.4h0.7v0.9h-0.7zM133.7 41.4h0.7v0.9h-0.7zM130.7 45.2h0.7v0.9h-0.7zM124.7 49.0h0.7v0.9h-0.7zM126.2 49.0h0.7v0.9h-0.7zM138.2 26.8h0.7v0.9h-0.7zM139.7 34.4h0.7v0.9h-0.7zM142.7 34.4h0.7v0.9h-0.7zM142.7 36.3h0.7v0.9h-0.7zM142.7 38.2h0.7v0.9h-0.7zM139.7 42.0h0.7v0.9h-0.7zM142.7 42.0h0.7v0.9h-0.7zM139.7 43.9h0.7v0.9h-0.7zM139.7 45.8h0.7v0.9h-0.7zM144.2 45.8h0.7v0.9h-0.7zM138.2 49.6h0.7v0.9h-0.7zM144.2 51.5h0.7v0.9h-0.7zM150.2 55.3h0.7v0.9h-0.7zM153.2 55.3h0.7v0.9h-0.7zM162.5 46.0h0.7v0.9h-0.7zM162.5 47.9h0.7v0.9h-0.7zM159.5 49.8h0.7v0.9h-0.7zM164.0 49.8h0.7v0.9h-0.7z"/><path fill="#9fd0e0" d="M0.4 52.1h0.7v0.9h-0.7zM3.4 52.1h0.7v0.9h-0.7zM19.7 54.0h0.7v0.9h-0.7zM16.7 55.9h0.7v0.9h-0.7zM24.7 33.6h0.7v0.9h-0.7zM29.2 33.6h0.7v0.9h-0.7zM24.7 37.4h0.7v0.9h-0.7zM30.7 43.1h0.7v0.9h-0.7zM23.2 46.9h0.7v0.9h-0.7zM33.7 52.6h0.7v0.9h-0.7zM38.5 31.6h0.7v0.9h-0.7zM37.0 37.3h0.7v0.9h-0.7zM44.5 41.1h0.7v0.9h-0.7zM37.0 46.8h0.7v0.9h-0.7zM54.0 27.9h0.7v0.9h-0.7zM51.0 45.0h0.7v0.9h-0.7zM51.0 52.6h0.7v0.9h-0.7zM58.8 33.1h0.7v0.9h-0.7zM60.3 33.1h0.7v0.9h-0.7zM63.3 33.1h0.7v0.9h-0.7zM58.8 35.0h0.7v0.9h-0.7zM61.8 46.4h0.7v0.9h-0.7zM58.8 50.2h0.7v0.9h-0.7zM60.3 57.8h0.7v0.9h-0.7zM73.5 48.4h0.7v0.9h-0.7zM79.1 56.9h0.7v0.9h-0.7zM95.0 54.4h0.7v0.9h-0.7zM95.0 56.3h0.7v0.9h-0.7zM100.1 39.9h0.7v0.9h-0.7zM98.6 43.7h0.7v0.9h-0.7zM100.1 45.6h0.7v0.9h-0.7zM101.6 51.3h0.7v0.9h-0.7zM98.6 55.1h0.7v0.9h-0.7zM98.6 58.9h0.7v0.9h-0.7zM114.7 26.7h0.7v0.9h-0.7zM119.2 30.5h0.7v0.9h-0.7zM114.7 36.2h0.7v0.9h-0.7zM114.7 45.7h0.7v0.9h-0.7zM116.2 45.7h0.7v0.9h-0.7zM113.2 47.6h0.7v0.9h-0.7zM135.2 30.0h0.7v0.9h-0.7zM130.7 33.8h0.7v0.9h-0.7zM126.2 39.5h0.7v0.9h-0.7zM133.7 39.5h0.7v0.9h-0.7zM133.7 52.8h0.7v0.9h-0.7zM130.7 56.6h0.7v0.9h-0.7zM139.7 24.9h0.7v0.9h-0.7zM144.2 28.7h0.7v0.9h-0.7zM139.7 30.6h0.7v0.9h-0.7zM142.7 30.6h0.7v0.9h-0.7zM144.2 32.5h0.7v0.9h-0.7zM139.7 38.2h0.7v0.9h-0.7zM139.7 47.7h0.7v0.9h-0.7zM148.7 49.6h0.7v0.9h-0.7zM158.0 47.9h0.7v0.9h-0.7zM158.0 51.7h0.7v0.9h-0.7zM162.5 51.7h0.7v0.9h-0.7zM164.0 51.7h0.7v0.9h-0.7zM161.0 55.5h0.7v0.9h-0.7zM162.5 55.5h0.7v0.9h-0.7z"/><path fill="#f08a7a" d="M0.4 54.0h0.7v0.9h-0.7zM0.4 55.9h0.7v0.9h-0.7zM4.9 57.8h0.7v0.9h-0.7zM16.7 54.0h0.7v0.9h-0.7zM10.7 55.9h0.7v0.9h-0.7zM9.2 57.8h0.7v0.9h-0.7zM19.7 57.8h0.7v0.9h-0.7zM23.2 33.6h0.7v0.9h-0.7zM29.2 35.5h0.7v0.9h-0.7zM27.7 41.2h0.7v0.9h-0.7zM27.7 52.6h0.7v0.9h-0.7zM40.0 43.0h0.7v0.9h-0.7zM38.5 50.6h0.7v0.9h-0.7zM43.0 50.6h0.7v0.9h-0.7zM54.0 37.4h0.7v0.9h-0.7zM54.0 39.3h0.7v0.9h-0.7zM51.0 41.2h0.7v0.9h-0.7zM54.0 43.1h0.7v0.9h-0.7zM51.0 46.9h0.7v0.9h-0.7zM54.0 58.3h0.7v0.9h-0.7zM60.3 25.5h0.7v0.9h-0.7zM58.8 27.4h0.7v0.9h-0.7zM63.3 36.9h0.7v0.9h-0.7zM58.8 38.8h0.7v0.9h-0.7zM58.8 44.5h0.7v0.9h-0.7zM58.8 54.0h0.7v0.9h-0.7zM63.3 55.9h0.7v0.9h-0.7zM70.5 48.4h0.7v0.9h-0.7zM67.5 50.3h0.7v0.9h-0.7zM66.0 54.1h0.7v0.9h-0.7zM79.1 41.7h0.7v0.9h-0.7zM85.1 41.7h0.7v0.9h-0.7zM77.6 43.6h0.7v0.9h-0.7zM92.0 52.5h0.7v0.9h-0.7zM92.0 54.4h0.7v0.9h-0.7zM92.0 56.3h0.7v0.9h-0.7zM106.1 43.7h0.7v0.9h-0.7zM106.1 49.4h0.7v0.9h-0.7zM104.6 55.1h0.7v0.9h-0.7zM117.7 26.7h0.7v0.9h-0.7zM111.7 30.5h0.7v0.9h-0.7zM114.7 32.4h0.7v0.9h-0.7zM117.7 38.1h0.7v0.9h-0.7zM119.2 43.8h0.7v0.9h-0.7zM120.7 55.2h0.7v0.9h-0.7zM135.2 28.1h0.7v0.9h-0.7zM141.2 36.3h0.7v0.9h-0.7zM138.2 40.1h0.7v0.9h-0.7zM141.2 43.9h0.7v0.9h-0.7zM142.7 49.6h0.7v0.9h-0.7zM150.2 57.2h0.7v0.9h-0.7zM162.5 42.2h0.7v0.9h-0.7zM158.0 53.6h0.7v0.9h-0.7z"/></g>
+            <g fill="#07080b"><rect x="52.6" width="1.4" height="60"/><rect x="106" width="1.4" height="60"/><rect y="0" width="160" height="1.2"/><rect y="58.6" width="160" height="1.4"/></g>
+            </svg>
+            </div>
             <div class="desk-lamp-glow"></div>
             <svg class="desk-lamp" viewBox="0 0 160 100" focusable="false">
               <defs>
@@ -1544,6 +1573,7 @@
             <span class="desk-monitor-foot" aria-hidden="true"></span>
             <span class="desk-tag" aria-hidden="true">03 Editing</span>
           </button>
+          <div class="desk-dim" aria-hidden="true"></div>
         </div>
         <div class="desk-vignette" aria-hidden="true"></div>
         <div class="noise desk-noise" aria-hidden="true"></div>
@@ -1551,18 +1581,22 @@
 
       <div class="desk-boards">
         <!-- EDITABLE PLACEHOLDER COPY: replace the title and text in each .desk-board below. -->
+        <article class="desk-board desk-board--default is-active" data-service="" data-placeholder>
+          <h3>See the services</h3>
+          <p>Tap an element on the desk.</p>
+        </article>
         <article class="desk-board desk-board--clipping" id="desk-board-clipping" data-service="clipping" data-placeholder>
-          <span class="desk-board-eyebrow">01 / Short-form</span>
+          <span class="desk-board-eyebrow">Short-form</span>
           <h3>Clipping</h3>
           <p>Your long-form footage, cut into short-form clips built for retention: a hook in the first second and nothing that lets a thumb keep scrolling.</p>
         </article>
         <article class="desk-board desk-board--creative-direction" id="desk-board-creative-direction" data-service="creative-direction" data-placeholder>
-          <span class="desk-board-eyebrow">02 / Concept</span>
+          <span class="desk-board-eyebrow">Concept</span>
           <h3>Creative Direction</h3>
           <p>The visual concept and the story behind it, decided before anything gets cut, so every video looks and feels like the same brand.</p>
         </article>
         <article class="desk-board desk-board--editing" id="desk-board-editing" data-service="editing" data-placeholder>
-          <span class="desk-board-eyebrow">03 / Timeline</span>
+          <span class="desk-board-eyebrow">Timeline</span>
           <h3>Editing</h3>
           <p>Timeline polish: pacing that holds attention, clean cuts and sound that is mixed, not just there.</p>
         </article>
@@ -2286,28 +2320,17 @@
     if (active) scene.classList.remove('is-zoom-' + active);
     active = service;
     scene.classList.toggle('is-zoomed', !!active);
-    stage.classList.toggle('is-zoomed', !!active);
     if (active) scene.classList.add('is-zoom-' + active);
     hotspots.forEach(function (h) {
-      h.classList.toggle('is-active', h.getAttribute('data-service') === active);
+      var on = h.getAttribute('data-service') === active;
+      h.classList.toggle('is-active', on);
+      h.setAttribute('aria-expanded', on ? 'true' : 'false');
     });
-    syncExpanded();
+    // The default board (data-service="") is the active one when nothing is.
     boards.forEach(function (b) {
-      b.classList.toggle('is-active', b.getAttribute('data-service') === active);
+      b.classList.toggle('is-active', (b.getAttribute('data-service') || null) === active);
     });
   }
-
-  // Boards only collapse when they overlay the scene. Stacked under it on
-  // narrow screens they are always visible, so nothing is "collapsed".
-  var stacked = window.matchMedia('(max-width: 760px)');
-  function syncExpanded() {
-    hotspots.forEach(function (h) {
-      if (stacked.matches) h.removeAttribute('aria-expanded');
-      else h.setAttribute('aria-expanded', h.getAttribute('data-service') === active ? 'true' : 'false');
-    });
-  }
-  stacked.addEventListener('change', syncExpanded);
-  syncExpanded();
 
   function keyboardFocused() {
     var el = document.activeElement;
@@ -2351,12 +2374,6 @@
     if (t.closest && (t.closest('.desk-hotspot') || t.closest('.desk-board'))) return;
     setActive(null);
   }, true);
-
-  // Narrow screens stack the boards under the scene; tapping one there
-  // points the camera at its object too.
-  boards.forEach(function (b) {
-    b.addEventListener('click', function () { setActive(b.getAttribute('data-service')); });
-  });
 
   scene.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && active) setActive(null);
