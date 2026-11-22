@@ -1299,6 +1299,7 @@
   .desk-board--editing::after { right: auto; left: calc(100% + var(--desk-link)); margin: -4px 0 0 -4px; }
   .desk-board.is-active::before { transform: none; transition-delay: calc(var(--desk-move) * 0.45); }
   .desk-board.is-active::after { opacity: 1; transition-delay: calc(var(--desk-move) * 0.8); }
+  .desk-board p + p { margin-top: 0.7em; }
   .desk-board--default { display: none; }
   .desk-board--default p { font-weight: 400; }
   .desk-board-eyebrow {
@@ -1635,7 +1636,7 @@
       </div>
 
       <div class="desk-boards">
-        <!-- EDITABLE PLACEHOLDER COPY: replace the title and text in each .desk-board below. -->
+        <!-- EDITABLE COPY: change the title and text in each .desk-board below. -->
         <article class="desk-board desk-board--default is-active" data-service="" data-placeholder>
           <h3>See the services</h3>
           <p>Tap an element on the desk.</p>
@@ -1644,16 +1645,19 @@
           <span class="desk-board-eyebrow">Short-form</span>
           <h3>Clipping</h3>
           <p>Your long-form footage, cut into short-form clips built for retention: a hook in the first second and nothing that lets a thumb keep scrolling.</p>
+          <p>You only film once, but you have lots of content running.</p>
         </article>
         <article class="desk-board desk-board--creative-direction" id="desk-board-creative-direction" data-service="creative-direction" data-placeholder>
-          <span class="desk-board-eyebrow">Concept</span>
+          <span class="desk-board-eyebrow">Brand identity</span>
           <h3>Creative Direction</h3>
-          <p>The visual concept and the story behind it, decided before anything gets cut, so every video looks and feels like the same brand.</p>
+          <p>You already have the story and the message. We position and design your content and personal brand so they reach the people you want to reach, in the right way.</p>
+          <p>No generic templates: a brand identity built around your real personality, your story and your vibe, so you stand out as the only one of you.</p>
         </article>
         <article class="desk-board desk-board--editing" id="desk-board-editing" data-service="editing" data-placeholder>
-          <span class="desk-board-eyebrow">Timeline</span>
+          <span class="desk-board-eyebrow">Done for you</span>
           <h3>Editing</h3>
-          <p>Timeline polish: pacing that holds attention, clean cuts and sound that is mixed, not just there.</p>
+          <p>We take care of how your video looks and sounds: the cuts, the sound, the visuals, everything that carries your message on screen.</p>
+          <p>Each video is adjusted to match your brand identity, so it holds attention and looks like nobody else's.</p>
         </article>
       </div>
     </div>
