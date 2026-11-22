@@ -1013,24 +1013,26 @@
     will-change: transform;
     backface-visibility: hidden;
   }
-  .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.3) translate3d(10%, 1%, 0); }
-  .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.3) translate3d(0, 3%, 0); }
-  .desk-scene.is-zoom-editing .desk-camera { transform: scale(1.3) translate3d(-10%, 2%, 0); }
+  /* Each move parks its object in the half of the scene the board leaves free. */
+  .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.3) translate3d(19%, 1%, 0); }
+  .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.2) translate3d(-22.5%, 3%, 0); }
+  .desk-scene.is-zoom-editing .desk-camera { transform: scale(1.3) translate3d(-15%, 2%, 0); }
 
   /* Room: wall, lamp, desk surface. Decorative only. */
   .desk-room { position: absolute; inset: 0; }
-  /* One dark sheet over everything but the active hotspot. Only its opacity
+  /* One dark sheet over the room, under the objects. Only its opacity
      animates, which is far cheaper per frame than filtering each object. */
   .desk-dim {
-    position: absolute; inset: -20%; z-index: 1;
+    position: absolute; inset: -30%;
     background: #04050a; opacity: 0;
     pointer-events: none;
     transition: opacity var(--desk-fade) var(--desk-ease);
     will-change: opacity;
   }
-  .desk-scene.is-zoomed .desk-dim { opacity: 0.62; }
+  .desk-scene.is-zoomed .desk-dim { opacity: 0.5; }
   .desk-wall {
-    position: absolute; inset: 0 0 40% 0;
+    /* Wall and desk run 25% past each side so the camera can pan. */
+    position: absolute; inset: 0 -25% 40% -25%;
     overflow: hidden;
     background: #05060d;
   }
@@ -1049,7 +1051,7 @@
   }
   .desk-lamp { position: absolute; inset: 0; width: 100%; height: 100%; }
   .desk-surface {
-    position: absolute; inset: 60% 0 0 0;
+    position: absolute; inset: 60% -25% 0 -25%;
     background:
       linear-gradient(180deg, rgba(255, 220, 180, 0.14) 0, rgba(255, 220, 180, 0.14) 1px, transparent 1px),
       repeating-linear-gradient(176deg, rgba(255, 255, 255, 0.015) 0 2px, transparent 2px 9px),
@@ -1080,7 +1082,10 @@
     -webkit-tap-highlight-color: transparent;
   }
   .desk-hotspot:focus-visible { outline-offset: 6px; border-radius: var(--radius-2); }
-  .desk-hotspot.is-active { z-index: 2; filter: brightness(1.2); }
+  .desk-hotspot { transition: opacity var(--desk-fade) var(--desk-ease); }
+  .desk-hotspot.is-active { filter: brightness(1.2); }
+  /* The other objects fade right back so they never fight the board's text. */
+  .desk-scene.is-zoomed .desk-hotspot:not(.is-active) { opacity: 0.18; }
   .desk-hotspot::after {
     content: '';
     position: absolute; top: -4%; right: -4%;
@@ -1153,19 +1158,19 @@
     padding: 2.2% 2.2% 3.5%;
     border-radius: 6px 6px 2px 2px;
     background: linear-gradient(180deg, #2b2d31, #1b1c1f);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 70px -6px rgba(150, 192, 206, 0.32);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 70px -6px rgba(150, 192, 206, 0.45);
   }
   .desk-macbook-screen {
     position: relative; display: block; width: 100%; height: 100%;
     overflow: hidden;
     border-radius: 2px;
     background:
-      radial-gradient(ellipse 70% 60% at 50% 40%, rgba(150, 192, 206, 0.22), transparent 70%),
-      linear-gradient(160deg, #0f1c22, #0a1014);
+      radial-gradient(ellipse 70% 60% at 50% 40%, rgba(150, 192, 206, 0.34), transparent 70%),
+      linear-gradient(160deg, #18303a, #101c22);
   }
   /* A dim moodboard: frames and a story strip */
   .desk-mood {
-    position: absolute; border-radius: 2px; opacity: 0.5;
+    position: absolute; border-radius: 2px; opacity: 0.9;
   }
   .desk-mood-1 { left: 7%; top: 10%; width: 40%; height: 46%; background: linear-gradient(140deg, #3a2a20, #7f5a3e); }
   .desk-mood-2 { left: 51%; top: 10%; width: 42%; height: 21%; background: linear-gradient(140deg, #1d3a44, #3f7686); }
@@ -1174,7 +1179,7 @@
   .desk-mood-strip {
     position: absolute; left: 7%; right: 7%; top: 64%; height: 22%;
     background: repeating-linear-gradient(90deg, rgba(237, 230, 220, 0.16) 0 17%, transparent 17% 20.75%);
-    opacity: 0.6;
+    opacity: 0.9;
   }
   .desk-macbook-screen::after {
     content: ''; position: absolute; inset: 0;
@@ -1242,13 +1247,16 @@
 
   /* Boards */
   .desk-boards { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+  /* Half the scene, on the side away from the object, see-through enough
+     that the city and desk still read behind it. */
   .desk-board {
-    position: absolute;
-    width: min(300px, 34%);
-    padding: 20px 22px 22px;
+    position: absolute; top: 8%; bottom: 8%;
+    width: 48%;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(20px, 4cqw, 48px);
     border-radius: var(--radius-3);
     border: 1px solid var(--desk-line);
-    background: rgba(12, 13, 16, 0.92);
+    background: rgba(12, 13, 16, 0.8);
     color: var(--desk-ink);
     box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.8), inset 3px 0 0 var(--accent);
     opacity: 0;
@@ -1259,27 +1267,53 @@
   .desk-board.is-active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
     transform: none;
     transition: opacity var(--desk-fade) var(--desk-ease), transform var(--desk-fade) var(--desk-ease), visibility 0s;
   }
-  .desk-board--clipping { right: 24px; top: 24px; }
-  .desk-board--creative-direction { right: 24px; bottom: 24px; }
-  .desk-board--editing { left: 24px; top: 24px; }
+  .desk-board--clipping { right: 3%; --desk-link: 17%; --desk-link-y: 42%; }
+  .desk-board--creative-direction { right: 3%; --desk-link: 13%; --desk-link-y: 40%; }
+  .desk-board--editing { left: 3%; --desk-link: 17%; --desk-link-y: 37%; }
+  /* Connector: a line from the board's edge to a dot on its object. */
+  .desk-board::before,
+  .desk-board::after {
+    content: ''; position: absolute; top: var(--desk-link-y);
+    pointer-events: none;
+  }
+  .desk-board::before {
+    right: 100%; width: var(--desk-link); height: 1px;
+    background: var(--desk-glow);
+    transform-origin: 100% 50%; transform: scaleX(0);
+    transition: transform var(--desk-fade) var(--desk-ease);
+  }
+  .desk-board::after {
+    right: calc(100% + var(--desk-link)); width: 9px; height: 9px;
+    margin: -4px -4px 0 0;
+    border-radius: 50%;
+    background: var(--desk-glow);
+    box-shadow: 0 0 0 4px rgba(216, 186, 152, 0.22), 0 0 14px 2px rgba(216, 186, 152, 0.5);
+    opacity: 0;
+    transition: opacity var(--desk-fade) var(--desk-ease);
+  }
+  .desk-board--editing::before { right: auto; left: 100%; transform-origin: 0 50%; }
+  .desk-board--editing::after { right: auto; left: calc(100% + var(--desk-link)); margin: -4px 0 0 -4px; }
+  .desk-board.is-active::before { transform: none; transition-delay: calc(var(--desk-move) * 0.45); }
+  .desk-board.is-active::after { opacity: 1; transition-delay: calc(var(--desk-move) * 0.8); }
   .desk-board--default { display: none; }
   .desk-board--default p { font-weight: 400; }
   .desk-board-eyebrow {
     display: block; margin-bottom: 8px;
     font-family: var(--font-serif); font-style: italic; font-weight: 600;
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
     color: var(--desk-glow);
   }
   .desk-board h3 {
     font-family: var(--font-display); font-weight: 600;
-    font-size: var(--text-lg); line-height: var(--leading-snug);
+    font-size: clamp(var(--text-lg), 3.4cqw, var(--text-2xl)); line-height: var(--leading-snug);
     letter-spacing: var(--tracking-tight);
-    margin-bottom: 6px; color: var(--desk-ink);
+    margin-bottom: 12px; color: var(--desk-ink);
   }
-  .desk-board p { font-size: var(--text-sm); line-height: var(--leading-normal); color: var(--desk-ink-dim); }
+  .desk-board p { font-size: clamp(var(--text-sm), 1.5cqw, 1.0625rem); line-height: var(--leading-normal); color: var(--desk-ink-dim); max-width: 34ch; }
 
   /* Narrow: one board under the scene instead of covering it. It shows a
      default prompt until a hotspot is tapped, then that hotspot's copy. All
@@ -1301,6 +1335,9 @@
       background: #111215;
       transform: none;
     }
+    .desk-board::before, .desk-board::after { display: none; }
+    .desk-board h3 { font-size: var(--text-lg); margin-bottom: 6px; }
+    .desk-board p { font-size: var(--text-sm); max-width: none; }
     .desk-board--default h3 { margin-bottom: 4px; }
     /* One board at a time: the outgoing board hides at once, the incoming one fades in. */
     .desk-board:not(.is-active) { transition: none; }
@@ -1310,12 +1347,20 @@
     .desk-scene.is-zoom-editing .desk-camera { transform: scale(1.12) translate3d(-4%, 1%, 0); }
   }
 
+  /* No camera move to clear space, so the board stays narrow enough to sit beside its object. */
+  @media (prefers-reduced-motion: reduce) and (min-width: 761px) {
+    .desk-board { width: 28%; padding: 24px; }
+    .desk-board--clipping, .desk-board--creative-direction { right: 2%; }
+    .desk-board--editing { left: 2%; }
+    .desk-board h3 { font-size: var(--text-lg); }
+    .desk-board p { font-size: var(--text-sm); }
+  }
   @media (prefers-reduced-motion: reduce) {
     .desk-camera,
     .desk-scene .desk-camera { transform: none !important; transition: none; }
-    .desk-board, .desk-board.is-active, .desk-dim { transition: none; }
-    .desk-board { transform: none; }
-    .desk-board.is-active { transform: none; }
+    .desk-board, .desk-board.is-active, .desk-dim, .desk-hotspot { transition: none; }
+    .desk-board, .desk-board.is-active { transform: none; }
+    .desk-board::before, .desk-board::after { display: none; }
     .desk-hotspot::after { animation: none; }
   }
 </style>
@@ -1502,7 +1547,8 @@
         <div class="desk-camera">
           <div class="desk-room" aria-hidden="true">
             <div class="desk-wall">
-            <svg class="desk-city" viewBox="0 0 160 60" preserveAspectRatio="xMidYMax slice" focusable="false">
+            <svg class="desk-city" viewBox="-40 0 240 60" preserveAspectRatio="xMidYMax slice" focusable="false">
+              <g id="desk-city-art">
             <defs><linearGradient id="desk-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05060d"/><stop offset="0.55" stop-color="#101833"/><stop offset="0.85" stop-color="#2a2448"/><stop offset="1" stop-color="#4a2f45"/></linearGradient>
             <radialGradient id="desk-moon"><stop offset="0" stop-color="#f4efe2"/><stop offset="0.35" stop-color="#f4efe2" stop-opacity="0.9"/><stop offset="0.4" stop-color="#cfd8ea" stop-opacity="0.18"/><stop offset="1" stop-color="#cfd8ea" stop-opacity="0"/></radialGradient></defs>
             <rect width="160" height="60" fill="url(#desk-sky)"/>
@@ -1513,6 +1559,9 @@
             <path fill="#090c16" d="M-2.0 60V49.0H8.0V60ZM2.9 49.0v-1.7h.3V49.0ZM8.3 60V49.0H21.9V60ZM22.3 60V28.6H35.0V60ZM36.1 60V26.6H47.9V60ZM48.6 60V26.7H55.7V60ZM56.4 60V24.3H64.5V60ZM60.3 24.3v-3.5h.3V24.3ZM65.1 60V45.3H75.6V60ZM76.7 60V40.5H89.1V60ZM89.6 60V45.6H96.6V60ZM97.7 60V38.7H108.3V60ZM109.3 60V25.5H122.7V60ZM123.8 60V26.9H136.5V60ZM130.0 26.9v-2.8h.3V26.9ZM137.3 60V23.7H146.8V60ZM147.8 60V48.4H156.5V60ZM157.1 60V41.0H165.6V60Z"/>
             <g opacity="0.85"><path fill="#f3c98b" d="M3.4 50.2h0.7v0.9h-0.7zM6.4 55.9h0.7v0.9h-0.7zM6.4 57.8h0.7v0.9h-0.7zM9.2 50.2h0.7v0.9h-0.7zM10.7 50.2h0.7v0.9h-0.7zM18.2 52.1h0.7v0.9h-0.7zM15.2 55.9h0.7v0.9h-0.7zM13.7 57.8h0.7v0.9h-0.7zM30.7 33.6h0.7v0.9h-0.7zM29.2 37.4h0.7v0.9h-0.7zM32.2 41.2h0.7v0.9h-0.7zM23.2 45.0h0.7v0.9h-0.7zM27.7 45.0h0.7v0.9h-0.7zM32.2 46.9h0.7v0.9h-0.7zM33.7 46.9h0.7v0.9h-0.7zM26.2 48.8h0.7v0.9h-0.7zM27.7 48.8h0.7v0.9h-0.7zM29.2 48.8h0.7v0.9h-0.7zM27.7 50.7h0.7v0.9h-0.7zM29.2 52.6h0.7v0.9h-0.7zM24.7 56.4h0.7v0.9h-0.7zM26.2 56.4h0.7v0.9h-0.7zM29.2 56.4h0.7v0.9h-0.7zM41.5 27.8h0.7v0.9h-0.7zM44.5 27.8h0.7v0.9h-0.7zM46.0 27.8h0.7v0.9h-0.7zM38.5 29.7h0.7v0.9h-0.7zM41.5 29.7h0.7v0.9h-0.7zM40.0 31.6h0.7v0.9h-0.7zM38.5 33.5h0.7v0.9h-0.7zM40.0 33.5h0.7v0.9h-0.7zM46.0 33.5h0.7v0.9h-0.7zM38.5 39.2h0.7v0.9h-0.7zM44.5 39.2h0.7v0.9h-0.7zM37.0 44.9h0.7v0.9h-0.7zM41.5 44.9h0.7v0.9h-0.7zM44.5 46.8h0.7v0.9h-0.7zM41.5 48.7h0.7v0.9h-0.7zM44.5 48.7h0.7v0.9h-0.7zM44.5 56.3h0.7v0.9h-0.7zM46.0 56.3h0.7v0.9h-0.7zM43.0 58.2h0.7v0.9h-0.7zM54.0 45.0h0.7v0.9h-0.7zM52.5 50.7h0.7v0.9h-0.7zM51.0 54.5h0.7v0.9h-0.7zM57.3 25.5h0.7v0.9h-0.7zM61.8 29.3h0.7v0.9h-0.7zM61.8 35.0h0.7v0.9h-0.7zM63.3 35.0h0.7v0.9h-0.7zM60.3 36.9h0.7v0.9h-0.7zM61.8 38.8h0.7v0.9h-0.7zM61.8 40.7h0.7v0.9h-0.7zM60.3 46.4h0.7v0.9h-0.7zM61.8 50.2h0.7v0.9h-0.7zM66.0 50.3h0.7v0.9h-0.7zM69.0 54.1h0.7v0.9h-0.7zM73.5 54.1h0.7v0.9h-0.7zM73.5 57.9h0.7v0.9h-0.7zM79.1 43.6h0.7v0.9h-0.7zM83.6 43.6h0.7v0.9h-0.7zM77.6 45.5h0.7v0.9h-0.7zM79.1 45.5h0.7v0.9h-0.7zM82.1 47.4h0.7v0.9h-0.7zM82.1 49.3h0.7v0.9h-0.7zM83.6 49.3h0.7v0.9h-0.7zM83.6 53.1h0.7v0.9h-0.7zM83.6 56.9h0.7v0.9h-0.7zM95.0 46.8h0.7v0.9h-0.7zM95.0 52.5h0.7v0.9h-0.7zM98.6 39.9h0.7v0.9h-0.7zM98.6 41.8h0.7v0.9h-0.7zM104.6 43.7h0.7v0.9h-0.7zM101.6 47.5h0.7v0.9h-0.7zM106.1 47.5h0.7v0.9h-0.7zM103.1 53.2h0.7v0.9h-0.7zM101.6 55.1h0.7v0.9h-0.7zM106.1 55.1h0.7v0.9h-0.7zM100.1 57.0h0.7v0.9h-0.7zM113.2 26.7h0.7v0.9h-0.7zM111.7 28.6h0.7v0.9h-0.7zM120.7 28.6h0.7v0.9h-0.7zM114.7 30.5h0.7v0.9h-0.7zM117.7 32.4h0.7v0.9h-0.7zM114.7 34.3h0.7v0.9h-0.7zM116.2 36.2h0.7v0.9h-0.7zM119.2 38.1h0.7v0.9h-0.7zM120.7 38.1h0.7v0.9h-0.7zM113.2 40.0h0.7v0.9h-0.7zM120.7 40.0h0.7v0.9h-0.7zM116.2 41.9h0.7v0.9h-0.7zM113.2 49.5h0.7v0.9h-0.7zM110.2 51.4h0.7v0.9h-0.7zM113.2 51.4h0.7v0.9h-0.7zM119.2 51.4h0.7v0.9h-0.7zM119.2 53.3h0.7v0.9h-0.7zM120.7 53.3h0.7v0.9h-0.7zM114.7 55.2h0.7v0.9h-0.7zM117.7 55.2h0.7v0.9h-0.7zM111.7 57.1h0.7v0.9h-0.7zM124.7 30.0h0.7v0.9h-0.7zM133.7 30.0h0.7v0.9h-0.7zM130.7 31.9h0.7v0.9h-0.7zM132.2 33.8h0.7v0.9h-0.7zM135.2 39.5h0.7v0.9h-0.7zM130.7 41.4h0.7v0.9h-0.7zM133.7 41.4h0.7v0.9h-0.7zM130.7 45.2h0.7v0.9h-0.7zM124.7 49.0h0.7v0.9h-0.7zM126.2 49.0h0.7v0.9h-0.7zM138.2 26.8h0.7v0.9h-0.7zM139.7 34.4h0.7v0.9h-0.7zM142.7 34.4h0.7v0.9h-0.7zM142.7 36.3h0.7v0.9h-0.7zM142.7 38.2h0.7v0.9h-0.7zM139.7 42.0h0.7v0.9h-0.7zM142.7 42.0h0.7v0.9h-0.7zM139.7 43.9h0.7v0.9h-0.7zM139.7 45.8h0.7v0.9h-0.7zM144.2 45.8h0.7v0.9h-0.7zM138.2 49.6h0.7v0.9h-0.7zM144.2 51.5h0.7v0.9h-0.7zM150.2 55.3h0.7v0.9h-0.7zM153.2 55.3h0.7v0.9h-0.7zM162.5 46.0h0.7v0.9h-0.7zM162.5 47.9h0.7v0.9h-0.7zM159.5 49.8h0.7v0.9h-0.7zM164.0 49.8h0.7v0.9h-0.7z"/><path fill="#9fd0e0" d="M0.4 52.1h0.7v0.9h-0.7zM3.4 52.1h0.7v0.9h-0.7zM19.7 54.0h0.7v0.9h-0.7zM16.7 55.9h0.7v0.9h-0.7zM24.7 33.6h0.7v0.9h-0.7zM29.2 33.6h0.7v0.9h-0.7zM24.7 37.4h0.7v0.9h-0.7zM30.7 43.1h0.7v0.9h-0.7zM23.2 46.9h0.7v0.9h-0.7zM33.7 52.6h0.7v0.9h-0.7zM38.5 31.6h0.7v0.9h-0.7zM37.0 37.3h0.7v0.9h-0.7zM44.5 41.1h0.7v0.9h-0.7zM37.0 46.8h0.7v0.9h-0.7zM54.0 27.9h0.7v0.9h-0.7zM51.0 45.0h0.7v0.9h-0.7zM51.0 52.6h0.7v0.9h-0.7zM58.8 33.1h0.7v0.9h-0.7zM60.3 33.1h0.7v0.9h-0.7zM63.3 33.1h0.7v0.9h-0.7zM58.8 35.0h0.7v0.9h-0.7zM61.8 46.4h0.7v0.9h-0.7zM58.8 50.2h0.7v0.9h-0.7zM60.3 57.8h0.7v0.9h-0.7zM73.5 48.4h0.7v0.9h-0.7zM79.1 56.9h0.7v0.9h-0.7zM95.0 54.4h0.7v0.9h-0.7zM95.0 56.3h0.7v0.9h-0.7zM100.1 39.9h0.7v0.9h-0.7zM98.6 43.7h0.7v0.9h-0.7zM100.1 45.6h0.7v0.9h-0.7zM101.6 51.3h0.7v0.9h-0.7zM98.6 55.1h0.7v0.9h-0.7zM98.6 58.9h0.7v0.9h-0.7zM114.7 26.7h0.7v0.9h-0.7zM119.2 30.5h0.7v0.9h-0.7zM114.7 36.2h0.7v0.9h-0.7zM114.7 45.7h0.7v0.9h-0.7zM116.2 45.7h0.7v0.9h-0.7zM113.2 47.6h0.7v0.9h-0.7zM135.2 30.0h0.7v0.9h-0.7zM130.7 33.8h0.7v0.9h-0.7zM126.2 39.5h0.7v0.9h-0.7zM133.7 39.5h0.7v0.9h-0.7zM133.7 52.8h0.7v0.9h-0.7zM130.7 56.6h0.7v0.9h-0.7zM139.7 24.9h0.7v0.9h-0.7zM144.2 28.7h0.7v0.9h-0.7zM139.7 30.6h0.7v0.9h-0.7zM142.7 30.6h0.7v0.9h-0.7zM144.2 32.5h0.7v0.9h-0.7zM139.7 38.2h0.7v0.9h-0.7zM139.7 47.7h0.7v0.9h-0.7zM148.7 49.6h0.7v0.9h-0.7zM158.0 47.9h0.7v0.9h-0.7zM158.0 51.7h0.7v0.9h-0.7zM162.5 51.7h0.7v0.9h-0.7zM164.0 51.7h0.7v0.9h-0.7zM161.0 55.5h0.7v0.9h-0.7zM162.5 55.5h0.7v0.9h-0.7z"/><path fill="#f08a7a" d="M0.4 54.0h0.7v0.9h-0.7zM0.4 55.9h0.7v0.9h-0.7zM4.9 57.8h0.7v0.9h-0.7zM16.7 54.0h0.7v0.9h-0.7zM10.7 55.9h0.7v0.9h-0.7zM9.2 57.8h0.7v0.9h-0.7zM19.7 57.8h0.7v0.9h-0.7zM23.2 33.6h0.7v0.9h-0.7zM29.2 35.5h0.7v0.9h-0.7zM27.7 41.2h0.7v0.9h-0.7zM27.7 52.6h0.7v0.9h-0.7zM40.0 43.0h0.7v0.9h-0.7zM38.5 50.6h0.7v0.9h-0.7zM43.0 50.6h0.7v0.9h-0.7zM54.0 37.4h0.7v0.9h-0.7zM54.0 39.3h0.7v0.9h-0.7zM51.0 41.2h0.7v0.9h-0.7zM54.0 43.1h0.7v0.9h-0.7zM51.0 46.9h0.7v0.9h-0.7zM54.0 58.3h0.7v0.9h-0.7zM60.3 25.5h0.7v0.9h-0.7zM58.8 27.4h0.7v0.9h-0.7zM63.3 36.9h0.7v0.9h-0.7zM58.8 38.8h0.7v0.9h-0.7zM58.8 44.5h0.7v0.9h-0.7zM58.8 54.0h0.7v0.9h-0.7zM63.3 55.9h0.7v0.9h-0.7zM70.5 48.4h0.7v0.9h-0.7zM67.5 50.3h0.7v0.9h-0.7zM66.0 54.1h0.7v0.9h-0.7zM79.1 41.7h0.7v0.9h-0.7zM85.1 41.7h0.7v0.9h-0.7zM77.6 43.6h0.7v0.9h-0.7zM92.0 52.5h0.7v0.9h-0.7zM92.0 54.4h0.7v0.9h-0.7zM92.0 56.3h0.7v0.9h-0.7zM106.1 43.7h0.7v0.9h-0.7zM106.1 49.4h0.7v0.9h-0.7zM104.6 55.1h0.7v0.9h-0.7zM117.7 26.7h0.7v0.9h-0.7zM111.7 30.5h0.7v0.9h-0.7zM114.7 32.4h0.7v0.9h-0.7zM117.7 38.1h0.7v0.9h-0.7zM119.2 43.8h0.7v0.9h-0.7zM120.7 55.2h0.7v0.9h-0.7zM135.2 28.1h0.7v0.9h-0.7zM141.2 36.3h0.7v0.9h-0.7zM138.2 40.1h0.7v0.9h-0.7zM141.2 43.9h0.7v0.9h-0.7zM142.7 49.6h0.7v0.9h-0.7zM150.2 57.2h0.7v0.9h-0.7zM162.5 42.2h0.7v0.9h-0.7zM158.0 53.6h0.7v0.9h-0.7z"/></g>
             <g fill="#07080b"><rect x="52.6" width="1.4" height="60"/><rect x="106" width="1.4" height="60"/><rect y="0" width="160" height="1.2"/><rect y="58.6" width="160" height="1.4"/></g>
+              </g>
+              <use href="#desk-city-art" transform="scale(-1,1)"/>
+              <use href="#desk-city-art" transform="translate(320,0) scale(-1,1)"/>
             </svg>
             </div>
             <div class="desk-lamp-glow"></div>
@@ -1536,6 +1585,7 @@
             </svg>
             <div class="desk-surface"></div>
             <div class="desk-light-pool"></div>
+            <div class="desk-dim"></div>
           </div>
 
           <button type="button" class="desk-hotspot desk-hotspot--clipping" data-service="clipping" aria-label="Clipping: the YouTube play-button plaque" aria-controls="desk-board-clipping" aria-expanded="false">
@@ -1579,7 +1629,6 @@
             <span class="desk-monitor-foot" aria-hidden="true"></span>
             <span class="desk-tag" aria-hidden="true">03 Editing</span>
           </button>
-          <div class="desk-dim" aria-hidden="true"></div>
         </div>
         <div class="desk-vignette" aria-hidden="true"></div>
         <div class="noise desk-noise" aria-hidden="true"></div>
@@ -2311,6 +2360,7 @@
   var coarse = window.matchMedia('(pointer: coarse)');
   var active = null;
   var leaveTimer = null;
+  var enterTimer = null;
   var lastPointerDown = 0;
   var lastPointerType = '';
 
@@ -2345,16 +2395,53 @@
     return el.getAttribute('data-service');
   }
 
+  // The camera slides the object away from a resting cursor, so "still
+  // hovering" also counts the spot the object started at and its board.
+  var pointerX = -1, pointerY = -1;
+  function stillHovering() {
+    if (!active) return false;
+    var h = scene.querySelector('.desk-hotspot.is-active');
+    var b = stage.querySelector('.desk-board.is-active');
+    if ((h && h.matches(':hover')) || (b && b.matches(':hover'))) return true;
+    if (!h) return false;
+    var r = scene.getBoundingClientRect();
+    var x = pointerX - r.left - scene.clientLeft, y = pointerY - r.top - scene.clientTop;
+    return x >= h.offsetLeft && x <= h.offsetLeft + h.offsetWidth &&
+           y >= h.offsetTop && y <= h.offsetTop + h.offsetHeight;
+  }
+  function scheduleLeave() {
+    clearTimeout(leaveTimer);
+    leaveTimer = setTimeout(function () {
+      if (!stillHovering()) setActive(keyboardFocused());
+    }, 120);
+  }
+  stage.addEventListener('pointermove', function (e) {
+    if (isTap(e.pointerType)) return;
+    pointerX = e.clientX; pointerY = e.clientY;
+    if (!active || keyboardFocused() === active) return;
+    if (stillHovering()) clearTimeout(leaveTimer);
+    else if (!e.target.closest('.desk-hotspot')) scheduleLeave();
+  });
+  stage.addEventListener('pointerleave', function (e) {
+    if (isTap(e.pointerType)) return;
+    pointerX = pointerY = -1;
+    scheduleLeave();
+  });
+
   hotspots.forEach(function (h) {
     var service = h.getAttribute('data-service');
 
     h.addEventListener('pointerenter', function (e) {
-      if (!isTap(e.pointerType)) setActive(service);
+      if (isTap(e.pointerType)) return;
+      pointerX = e.clientX; pointerY = e.clientY;
+      // Hover intent: a cursor only passing over on its way elsewhere does nothing.
+      clearTimeout(enterTimer);
+      enterTimer = setTimeout(function () {
+        if (h.matches(':hover')) setActive(service);
+      }, active ? 60 : 110);
     });
     h.addEventListener('pointerleave', function (e) {
-      if (isTap(e.pointerType)) return;
-      clearTimeout(leaveTimer);
-      leaveTimer = setTimeout(function () { setActive(keyboardFocused()); }, 120);
+      if (!isTap(e.pointerType)) scheduleLeave();
     });
     h.addEventListener('focus', function () {
       if (!pointerRecent()) setActive(service);
