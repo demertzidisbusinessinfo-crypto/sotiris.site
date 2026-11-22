@@ -5,3 +5,6 @@ tests/
 assets/755033407_1044424601309054_8876889588487636502_n.png
 assets/snapshot.jpg
 assets/desktop.ini
+
+# Saved copies of removed sections, kept in the repo, never deployed.
+archive/
