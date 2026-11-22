@@ -974,6 +974,254 @@
     .quiz-opt, .quiz-bar > span { transition: none; }
   }
 </style>
+<style id="engine-styles">
+  /* ---------- CONTENT ENGINE BOARD ----------
+     A dark flow board on the light page: brand identity -> filming ->
+     YouTube long-form -> short-form (clips from the long video, plus reels
+     filmed on purpose). The arrows are drawn by the last <script> on the
+     page from where the pieces actually sit, so they survive any reflow. */
+  #engine { padding-bottom: 40px; }
+  #engine .section-head { max-width: none; margin-bottom: 6px; container-type: inline-size; }
+  #engine-title {
+    font-weight: 700;
+    font-size: 15.8cqw;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    text-align: center;
+    margin-bottom: 0;
+  }
+  #engine-title span { display: block; white-space: nowrap; }
+  .eng-hint {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5em;
+    margin-top: clamp(22px, 4cqw, 48px);
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: min(var(--text-sm), 2.7cqw);
+    line-height: 1.3;
+    white-space: nowrap;
+    color: var(--ink-dim);
+  }
+  .eng-hint svg { flex: none; width: 1.15em; height: 1.15em; }
+
+  .eng-board {
+    --eng-line: rgba(216, 186, 152, 0.4);
+    --eng-line-strong: #E6CDAC;
+    --eng-fill: rgba(216, 186, 152, 0.05);
+    --eng-ink: #EFE6DA;
+    --eng-ink-dim: rgba(239, 230, 218, 0.56);
+    --eng-red: #B4282A;
+    position: relative;
+    container-type: inline-size;
+    overflow: hidden;
+    border-radius: var(--radius-4);
+    border: 1px solid rgba(216, 186, 152, 0.16);
+    background:
+      radial-gradient(120% 90% at 12% 0%, rgba(216, 186, 152, 0.07), transparent 60%),
+      #15100D;
+    box-shadow: var(--shadow-3);
+    color: var(--eng-ink);
+  }
+  .eng-board::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: var(--grain); opacity: 0.08; mix-blend-mode: screen;
+  }
+  .eng-flow {
+    --eng-h: clamp(80px, 11.8cqw, 140px);
+    --eng-card-h: calc(var(--eng-h) * 0.88);
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    grid-template-rows: auto 1fr auto;
+    justify-content: space-between;
+    row-gap: clamp(14px, 2cqw, 22px);
+    padding: clamp(26px, 5cqw, 56px) clamp(22px, 5.4cqw, 62px) clamp(24px, 4.4cqw, 50px);
+  }
+  .eng-step {
+    display: grid; grid-row: 1 / span 3; grid-template-rows: subgrid;
+    min-width: 0; padding: 0; border: 0; background: none;
+    font: inherit; color: inherit; text-align: left; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+  .eng-step:focus-visible { outline: 2px solid var(--eng-line-strong); outline-offset: 10px; border-radius: var(--radius-2); }
+  .eng-label, .eng-row-label {
+    font-family: var(--font-mono); font-size: var(--text-2xs); line-height: 1.4;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--eng-ink-dim);
+    transition: color var(--dur-slow) var(--ease-out);
+  }
+  /* Text never widens a column: the art sets the width, text wraps to it. */
+  .eng-label, .eng-cap, .eng-row-label { display: block; width: 0; min-width: 100%; }
+  .eng-art { display: block; }
+  .eng-art svg { display: block; overflow: visible; }
+  .eng-ico { height: var(--eng-h); width: auto; }
+  .eng-ico * { vector-effect: non-scaling-stroke; }
+  .eng-stroke {
+    fill: var(--eng-fill); stroke: var(--eng-line); stroke-width: 1.2;
+    stroke-linejoin: round; stroke-linecap: round;
+    transition: stroke var(--dur-slow) var(--ease-out), fill var(--dur-slow) var(--ease-out);
+  }
+  .eng-red { fill: var(--eng-red); }
+
+  .eng-folder { display: block; position: relative; width: max-content; }
+  .eng-folder-face {
+    position: absolute; left: 0; right: 0; top: 30%; bottom: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: calc(var(--eng-h) * 0.085);
+  }
+  .eng-folder-name {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: calc(var(--eng-h) * 0.128); line-height: 1.1;
+    letter-spacing: var(--tracking-tight); white-space: nowrap;
+  }
+  .eng-swatches { display: flex; gap: calc(var(--eng-h) * 0.05); }
+  .eng-swatches i {
+    width: calc(var(--eng-h) * 0.1); height: calc(var(--eng-h) * 0.1); border-radius: 50%;
+    background: var(--tan);
+  }
+  .eng-swatches i:first-child { background: var(--eng-red); }
+  .eng-swatches i:last-child { background: var(--skyblue); }
+
+  .eng-player, .eng-thumbs i, .eng-cards i {
+    display: block;
+    border: 1px solid var(--eng-line); border-radius: calc(var(--eng-h) * 0.08);
+    background: var(--eng-fill);
+    transition: border-color var(--dur-slow) var(--ease-out), background-color var(--dur-slow) var(--ease-out);
+  }
+  .eng-player {
+    position: relative; height: var(--eng-h); aspect-ratio: 16 / 9;
+    display: grid; place-items: center;
+  }
+  .eng-player svg { width: 16%; height: auto; }
+  .eng-player::after {
+    content: ""; position: absolute; left: 8%; right: 8%; bottom: 11%; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--eng-red) 38%, var(--eng-line) 38%);
+  }
+  .eng-thumbs { display: flex; gap: calc(var(--eng-h) * 0.08); margin-top: calc(var(--eng-h) * 0.08); }
+  .eng-thumbs i { flex: 1; height: calc(var(--eng-h) * 0.3); }
+
+  .eng-shorts { display: grid; row-gap: calc(var(--eng-h) * 0.11); }
+  .eng-row { display: block; }
+  .eng-cards { display: flex; gap: calc(var(--eng-h) * 0.09); width: max-content; }
+  .eng-cards i { height: var(--eng-card-h); aspect-ratio: 9 / 16; border-radius: calc(var(--eng-h) * 0.07); }
+  .eng-row-label { margin-top: 8px; font-size: 0.625rem; letter-spacing: 0.12em; }
+
+  .eng-cap-title {
+    display: block;
+    font-family: var(--font-display); font-weight: 600; font-size: clamp(var(--text-sm), 1.55cqw, 1.125rem);
+    line-height: var(--leading-snug); letter-spacing: var(--tracking-tight);
+  }
+  .eng-cap-sub { display: block; margin-top: 3px; font-size: var(--text-xs); line-height: 1.4; color: var(--eng-ink-dim); }
+
+  .eng-arrows { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .eng-arrow { transition: opacity var(--dur-slow) var(--ease-out); }
+  .eng-line {
+    fill: none; stroke: #D8BA98; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 1; stroke-dashoffset: 0;
+    transition: stroke var(--dur-slow) var(--ease-out);
+  }
+  .eng-head { fill: #D8BA98; transition: fill var(--dur-slow) var(--ease-out); }
+
+  /* One step picked: it and its arrows brighten, the rest step back. */
+  .eng-board.has-active .eng-step:not(.is-active) { opacity: 0.36; }
+  .eng-board.has-active .eng-arrow:not(.is-active) { opacity: 0.28; }
+  .eng-step.is-active { --eng-line: var(--eng-line-strong); --eng-fill: rgba(216, 186, 152, 0.1); }
+  .eng-step.is-active .eng-label { color: var(--eng-line-strong); }
+  .eng-arrow.is-active .eng-line { stroke: #F3DFC2; }
+  .eng-arrow.is-active .eng-head { fill: #F3DFC2; }
+
+  /* Plays once when the board scrolls into view. Only hidden when the script
+     is there to show it again. */
+  .eng-board.is-ready:not(.is-in) .eng-step,
+  .eng-board.is-ready:not(.is-in) .eng-arrow { opacity: 0; }
+  .eng-board.is-in .eng-step { animation: eng-step-in 520ms var(--ease-out) backwards; }
+  .eng-board.is-in .eng-line { animation: eng-draw 520ms var(--ease-out) backwards; }
+  .eng-board.is-in .eng-head { animation: eng-fade 200ms linear backwards; }
+  .eng-board.is-in .eng-step:nth-of-type(1) { animation-delay: 0ms; }
+  .eng-board.is-in .eng-step:nth-of-type(2) { animation-delay: 420ms; }
+  .eng-board.is-in .eng-step:nth-of-type(3) { animation-delay: 840ms; }
+  .eng-board.is-in .eng-step:nth-of-type(4) { animation-delay: 1260ms; }
+  .eng-board.is-in [data-arrow="1"] .eng-line { animation-delay: 220ms; }
+  .eng-board.is-in [data-arrow="1"] .eng-head { animation-delay: 620ms; }
+  .eng-board.is-in [data-arrow="2"] .eng-line { animation-delay: 640ms; }
+  .eng-board.is-in [data-arrow="2"] .eng-head { animation-delay: 1040ms; }
+  .eng-board.is-in [data-arrow="3"] .eng-line { animation-delay: 1060ms; }
+  .eng-board.is-in [data-arrow="3"] .eng-head { animation-delay: 1460ms; }
+  .eng-board.is-in [data-arrow="4"] .eng-line { animation-delay: 760ms; animation-duration: 900ms; }
+  .eng-board.is-in [data-arrow="4"] .eng-head { animation-delay: 1560ms; }
+  @keyframes eng-step-in { from { opacity: 0; transform: translateY(10px); } }
+  @keyframes eng-draw { from { stroke-dashoffset: 1; } }
+  @keyframes eng-fade { from { opacity: 0; } }
+
+  /* The four steps in words, under the board. */
+  .eng-list {
+    list-style: none; margin: clamp(22px, 3vw, 34px) 0 0; padding: 0;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(18px, 2.4vw, 30px);
+  }
+  .eng-list li {
+    position: relative; padding-top: 22px; cursor: default;
+    border-top: 2px solid rgba(0, 0, 0, 0.13);
+    transition: border-color var(--dur-slow) var(--ease-out);
+  }
+  .eng-list li.is-active { border-top-color: var(--maroon); }
+  .eng-num { display: block; font-family: var(--font-mono); font-size: var(--text-sm); color: var(--ink-faint); margin-bottom: 6px; }
+  .eng-list h3 {
+    font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg);
+    line-height: 1.15; letter-spacing: var(--tracking-display); text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .eng-list p { font-size: var(--text-md); line-height: var(--leading-normal); color: var(--ink-dim); max-width: 30ch; }
+
+  @media (max-width: 900px) {
+    .eng-list { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Narrow: the flow runs top to bottom. Art on the left, words beside it;
+     the short-form step takes the full width for its two rows. */
+  @media (max-width: 760px) {
+    .eng-hint { justify-content: center; }
+    .eng-board { border-radius: var(--radius-3); }
+    .eng-flow {
+      --eng-h: 88px;
+      --eng-card-h: 112px;
+      --eng-vertical: 1;
+      display: flex; flex-direction: column; gap: 38px;
+      padding: 26px 20px 28px 50px;
+    }
+    .eng-step {
+      grid-row: auto;
+      grid-template-columns: 124px 1fr; grid-template-rows: auto auto;
+      column-gap: 18px; row-gap: 6px;
+    }
+    .eng-step .eng-art { grid-column: 1; grid-row: 1 / span 2; }
+    .eng-step .eng-label { grid-column: 2; align-self: end; }
+    .eng-step .eng-cap { grid-column: 2; align-self: start; }
+    .eng-player { height: auto; width: 100%; }
+    .eng-thumbs i { height: 22px; }
+    .eng-step--shorts { grid-template-columns: 1fr; row-gap: 12px; }
+    .eng-step--shorts .eng-art,
+    .eng-step--shorts .eng-label,
+    .eng-step--shorts .eng-cap { grid-column: 1; grid-row: auto; }
+    .eng-shorts { row-gap: 14px; }
+    .eng-cards { gap: 10px; }
+    .eng-cap-title { font-size: 1rem; }
+  }
+  @media (max-width: 520px) {
+    .eng-list { grid-template-columns: 1fr; gap: 16px; }
+    .eng-list li { padding-top: 14px; }
+    .eng-list p { max-width: none; font-size: var(--text-sm); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eng-board.is-in .eng-step,
+    .eng-board.is-in .eng-line,
+    .eng-board.is-in .eng-head { animation: none; }
+    .eng-step, .eng-arrow, .eng-line, .eng-head, .eng-stroke, .eng-list li { transition: none; }
+  }
+</style>
 </head>
 <body>
 
@@ -1143,6 +1391,121 @@
       </div>
 
     </div>
+  </section>
+
+  <!-- CONTENT ENGINE -->
+  <section id="engine" aria-labelledby="engine-title">
+    <div class="section-head reveal">
+      <h2 id="engine-title"><span>How does the</span> <span class="accent-italic">Content Engine</span> <span>work?</span></h2>
+      <p class="eng-hint">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.6"/><path d="M8 7.3v3.9"/><circle cx="8" cy="4.9" r="0.35" fill="currentColor"/></svg>
+        Hover, focus or tap a step to follow it through the board
+      </p>
+    </div>
+
+    <div class="eng-board">
+      <div class="eng-flow">
+        <button type="button" class="eng-step" data-step="1" aria-pressed="false" aria-label="Step 1: brand identity" aria-describedby="eng-text-1">
+          <span class="eng-label" aria-hidden="true">1 · Identity</span>
+          <span class="eng-art" aria-hidden="true">
+            <span class="eng-folder">
+            <svg class="eng-ico" data-anchor viewBox="0 0 160 132" focusable="false">
+              <path class="eng-stroke" d="M1 123V12a8 8 0 0 1 8-8h49a8 8 0 0 1 6.4 3.2l6.2 8.2a8 8 0 0 0 6.4 3.2H151a8 8 0 0 1 8 8V123a8 8 0 0 1-8 8H9a8 8 0 0 1-8-8Z"/>
+              <path class="eng-stroke" d="M1 38h158"/>
+            </svg>
+            <span class="eng-folder-face">
+              <span class="eng-folder-name">Brand Identity</span>
+              <span class="eng-swatches"><i></i><i></i><i></i></span>
+            </span>
+            </span>
+          </span>
+          <span class="eng-cap" aria-hidden="true">
+            <span class="eng-cap-title">Your brand identity</span>
+            <span class="eng-cap-sub">Look · tone · positioning</span>
+          </span>
+        </button>
+
+        <button type="button" class="eng-step" data-step="2" aria-pressed="false" aria-label="Step 2: filming" aria-describedby="eng-text-2">
+          <span class="eng-label" aria-hidden="true">2 · Filming</span>
+          <span class="eng-art" aria-hidden="true">
+            <svg class="eng-ico" data-anchor viewBox="0 0 120 104" focusable="false">
+              <rect class="eng-stroke" x="20" y="15" width="30" height="13" rx="4"/>
+              <rect class="eng-stroke" x="4" y="28" width="72" height="48" rx="8"/>
+              <path class="eng-stroke" d="M76 39l27-8a5 5 0 0 1 6 5v32a5 5 0 0 1-6 5l-27-8Z"/>
+              <circle class="eng-stroke" cx="40" cy="52" r="13"/>
+              <circle class="eng-red" cx="15" cy="39" r="3.2"/>
+              <path class="eng-stroke" d="M40 76v8M40 84l-17 18M40 84v18M40 84l17 18"/>
+            </svg>
+          </span>
+          <span class="eng-cap" aria-hidden="true">
+            <span class="eng-cap-title">One planned shoot</span>
+            <span class="eng-cap-sub">Long video · reels on purpose</span>
+          </span>
+        </button>
+
+        <button type="button" class="eng-step" data-step="3" aria-pressed="false" aria-label="Step 3: YouTube long-form" aria-describedby="eng-text-3">
+          <span class="eng-label" aria-hidden="true">3 · Long-form</span>
+          <span class="eng-art" aria-hidden="true">
+            <span class="eng-player" data-anchor>
+              <svg viewBox="0 0 20 22" focusable="false"><path class="eng-red" d="M2 1.6v18.8a1 1 0 0 0 1.5.9l15.6-9.4a1 1 0 0 0 0-1.8L3.5.7A1 1 0 0 0 2 1.6Z"/></svg>
+            </span>
+            <span class="eng-thumbs"><i></i><i></i></span>
+          </span>
+          <span class="eng-cap" aria-hidden="true">
+            <span class="eng-cap-title">YouTube long-form</span>
+            <span class="eng-cap-sub">Edited in your identity</span>
+          </span>
+        </button>
+
+        <button type="button" class="eng-step eng-step--shorts" data-step="4" aria-pressed="false" aria-label="Step 4: short-form, clips and intentionally filmed reels" aria-describedby="eng-text-4">
+          <span class="eng-label" aria-hidden="true">4 · Short-form</span>
+          <span class="eng-art eng-shorts" aria-hidden="true">
+            <span class="eng-row">
+              <span class="eng-cards" data-anchor="clips"><i></i><i></i><i></i></span>
+              <span class="eng-row-label">Clips</span>
+            </span>
+            <span class="eng-row">
+              <span class="eng-cards" data-anchor="reels"><i></i><i></i><i></i></span>
+              <span class="eng-row-label">Intentionally filmed reels</span>
+            </span>
+          </span>
+          <span class="eng-cap" aria-hidden="true">
+            <span class="eng-cap-title">Short-form videos</span>
+            <span class="eng-cap-sub">Clips · filmed reels</span>
+          </span>
+        </button>
+
+        <svg class="eng-arrows" aria-hidden="true" focusable="false">
+          <g class="eng-arrow" data-arrow="1" data-steps="1 2"><path class="eng-line" pathLength="1"/><path class="eng-head"/></g>
+          <g class="eng-arrow" data-arrow="2" data-steps="2 3"><path class="eng-line" pathLength="1"/><path class="eng-head"/></g>
+          <g class="eng-arrow" data-arrow="3" data-steps="3 4"><path class="eng-line" pathLength="1"/><path class="eng-head"/></g>
+          <g class="eng-arrow" data-arrow="4" data-steps="2 4"><path class="eng-line" pathLength="1"/><path class="eng-head"/></g>
+        </svg>
+      </div>
+    </div>
+
+    <ol class="eng-list">
+      <li id="eng-text-1" data-step="1">
+        <span class="eng-num" aria-hidden="true">01</span>
+        <h3>Brand identity</h3>
+        <p>We build the look, tone and positioning around your real story and personality.</p>
+      </li>
+      <li id="eng-text-2" data-step="2">
+        <span class="eng-num" aria-hidden="true">02</span>
+        <h3>Filming</h3>
+        <p>You film once, with a plan: one long-form video and a few reels shot on purpose.</p>
+      </li>
+      <li id="eng-text-3" data-step="3">
+        <span class="eng-num" aria-hidden="true">03</span>
+        <h3>YouTube long-form</h3>
+        <p>We edit the long video in your brand identity and publish it.</p>
+      </li>
+      <li id="eng-text-4" data-step="4">
+        <span class="eng-num" aria-hidden="true">04</span>
+        <h3>Short-form</h3>
+        <p>The long video is cut into clips, and the filmed reels are edited to match.</p>
+      </li>
+    </ol>
   </section>
 
   <!-- SERVICES -->
@@ -1830,6 +2193,132 @@
       }, reduceMotion ? 0 : 220);
     }
   });
+})();
+</script>
+<script>
+/* Content engine board: self-contained, touches nothing else on the page.
+   Draws the four arrows from where the pieces sit, plays the board in once
+   when it scrolls into view, and lights one step at a time.
+   Mouse: hover a step (on the board or in the list under it).
+   Keyboard: focus a step, Escape clears. Touch: tap toggles, tap elsewhere clears. */
+(function () {
+  var board = document.querySelector('.eng-board');
+  if (!board) return;
+  var flow = board.querySelector('.eng-flow');
+  var svg = flow.querySelector('.eng-arrows');
+  var steps = Array.prototype.slice.call(flow.querySelectorAll('.eng-step'));
+  var texts = Array.prototype.slice.call(document.querySelectorAll('.eng-list li'));
+  var arrows = Array.prototype.slice.call(svg.querySelectorAll('.eng-arrow'));
+  var GAP = 9, HEAD = 7;
+
+  function box(el) {
+    var f = flow.getBoundingClientRect(), r = el.getBoundingClientRect();
+    var l = r.left - f.left, t = r.top - f.top;
+    return { l: l, t: t, r: l + r.width, b: t + r.height, cx: l + r.width / 2, cy: t + r.height / 2 };
+  }
+  function set(n, line, tip, dir) {
+    var g = arrows[n - 1], x = tip[0], y = tip[1];
+    g.querySelector('.eng-line').setAttribute('d', line);
+    g.querySelector('.eng-head').setAttribute('d', dir === 'down'
+      ? 'M' + x + ' ' + y + 'l-4.5 -' + HEAD + 'h9z'
+      : 'M' + x + ' ' + y + 'l-' + HEAD + ' -4.5v9z');
+  }
+  function across(n, from, to, y) {
+    var x1 = from.r + GAP, x2 = to.l - GAP;
+    set(n, 'M' + x1 + ' ' + y + 'H' + (x2 - HEAD + 1), [x2, y], 'right');
+  }
+  function down(n, x, y1, y2) {
+    set(n, 'M' + x + ' ' + (y1 + GAP) + 'V' + (y2 - GAP - HEAD + 1), [x, y2 - GAP], 'down');
+  }
+
+  function draw() {
+    var anchors = flow.querySelectorAll('[data-anchor]');
+    var folder = box(anchors[0]), cam = box(anchors[1]), player = box(anchors[2]);
+    var clips = box(anchors[3]), reels = box(anchors[4]);
+    var x, tipX, R;
+    if (getComputedStyle(flow).getPropertyValue('--eng-vertical').trim() === '1') {
+      var art2 = box(steps[1].querySelector('.eng-art'));
+      var art3 = box(steps[2].querySelector('.eng-art'));
+      x = art2.cx;
+      down(1, x, box(steps[0].querySelector('.eng-art')).b, art2.t);
+      down(2, x, art2.b, art3.t);
+      down(3, x, art3.b, box(steps[3]).t);
+      /* Filming -> reels: out of the camera's left side, down the gutter,
+         into the bottom row. */
+      R = 10;
+      var gx = cam.l - 28;
+      tipX = reels.l - GAP + 2;
+      set(4, 'M' + (cam.l - 4) + ' ' + cam.cy + 'H' + (gx + R) +
+        'Q' + gx + ' ' + cam.cy + ' ' + gx + ' ' + (cam.cy + R) +
+        'V' + (reels.cy - R) +
+        'Q' + gx + ' ' + reels.cy + ' ' + (gx + R) + ' ' + reels.cy +
+        'H' + (tipX - HEAD + 1), [tipX, reels.cy], 'right');
+    } else {
+      across(1, folder, cam, folder.cy);
+      across(2, cam, player, player.cy);
+      across(3, player, clips, player.cy);
+      /* Filming -> reels: down from under the camera, then along the bottom
+         row, clear of the long-form column. */
+      R = 14;
+      x = cam.l + (cam.r - cam.l) / 3;
+      tipX = reels.l - GAP;
+      set(4, 'M' + x + ' ' + (cam.b + GAP) + 'V' + (reels.cy - R) +
+        'Q' + x + ' ' + reels.cy + ' ' + (x + R) + ' ' + reels.cy +
+        'H' + (tipX - HEAD + 1), [tipX, reels.cy], 'right');
+    }
+  }
+
+  var active = null;
+  function setActive(n) {
+    active = n;
+    board.classList.toggle('has-active', !!n);
+    steps.forEach(function (s) {
+      var on = s.getAttribute('data-step') === n;
+      s.classList.toggle('is-active', on);
+      s.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    texts.forEach(function (t) { t.classList.toggle('is-active', t.getAttribute('data-step') === n); });
+    arrows.forEach(function (a) {
+      a.classList.toggle('is-active', !!n && a.getAttribute('data-steps').split(' ').indexOf(n) > -1);
+    });
+  }
+
+  var lastPointer = 'mouse';
+  function isTap() { return lastPointer === 'touch' || lastPointer === 'pen'; }
+  document.addEventListener('pointerdown', function (e) {
+    lastPointer = e.pointerType || 'mouse';
+    if (active && isTap() && !(e.target.closest && e.target.closest('.eng-step, .eng-list li'))) setActive(null);
+  });
+  steps.concat(texts).forEach(function (el) {
+    var n = el.getAttribute('data-step');
+    el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') setActive(n); });
+    el.addEventListener('pointerleave', function (e) {
+      if (e.pointerType === 'mouse' && active === n && document.activeElement !== steps[n - 1]) setActive(null);
+    });
+    el.addEventListener('click', function () { setActive(isTap() && active === n ? null : n); });
+  });
+  steps.forEach(function (s) {
+    var n = s.getAttribute('data-step');
+    s.addEventListener('focus', function () { if (s.matches(':focus-visible')) setActive(n); });
+    s.addEventListener('blur', function () { if (active === n) setActive(null); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && active) setActive(null);
+  });
+
+  draw();
+  window.addEventListener('resize', draw);
+  window.addEventListener('load', draw);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+  if ('ResizeObserver' in window) new ResizeObserver(draw).observe(flow);
+
+  if ('IntersectionObserver' in window) {
+    board.classList.add('is-ready');
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) { board.classList.add('is-in'); io.disconnect(); }
+    }, { threshold: 0.25 });
+    io.observe(board);
+  }
 })();
 </script>
 </body>
