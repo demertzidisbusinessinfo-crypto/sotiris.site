@@ -1309,6 +1309,20 @@
     margin-bottom: 0;
   }
   #desk-title span { display: block; white-space: nowrap; }
+  .desk-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    margin-top: clamp(14px, 2.4cqw, 28px);
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: min(var(--text-sm), 2.7cqw);
+    line-height: 1.3;
+    white-space: nowrap;
+    color: var(--ink-dim);
+  }
+  .desk-hint svg { flex: none; width: 1.15em; height: 1.15em; }
   .desk-board p + p { margin-top: 0.7em; }
   .desk-board--default { display: none; }
   .desk-board--default p { font-weight: 400; }
@@ -1550,6 +1564,10 @@
   <section id="desk" aria-labelledby="desk-title">
     <div class="section-head reveal">
       <h2 id="desk-title"><span>How does the</span> <span class="accent-italic">Content Engine</span> <span>work?</span></h2>
+      <p class="desk-hint">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.6"/><path d="M8 7.3v3.9"/><circle cx="8" cy="4.9" r="0.35" fill="currentColor"/></svg>
+        Hover, focus or tap each piece of the setup to see what gets made there
+      </p>
     </div>
     <div class="desk-stage">
       <div class="desk-scene">
