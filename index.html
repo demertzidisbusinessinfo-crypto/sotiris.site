@@ -1302,6 +1302,12 @@
       transform: none;
     }
     .desk-board--default h3 { margin-bottom: 4px; }
+    /* One board at a time: the outgoing board hides at once, the incoming one fades in. */
+    .desk-board:not(.is-active) { transition: none; }
+    /* Gentler zoom so every hotspot stays tappable. */
+    .desk-scene.is-zoom-clipping .desk-camera { transform: scale(1.12) translate3d(4%, 1%, 0); }
+    .desk-scene.is-zoom-creative-direction .desk-camera { transform: scale(1.12) translate3d(0, 2%, 0); }
+    .desk-scene.is-zoom-editing .desk-camera { transform: scale(1.12) translate3d(-4%, 1%, 0); }
   }
 
   @media (prefers-reduced-motion: reduce) {
