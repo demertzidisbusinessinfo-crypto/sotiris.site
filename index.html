@@ -1159,6 +1159,17 @@
     transition: border-color var(--dur-slow) var(--ease-out);
   }
   .eng-list li.is-active { border-top-color: var(--maroon); }
+
+  /* Closing line under the steps, set like the section title. */
+  .eng-outro { container-type: inline-size; margin-top: clamp(56px, 8vw, 104px); }
+  .eng-outro p {
+    font-family: var(--font-display); font-weight: 700; color: var(--ink);
+    font-size: 9.4cqw; line-height: 1; letter-spacing: -0.045em; text-align: center;
+  }
+  .eng-outro p > span { display: block; white-space: nowrap; }
+  .eng-outro .accent-italic {
+    color: var(--maroon); font-family: var(--font-serif); font-style: italic; font-weight: 600;
+  }
   .eng-num { display: block; font-family: var(--font-mono); font-size: var(--text-sm); color: var(--ink-faint); margin-bottom: 6px; }
   .eng-list h3 {
     font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg);
@@ -1205,6 +1216,8 @@
     .eng-list { grid-template-columns: 1fr; gap: 16px; }
     .eng-list li { padding-top: 14px; }
     .eng-list p { max-width: none; font-size: var(--text-sm); }
+    .eng-outro p { font-size: 16.6cqw; }
+    .eng-outro p > span > span { display: block; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1497,6 +1510,10 @@
         <p>The long video is cut into clips, and the filmed reels are edited to match.</p>
       </li>
     </ol>
+
+    <div class="eng-outro reveal">
+      <p><span><span>Spend LESS</span> <span>time filming</span></span> <span><span>&amp; get</span> <span class="accent-italic">more content</span></span></p>
+    </div>
   </section>
 
   <!-- SERVICES -->
