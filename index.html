@@ -1164,9 +1164,11 @@
   .eng-outro { container-type: inline-size; margin-top: clamp(56px, 8vw, 104px); }
   .eng-outro p {
     font-family: var(--font-display); font-weight: 700; color: var(--ink);
-    font-size: 9.4cqw; line-height: 1; letter-spacing: -0.045em; text-align: center;
+    font-size: 10.4cqw; line-height: 1; letter-spacing: -0.045em; text-align: center;
   }
   .eng-outro p > span { display: block; white-space: nowrap; }
+  /* Archivo's ampersand is a stylised "Et"; use the plain one. */
+  .eng-amp { font-family: var(--font-body); font-weight: 600; letter-spacing: 0; }
   .eng-outro .accent-italic {
     color: var(--maroon); font-family: var(--font-serif); font-style: italic; font-weight: 600;
   }
@@ -1512,7 +1514,7 @@
     </ol>
 
     <div class="eng-outro reveal">
-      <p><span><span>Spend LESS</span> <span>time filming</span></span> <span><span>&amp; get</span> <span class="accent-italic">more content</span></span></p>
+      <p><span><span>Spend <span class="accent-italic">less</span></span> <span>time filming</span></span> <span><span><span class="eng-amp">&amp;</span> get</span> <span class="accent-italic">more content</span></span></p>
     </div>
   </section>
 
