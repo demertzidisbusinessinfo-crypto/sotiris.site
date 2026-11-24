@@ -223,21 +223,6 @@
   h1 .reveal-line { display: block; overflow: hidden; }
   h1 .reveal-inner { display: block; }
 
-  @keyframes accent-pop-flash {
-    0% { background: transparent; }
-    45% { background: rgba(127, 3, 3, 0.14); }
-    100% { background: transparent; }
-  }
-  h1 .accent-pop {
-    padding: 0 2px;
-    margin: 0 -2px;
-    border-radius: var(--radius-1);
-    animation: accent-pop-flash 0.9s ease both;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    h1 .accent-pop { animation: none; }
-  }
 
 
   .hero-ctas { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
@@ -1085,7 +1070,7 @@
   <section class="hero">
     <div>
       <div class="eyebrow"><span class="dot"></span> DFY CREATIVE VIDEO DESIGN FOR COACHES AND FOUNDERS</div>
-      <h1 id="hero-h1"><span class="reveal-line"><span class="reveal-inner">Your content could give the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.45s;">right</span> message through the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.6s;">right</span> visual design.</span></span></h1>
+      <h1 id="hero-h1"><span class="reveal-line"><span class="reveal-inner">Your content could give the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic">right</span> message through the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic">right</span> visual design.</span></span></h1>
       <div class="hero-ctas">
         <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="btn-primary">Book a call →</a>
         <a href="#quiz" class="btn-quiet">See if you're a fit</a>
@@ -1355,11 +1340,11 @@
 
         <div class="tm-stat-row">
           <div class="tm-stat">
-            <div class="tm-stat-value" id="tm-followers" data-from="2183" data-to="7035">2,183</div>
+            <div class="tm-stat-value" id="tm-followers">7,035</div>
             <div class="tm-stat-label">followers &nbsp;•&nbsp; +222%</div>
           </div>
           <div class="tm-stat">
-            <div class="tm-stat-value" id="tm-leads" data-to="100" data-suffix="+">0+</div>
+            <div class="tm-stat-value" id="tm-leads">100+</div>
             <div class="tm-stat-label">leads from one video</div>
           </div>
         </div>
@@ -1414,10 +1399,6 @@
 
 <script src="/assets/app.js"></script>
 <script>
-
-  // Every count-up on the page runs for the same length of time. There were
-  // three: 1750ms, 1600ms and 700ms, for the same effect.
-  var COUNT_MS = 900;
 
   // Nav hairline: fills left-to-right as a scroll progress bar
   var navEl = document.querySelector('nav');
@@ -1517,29 +1498,6 @@
       });
     }
 
-    var counted = false;
-    function runStats() {
-      if (counted) return;
-      counted = true;
-      section.querySelectorAll('[data-to]').forEach(function (el) {
-        var to = parseFloat(el.getAttribute('data-to')) || 0;
-        var from = parseFloat(el.getAttribute('data-from')) || 0;
-        var suffix = el.getAttribute('data-suffix') || '';
-        if (prefersReducedMotion) { el.textContent = to.toLocaleString('en-US') + suffix; return; }
-        var duration = COUNT_MS, start = null;
-        function tick(ts) {
-          if (start === null) start = ts;
-          var p = Math.min((ts - start) / duration, 1);
-          var eased = 1 - Math.pow(1 - p, 3);
-          el.textContent = Math.round(from + (to - from) * eased).toLocaleString('en-US') + suffix;
-          if (p < 1) requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-      });
-    }
-
-    if (prefersReducedMotion) runStats();
-    else whenVisible(section, runStats);
   })();
 
   // ---------------------------------------------------------------------
