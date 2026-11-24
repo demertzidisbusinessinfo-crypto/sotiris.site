@@ -221,33 +221,8 @@
   }
 
   h1 .reveal-line { display: block; overflow: hidden; }
-  h1 .reveal-inner {
-    display: block;
-    transform: translateY(110%);
-    opacity: 0;
-    transition: transform var(--dur-reveal) var(--ease-out), opacity var(--dur-reveal) var(--ease-out);
-  }
-  h1.play .reveal-inner { transform: translateY(0); opacity: 1; }
-  h1 .reveal-line:nth-child(1) .reveal-inner { transition-delay: 0.05s; }
-  h1 .reveal-line:nth-child(2) .reveal-inner { transition-delay: 0.18s; }
-  h1 .reveal-line:nth-child(3) .reveal-inner { transition-delay: 0.31s; }
+  h1 .reveal-inner { display: block; }
 
-  @keyframes accent-pop-flash {
-    0% { background: transparent; }
-    45% { background: rgba(127, 3, 3, 0.14); }
-    100% { background: transparent; }
-  }
-  h1 .accent-pop {
-    padding: 0 2px;
-    margin: 0 -2px;
-    border-radius: var(--radius-1);
-    animation: accent-pop-flash 0.9s ease both;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    h1 .reveal-inner { transform: none; opacity: 1; transition: none; }
-    h1 .accent-pop { animation: none; }
-  }
 
 
   .hero-ctas { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
@@ -513,19 +488,6 @@
     background-image: var(--grain);
   }
   .services-grid { perspective: 800px; }
-  .service-card.stagger-item {
-    opacity: 0;
-    transform: translateY(18px);
-    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out), background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
-  }
-  .service-card.stagger-item.visible { opacity: 1; transform: none; }
-  .services-grid .service-card:nth-child(1) { transition-delay: 0s; }
-  .services-grid .service-card:nth-child(2) { transition-delay: 0.12s; }
-  .services-grid .service-card:nth-child(3) { transition-delay: 0.24s; }
-  .services-grid .service-card.visible { transition-delay: 0s; }
-  @media (prefers-reduced-motion: reduce) {
-    .service-card.stagger-item { opacity: 1; transform: none; transition: none; }
-  }
   .service-icon {
     margin-bottom: 20px;
     font-family: var(--font-serif);
@@ -783,17 +745,6 @@
   }
   .footer-links { display: flex; gap: 24px; }
 
-  /* Scroll reveal */
-  .reveal {
-    opacity: 0;
-    transform: translateY(18px);
-    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
-  }
-  .reveal.visible { opacity: 1; transform: none; }
-  @media (prefers-reduced-motion: reduce) {
-    .reveal { opacity: 1; transform: none; transition: none; }
-  }
-
 /* ---------- Pointer-only hover ----------
    A touch screen has no hover to leave, so an ungated :hover latches
    after a tap and the control stays lit until you tap something else. */
@@ -1014,28 +965,6 @@
   }
   .eng-head { fill: #D8BA98; }
 
-  /* Plays once when the board scrolls into view. Only hidden when the script
-     is there to show it again. */
-  .eng-board.is-ready:not(.is-in) .eng-step,
-  .eng-board.is-ready:not(.is-in) .eng-arrow { opacity: 0; }
-  .eng-board.is-in .eng-step { animation: eng-step-in 520ms var(--ease-out) backwards; }
-  .eng-board.is-in .eng-line { animation: eng-draw 520ms var(--ease-out) backwards; }
-  .eng-board.is-in .eng-head { animation: eng-fade 200ms linear backwards; }
-  .eng-board.is-in .eng-step:nth-of-type(1) { animation-delay: 0ms; }
-  .eng-board.is-in .eng-step:nth-of-type(2) { animation-delay: 420ms; }
-  .eng-board.is-in .eng-step:nth-of-type(3) { animation-delay: 840ms; }
-  .eng-board.is-in .eng-step:nth-of-type(4) { animation-delay: 1260ms; }
-  .eng-board.is-in [data-arrow="1"] .eng-line { animation-delay: 220ms; }
-  .eng-board.is-in [data-arrow="1"] .eng-head { animation-delay: 620ms; }
-  .eng-board.is-in [data-arrow="2"] .eng-line { animation-delay: 640ms; }
-  .eng-board.is-in [data-arrow="2"] .eng-head { animation-delay: 1040ms; }
-  .eng-board.is-in [data-arrow="3"] .eng-line { animation-delay: 1060ms; }
-  .eng-board.is-in [data-arrow="3"] .eng-head { animation-delay: 1460ms; }
-  .eng-board.is-in [data-arrow="4"] .eng-line { animation-delay: 760ms; animation-duration: 900ms; }
-  .eng-board.is-in [data-arrow="4"] .eng-head { animation-delay: 1560ms; }
-  @keyframes eng-step-in { from { opacity: 0; transform: translateY(10px); } }
-  @keyframes eng-draw { from { stroke-dashoffset: 1; } }
-  @keyframes eng-fade { from { opacity: 0; } }
 
   /* The four steps in words, under the board. */
   .eng-list {
@@ -1107,12 +1036,6 @@
     .eng-outro p { font-size: 16.6cqw; }
     .eng-outro p > span > span { display: block; }
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    .eng-board.is-in .eng-step,
-    .eng-board.is-in .eng-line,
-    .eng-board.is-in .eng-head { animation: none; }
-  }
 </style>
 </head>
 <body>
@@ -1147,14 +1070,14 @@
   <section class="hero">
     <div>
       <div class="eyebrow"><span class="dot"></span> DFY CREATIVE VIDEO DESIGN FOR COACHES AND FOUNDERS</div>
-      <h1 id="hero-h1"><span class="reveal-line"><span class="reveal-inner">Your content could give the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.45s;">right</span> message through the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.6s;">right</span> visual design.</span></span></h1>
+      <h1 id="hero-h1"><span class="reveal-line"><span class="reveal-inner">Your content could give the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic">right</span> message through the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic">right</span> visual design.</span></span></h1>
       <div class="hero-ctas">
         <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="btn-primary">Book a call →</a>
         <a href="#quiz" class="btn-quiet">See if you're a fit</a>
       </div>
     </div>
 
-    <div class="reveal" id="hero-clip-wrap">
+    <div id="hero-clip-wrap">
       <div class="clip-card">
         <div class="baf-frame" id="hero-baf">
           <div class="baf-side baf-raw">
@@ -1181,7 +1104,7 @@
   </section>
 
   <!-- WORKED WITH -->
-  <section class="worked-with reveal" aria-label="Clients I have worked with">
+  <section class="worked-with" aria-label="Clients I have worked with">
     <span class="worked-with-label">Worked with:</span>
     <ul class="client-row">
       <li class="client-card">
@@ -1234,7 +1157,7 @@
 
   <!-- CONTENT ENGINE -->
   <section id="engine" aria-labelledby="engine-title">
-    <div class="section-head reveal">
+    <div class="section-head">
       <h2 id="engine-title"><span>How does the</span> <span class="accent-italic">Content Engine</span> <span>work?</span></h2>
     </div>
 
@@ -1341,14 +1264,14 @@
       </li>
     </ol>
 
-    <div class="eng-outro reveal">
+    <div class="eng-outro">
       <p><span><span>Spend <span class="accent-italic">less</span></span> <span>time filming</span></span> <span><span><span class="eng-amp">&amp;</span> get</span> <span class="accent-italic">more content</span></span></p>
     </div>
   </section>
 
   <!-- SERVICES -->
   <section id="services">
-    <div class="section-head reveal">
+    <div class="section-head">
       <span class="section-eyebrow">WHAT I DO</span>
       <h2>Build a personal brand that <span class="accent-italic">feels</span> like you.</h2>
       <p class="section-sub">You already did the hard part — showing up and saying something real. I handle the rest.</p>
@@ -1374,7 +1297,7 @@
 
   <!-- ABOUT -->
   <section class="about-section" id="about">
-    <div class="about-card reveal">
+    <div class="about-card">
       <div>
         <div class="about-eyebrow">ABOUT</div>
         <h2 class="about-heading">The story your client needs to hear <span class="accent-italic">before buying</span>.</h2>
@@ -1390,13 +1313,13 @@
 
   <!-- RESULTS / TESTIMONIAL -->
   <section id="results">
-    <div class="section-head reveal">
+    <div class="section-head">
       <span class="section-eyebrow">PROOF</span>
       <h2>From 2,183 to 7,035 followers — and <span class="accent-italic">100+ leads</span>.</h2>
       <p class="section-sub">Matthew Feola came to me at 2,183 followers. The content we made together pulled in over 100 leads and helped grow him to 7,035 — here's him telling it.</p>
     </div>
 
-    <div class="tm-grid reveal">
+    <div class="tm-grid">
       <!-- Video: unlisted YouTube, click-to-play facade. Paste the video ID into data-yt below. -->
       <div class="tm-video" id="tm-video" data-yt="NftjR9i1A2Y" data-poster="">
         <img class="tm-video-poster" id="tm-poster" width="300" height="533" alt="Matthew Feola's testimonial video" loading="lazy"
@@ -1417,11 +1340,11 @@
 
         <div class="tm-stat-row">
           <div class="tm-stat">
-            <div class="tm-stat-value" id="tm-followers" data-from="2183" data-to="7035">2,183</div>
+            <div class="tm-stat-value" id="tm-followers">7,035</div>
             <div class="tm-stat-label">followers &nbsp;•&nbsp; +222%</div>
           </div>
           <div class="tm-stat">
-            <div class="tm-stat-value" id="tm-leads" data-to="100" data-suffix="+">0+</div>
+            <div class="tm-stat-value" id="tm-leads">100+</div>
             <div class="tm-stat-label">leads from one video</div>
           </div>
         </div>
@@ -1429,7 +1352,7 @@
     </div>
 
     <!-- Before / after follower screenshots (drop the images into assets/) -->
-    <div class="tm-shots reveal">
+    <div class="tm-shots">
       <figure class="tm-shot">
         <div class="tm-shot-img tm-shot-missing">
           <img src="assets/matthew-before.png" width="462" height="152" alt="Matthew's Instagram at 2,183 followers" loading="lazy"
@@ -1452,7 +1375,7 @@
 
   <!-- FIT QUIZ -->
   <section class="quiz-section" id="quiz-section">
-    <div class="cta-card quiz-card reveal" id="quiz">
+    <div class="cta-card quiz-card" id="quiz">
       <div id="quiz-stage">
         <h2 id="quiz-title" tabindex="-1">See if you're a good fit for this offer.</h2>
         <p class="quiz-lead">Six quick questions, about a minute. You'll get an honest read on whether done-for-you video design makes sense for you right now, and what to do next either way.</p>
@@ -1477,10 +1400,6 @@
 <script src="/assets/app.js"></script>
 <script>
 
-  // Every count-up on the page runs for the same length of time. There were
-  // three: 1750ms, 1600ms and 700ms, for the same effect.
-  var COUNT_MS = 900;
-
   // Nav hairline: fills left-to-right as a scroll progress bar
   var navEl = document.querySelector('nav');
   if (navEl) {
@@ -1502,21 +1421,10 @@
     window.addEventListener('resize', updateScrollProgress);
   }
 
-  // Hero headline line-reveal
-  var heroH1 = document.getElementById('hero-h1');
-  if (heroH1) {
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () { heroH1.classList.add('play'); });
-    });
-  }
-
-  // Services: staggered group reveal
+  // Services
   var servicesGrid = document.querySelector('.services-grid');
   if (servicesGrid) {
     var staggerItems = servicesGrid.querySelectorAll('.stagger-item');
-    function showCards() { staggerItems.forEach(function (el) { el.classList.add('visible'); }); }
-    if (prefersReducedMotion) showCards();
-    else whenVisible(servicesGrid, showCards);
 
     // Services: magnetic tilt.
     //
@@ -1590,40 +1498,7 @@
       });
     }
 
-    var counted = false;
-    function runStats() {
-      if (counted) return;
-      counted = true;
-      section.querySelectorAll('[data-to]').forEach(function (el) {
-        var to = parseFloat(el.getAttribute('data-to')) || 0;
-        var from = parseFloat(el.getAttribute('data-from')) || 0;
-        var suffix = el.getAttribute('data-suffix') || '';
-        if (prefersReducedMotion) { el.textContent = to.toLocaleString('en-US') + suffix; return; }
-        var duration = COUNT_MS, start = null;
-        function tick(ts) {
-          if (start === null) start = ts;
-          var p = Math.min((ts - start) / duration, 1);
-          var eased = 1 - Math.pow(1 - p, 3);
-          el.textContent = Math.round(from + (to - from) * eased).toLocaleString('en-US') + suffix;
-          if (p < 1) requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-      });
-    }
-
-    if (prefersReducedMotion) runStats();
-    else whenVisible(section, runStats);
   })();
-
-  // Scroll reveal
-  var revealEls = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window && revealEls.length) {
-    revealEls.forEach(function (el) {
-      whenVisible(el, function (target) { target.classList.add('visible'); });
-    });
-  } else {
-    revealEls.forEach(function (el) { el.classList.add('visible'); });
-  }
 
   // ---------------------------------------------------------------------
   // Hero raw/designed reveal.
@@ -2022,14 +1897,6 @@
   window.addEventListener('load', draw);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
   if ('ResizeObserver' in window) new ResizeObserver(draw).observe(flow);
-
-  if ('IntersectionObserver' in window) {
-    board.classList.add('is-ready');
-    var io = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) { board.classList.add('is-in'); io.disconnect(); }
-    }, { threshold: 0.25 });
-    io.observe(board);
-  }
 })();
 </script>
 </body>
