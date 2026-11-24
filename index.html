@@ -130,34 +130,6 @@
   }
   nav.scrolled::before { opacity: 1; }
 
-  /* Wayfinding. The page has five sections and the bar offered no way to
-     reach any of them — it was two calls to action and nothing else. */
-  .nav-links { display: none; gap: var(--space-5); }
-  @media (min-width: 900px) { .nav-links { display: flex; } }
-  .nav-links a {
-    position: relative;
-    font-size: var(--text-xs);
-    color: var(--ink-dim);
-    padding: 4px 0;
-    transition: color var(--dur-base) var(--ease-out);
-  }
-  .nav-links a::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: var(--accent);
-    transform: scaleX(0);
-    transform-origin: left;          /* grows from the leading edge, not the middle */
-    transition: transform var(--dur-base) var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .nav-links a:hover { color: var(--ink); }
-  }
-  .nav-links a[aria-current="true"] { color: var(--ink); }
-  .nav-links a[aria-current="true"]::after { transform: scaleX(1); }
   nav::after {
     content: '';
     position: absolute;
@@ -277,12 +249,6 @@
     h1 .accent-pop { animation: none; }
   }
 
-  .hero-sub {
-    font-size: var(--text-md);
-    color: var(--ink-dim);
-    max-width: 480px;
-    margin-bottom: 34px;
-  }
 
   .hero-ctas { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
 
@@ -1165,11 +1131,6 @@
 <nav>
   <div class="nav-inner">
     <div class="logo">Sotiris <span>Demertzidis</span></div>
-    <div class="nav-links">
-      <a href="#services">Work</a>
-      <a href="#about">About</a>
-      <a href="#results">Proof</a>
-    </div>
     <div class="nav-actions">
       <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="nav-cta">Book a call</a>
       <a href="signup" class="nav-terminal">
@@ -1187,7 +1148,6 @@
     <div>
       <div class="eyebrow"><span class="dot"></span> DFY CREATIVE VIDEO DESIGN FOR COACHES AND FOUNDERS</div>
       <h1 id="hero-h1"><span class="reveal-line"><span class="reveal-inner">Your content could give the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.45s;">right</span> message through the</span></span><span class="reveal-line"><span class="reveal-inner"><span class="accent-italic accent-pop" style="animation-delay: 0.6s;">right</span> visual design.</span></span></h1>
-      <p class="hero-sub">I find emotion in your raw videos and turn it into visual design — not just a motion graphic, but a done-for-you service that takes care of your personal brand's video design so you can scale.</p>
       <div class="hero-ctas">
         <a href="https://calendly.com/demertzidisbusinessinfo/one-to-one" target="_blank" rel="noopener" class="btn-primary">Book a call →</a>
         <a href="#quiz" class="btn-quiet">See if you're a fit</a>
@@ -1521,28 +1481,6 @@
   // three: 1750ms, 1600ms and 700ms, for the same effect.
   var COUNT_MS = 900;
 
-  // Scroll spy for the nav links. Rides the rAF-throttled scroll handler
-  // below rather than adding an observer of its own: the answer changes on
-  // every scroll frame, which is not what a one-shot observer is for.
-  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
-  var spyTargets = navLinks.map(function (a) {
-    return { link: a, el: document.querySelector(a.getAttribute('href')) };
-  }).filter(function (t) { return t.el; });
-
-  function markCurrentSection() {
-    if (!spyTargets.length) return;
-    var line = window.scrollY + window.innerHeight * 0.35;
-    var current = null;
-    spyTargets.forEach(function (t) {
-      if (t.el.getBoundingClientRect().top + window.scrollY <= line) current = t;
-    });
-    // nothing is "current" once the footer is in view and the last section has passed
-    spyTargets.forEach(function (t) {
-      if (t === current) t.link.setAttribute('aria-current', 'true');
-      else t.link.removeAttribute('aria-current');
-    });
-  }
-
   // Nav hairline: fills left-to-right as a scroll progress bar
   var navEl = document.querySelector('nav');
   if (navEl) {
@@ -1552,7 +1490,6 @@
       var pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
       navEl.style.setProperty('--scroll-progress', Math.max(0, Math.min(100, pct)) + '%');
       navEl.classList.toggle('scrolled', window.scrollY > 8);
-      markCurrentSection();
       progressTicking = false;
     };
     updateScrollProgress();
