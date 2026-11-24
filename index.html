@@ -598,12 +598,13 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 16px;
-    margin: 0;
+    max-width: 960px;
+    margin: 0 auto;
     padding: 0;
     list-style: none;
   }
   .client-card {
-    flex: 0 1 calc((100% - 64px) / 5);
+    flex: 0 1 calc((100% - 32px) / 3);
     min-width: 0;
     padding: 16px;
     background: var(--glass-bg);
@@ -629,7 +630,23 @@
     box-shadow: 0 0 0 1.5px var(--glass-border);
     display: block;
   }
+  .client-followers {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-sm);
+    line-height: 1.15;
+    color: var(--ink);
+  }
+  .client-followers span {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: var(--text-2xs);
+    color: var(--ink-dim);
+  }
   .client-bubble {
+    margin-left: auto;
     padding: 6px 10px;
     border-radius: var(--radius-pill);
     background: var(--maroon);
@@ -656,8 +673,8 @@
     overflow-wrap: anywhere;
   }
   .client-about span { display: block; }
-  @media (max-width: 1100px) {
-    .client-card { flex-basis: calc((100% - 32px) / 3); }
+  @media (max-width: 900px) {
+    .client-bubble { margin-left: 0; }
   }
   @media (max-width: 640px) {
     .client-row { gap: 12px; }
@@ -665,6 +682,7 @@
     .client-card-top { gap: 8px; margin-bottom: 12px; }
     .client-avatar { width: 48px; height: 48px; }
     .client-bubble { padding: 5px 9px; font-size: var(--text-2xs); }
+    .client-followers { font-size: var(--text-xs); }
   }
 
   /* About */
@@ -1196,6 +1214,7 @@
       <li class="client-card">
         <div class="client-card-top">
           <img class="client-avatar" width="56" height="56" decoding="async" src="assets/client-lj.jpg" alt="">
+          <span class="client-followers">127k <span>followers</span></span>
           <span class="client-bubble">$25k/mo+</span>
         </div>
         <div class="client-name">LJ Elizarde</div>
@@ -1204,6 +1223,7 @@
       <li class="client-card">
         <div class="client-card-top">
           <img class="client-avatar" width="56" height="56" decoding="async" src="assets/client-matthew.jpg" alt="">
+          <span class="client-followers">7,034 <span>followers</span></span>
           <span class="client-bubble">$30k/mo+</span>
         </div>
         <div class="client-name">Matthew Feola</div>
@@ -1212,6 +1232,7 @@
       <li class="client-card">
         <div class="client-card-top">
           <img class="client-avatar" width="56" height="56" decoding="async" src="assets/client-arden.jpg" alt="">
+          <span class="client-followers">3,535 <span>followers</span></span>
           <span class="client-bubble">$10k/mo+</span>
         </div>
         <div class="client-name">Arden Walmsley</div>
@@ -1220,6 +1241,7 @@
       <li class="client-card">
         <div class="client-card-top">
           <img class="client-avatar" width="56" height="56" decoding="async" src="assets/client-josh.jpg" alt="">
+          <span class="client-followers">58.8k <span>followers</span></span>
           <span class="client-bubble">$100k/mo+</span>
         </div>
         <div class="client-name">Josh Chang</div>
@@ -1228,9 +1250,10 @@
       <li class="client-card">
         <div class="client-card-top">
           <img class="client-avatar" width="56" height="56" decoding="async" src="assets/avatar-kelly.jpg" alt="">
+          <span class="client-followers">84.7k <span>followers</span></span>
           <span class="client-bubble">$20k/mo+</span>
         </div>
-        <div class="client-name">Kelly</div>
+        <div class="client-name">Kelly Cocaa</div>
         <div class="client-about">fitness coach</div>
       </li>
     </ul>
