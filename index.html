@@ -92,8 +92,7 @@
   }
 
   a:focus-visible,
-  button:focus-visible,
-  .client-avatar-wrap:focus-visible {
+  button:focus-visible {
     outline: 2px solid var(--maroon);
     outline-offset: 3px;
     border-radius: var(--radius-1);
@@ -596,142 +595,94 @@
   }
   .client-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 28px;
-    max-width: 720px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    max-width: 960px;
     margin: 0 auto;
+    padding: 0;
+    list-style: none;
   }
-  @media (max-width: 700px) {
-    .client-row { max-width: 100%; gap: 16px; }
+  .client-card {
+    flex: 0 1 calc((100% - 32px) / 3);
+    min-width: 0;
+    padding: 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-3);
+    box-shadow: var(--shadow-1);
+    text-align: left;
   }
-  /* Phone only: 4 avatars in one row was overflowing and forcing horizontal
-     scroll. Switch to a centered 2x2 grid instead. */
-  @media (max-width: 560px) {
-    .client-row {
-      display: grid;
-      grid-template-columns: repeat(2, auto);
-      justify-content: center;
-      gap: 32px 40px;
-    }
-  }
-  @media (max-width: 420px) {
-    .client-row { gap: 24px 32px; }
-    .client-avatar-wrap { width: 84px; height: 84px; }
-    .client-avatar { width: 84px; height: 84px; }
-  }
-  .client-avatar-wrap {
-    position: relative;
-    width: 96px;
-    height: 96px;
+  .client-card-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
   }
   .client-avatar {
-    width: 96px;
-    height: 96px;
+    flex: none;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--bg);
     box-shadow: 0 0 0 1.5px var(--glass-border);
-    cursor: pointer;
-    transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
     display: block;
   }
-
-  /* Instagram-style popover */
-  .ig-popover {
-    --shift: 0px;
-    position: absolute;
-    bottom: calc(100% + 14px);
-    left: 50%;
-    transform: translateX(calc(-50% + var(--shift))) translateY(8px);
-    width: 280px;
-    background: #ffffff;
-    border-radius: var(--radius-3);
-    padding: 18px;
-    box-shadow: var(--shadow-3);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
-    z-index: 60;
-    text-align: left;
-  }
-.client-avatar-wrap:focus-visible .ig-popover,
-.client-avatar-wrap.open .ig-popover {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(calc(-50% + var(--shift))) translateY(0);
-  }
-
-  .ig-popover::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 8px solid transparent;
-    border-top-color: #ffffff;
-  }
-  .ig-popover-header {
+  .client-followers {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
+    flex-direction: column;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-sm);
+    line-height: 1.15;
+    color: var(--ink);
   }
-  .ig-popover-avatar {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-  }
-  .ig-popover-idbox { min-width: 0; }
-  .ig-popover-name {
+  .client-followers span {
     font-family: var(--font-body);
-    font-weight: 700;
-    font-size: var(--text-sm);
-    color: #262626;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .ig-verified { flex-shrink: 0; }
-  .ig-popover-sub {
-    font-size: var(--text-xs);
-    color: #737373;
-    margin-top: 2px;
-    line-height: 1.3;
-  }
-  .ig-popover-stats {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 4px;
-    border-top: 1px solid #efefef;
-    border-bottom: 1px solid #efefef;
-    margin-bottom: 12px;
-  }
-  .ig-popover-stats div {
-    text-align: center;
-    flex: 1;
-  }
-  .ig-popover-stats strong {
-    display: block;
-    font-size: var(--text-sm);
-    font-weight: 700;
-    color: #262626;
-  }
-  .ig-popover-stats span {
+    font-weight: 400;
     font-size: var(--text-2xs);
-    color: #737373;
+    color: var(--ink-dim);
   }
-  .ig-popover-bio {
+  .client-bubble {
+    margin-left: auto;
+    padding: 6px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--maroon);
+    color: var(--bg);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-sm);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .client-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-md);
+    line-height: 1.25;
+    color: var(--ink);
+  }
+  .client-about {
+    margin-top: 4px;
     font-size: var(--text-xs);
-    color: #262626;
-    line-height: 1.55;
+    line-height: 1.45;
+    color: var(--ink-dim);
+    overflow-wrap: anywhere;
   }
-
-  @media (max-width: 560px) {
-    .ig-popover { width: 220px; }
+  .client-about span { display: block; }
+  @media (max-width: 900px) {
+    .client-bubble { margin-left: 0; }
+  }
+  @media (max-width: 640px) {
+    .client-row { gap: 12px; }
+    .client-card { flex-basis: calc((100% - 12px) / 2); padding: 14px; }
+    .client-card-top { gap: 8px; margin-bottom: 12px; }
+    .client-avatar { width: 48px; height: 48px; }
+    .client-bubble { padding: 5px 9px; font-size: var(--text-2xs); }
+    .client-followers { font-size: var(--text-xs); }
   }
 
   /* About */
@@ -880,17 +831,6 @@
       background: var(--tan);
       transform: translateY(-3px);
       box-shadow: var(--shadow-2);
-    }
-
-  .client-avatar-wrap:hover .client-avatar {
-      transform: scale(1.08);
-      box-shadow: 0 0 0 2px var(--maroon);
-    }
-
-  .client-avatar-wrap:hover .ig-popover {
-      opacity: 1;
-      visibility: visible;
-      transform: translateX(calc(-50% + var(--shift))) translateY(0);
     }
 
   .about-card:hover {
@@ -1270,100 +1210,53 @@
   <!-- WORKED WITH -->
   <section class="worked-with reveal" aria-label="Clients I have worked with">
     <span class="worked-with-label">Worked with:</span>
-    <div class="client-row">
-
-      <div class="client-avatar-wrap" tabindex="0">
-        <img class="client-avatar" width="96" height="96" decoding="async" src="assets/avatar-matthew.jpg" alt="Matthew Feola">
-        <div class="ig-popover">
-          <div class="ig-popover-header">
-            <img class="ig-popover-avatar" width="52" height="52" loading="lazy" decoding="async" src="assets/avatar-matthew.jpg" alt="Matthew Feola">
-            <div class="ig-popover-idbox">
-              <div class="ig-popover-name">feolamatthew <svg aria-hidden="true" class="ig-verified" viewBox="0 0 24 24" width="14" height="14"><path fill="#3897f0" d="M12 2l2.4 1.2 2.6-.7 1.6 2.2 2.7.6.2 2.7 2 1.8-1.2 2.5.7 2.6-2.2 1.6-.6 2.7-2.7.2-1.8 2-2.5-1.2-2.6.7-1.6-2.2-2.7-.6-.2-2.7-2-1.8 1.2-2.5-.7-2.6 2.2-1.6.6-2.7 2.7-.2z"/><path fill="#fff" d="M9.8 12.4l1.6 1.6 3.2-3.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              <div class="ig-popover-sub">Matthew Feola · UGC Coach</div>
-            </div>
-          </div>
-          <div class="ig-popover-stats">
-            <div><strong>140</strong><span>posts</span></div>
-            <div><strong>6,285</strong><span>followers</span></div>
-            <div><strong>234</strong><span>following</span></div>
-          </div>
-          <div class="ig-popover-bio">
-            i help ugc creators hit their first $10k/mo<br>
-            $110k+/mo in student revenue<br>
-            dm me "ugc" to get started
-          </div>
+    <ul class="client-row">
+      <li class="client-card">
+        <div class="client-card-top">
+          <img class="client-avatar" width="56" height="56" decoding="async" src="assets/client-lj.jpg" alt="">
+          <span class="client-followers">127k <span>followers</span></span>
+          <span class="client-bubble">$25k/mo+</span>
         </div>
-      </div>
-
-      <div class="client-avatar-wrap" tabindex="0">
-        <img class="client-avatar" width="96" height="96" decoding="async" src="assets/avatar-josh.jpg" alt="Josh Chang">
-        <div class="ig-popover">
-          <div class="ig-popover-header">
-            <img class="ig-popover-avatar" width="52" height="52" loading="lazy" decoding="async" src="assets/avatar-josh.jpg" alt="Josh Chang">
-            <div class="ig-popover-idbox">
-              <div class="ig-popover-name">thejoshchang <svg aria-hidden="true" class="ig-verified" viewBox="0 0 24 24" width="14" height="14"><path fill="#3897f0" d="M12 2l2.4 1.2 2.6-.7 1.6 2.2 2.7.6.2 2.7 2 1.8-1.2 2.5.7 2.6-2.2 1.6-.6 2.7-2.7.2-1.8 2-2.5-1.2-2.6.7-1.6-2.2-2.7-.6-.2-2.7-2-1.8 1.2-2.5-.7-2.6 2.2-1.6.6-2.7 2.7-.2z"/><path fill="#fff" d="M9.8 12.4l1.6 1.6 3.2-3.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              <div class="ig-popover-sub">Josh Chang</div>
-            </div>
-          </div>
-          <div class="ig-popover-stats">
-            <div><strong>56</strong><span>posts</span></div>
-            <div><strong>59,863</strong><span>followers</span></div>
-            <div><strong>568</strong><span>following</span></div>
-          </div>
-          <div class="ig-popover-bio">
-            founder @changconsulting.co<br>
-            scaling coaches & brands with organic content<br>
-            dm me "scale" to work with me 1:1
-          </div>
+        <div class="client-name">LJ Elizarde</div>
+        <div class="client-about">scaling barber businesses</div>
+      </li>
+      <li class="client-card">
+        <div class="client-card-top">
+          <img class="client-avatar" width="56" height="56" decoding="async" src="assets/client-matthew.jpg" alt="">
+          <span class="client-followers">7,034 <span>followers</span></span>
+          <span class="client-bubble">$30k/mo+</span>
         </div>
-      </div>
-
-      <div class="client-avatar-wrap" tabindex="0">
-        <img class="client-avatar" width="96" height="96" decoding="async" src="assets/avatar-lj.jpg" alt="LJ Elizarde">
-        <div class="ig-popover">
-          <div class="ig-popover-header">
-            <img class="ig-popover-avatar" width="52" height="52" loading="lazy" decoding="async" src="assets/avatar-lj.jpg" alt="LJ Elizarde">
-            <div class="ig-popover-idbox">
-              <div class="ig-popover-name">ljelizarde_ <svg aria-hidden="true" class="ig-verified" viewBox="0 0 24 24" width="14" height="14"><path fill="#3897f0" d="M12 2l2.4 1.2 2.6-.7 1.6 2.2 2.7.6.2 2.7 2 1.8-1.2 2.5.7 2.6-2.2 1.6-.6 2.7-2.7.2-1.8 2-2.5-1.2-2.6.7-1.6-2.2-2.7-.6-.2-2.7-2-1.8 1.2-2.5-.7-2.6 2.2-1.6.6-2.7 2.7-.2z"/><path fill="#fff" d="M9.8 12.4l1.6 1.6 3.2-3.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              <div class="ig-popover-sub">LJ Elizarde | LA Barber & Coach</div>
-            </div>
-          </div>
-          <div class="ig-popover-stats">
-            <div><strong>913</strong><span>posts</span></div>
-            <div><strong>126k</strong><span>followers</span></div>
-            <div><strong>1,103</strong><span>following</span></div>
-          </div>
-          <div class="ig-popover-bio">
-            I help barbers scale to $22k/mo<br>
-            DM me "Beyond" for 1-1 mentorship<br>
-            learn how I do it for free/book a haircut 👇
-          </div>
+        <div class="client-name">Matthew Feola</div>
+        <div class="client-about">UGC coach</div>
+      </li>
+      <li class="client-card">
+        <div class="client-card-top">
+          <img class="client-avatar" width="56" height="56" decoding="async" src="assets/client-arden.jpg" alt="">
+          <span class="client-followers">3,535 <span>followers</span></span>
+          <span class="client-bubble">$10k/mo+</span>
         </div>
-      </div>
-
-      <div class="client-avatar-wrap" tabindex="0">
-        <img class="client-avatar" width="96" height="96" decoding="async" src="assets/avatar-kelly.jpg" alt="Kelly">
-        <div class="ig-popover">
-          <div class="ig-popover-header">
-            <img class="ig-popover-avatar" width="52" height="52" loading="lazy" decoding="async" src="assets/avatar-kelly.jpg" alt="Kelly">
-            <div class="ig-popover-idbox">
-              <div class="ig-popover-name">kellycocaa</div>
-              <div class="ig-popover-sub">Kelly 🇨🇴 | Latina Discipline & Fat Loss Coach</div>
-            </div>
-          </div>
-          <div class="ig-popover-stats">
-            <div><strong>737</strong><span>posts</span></div>
-            <div><strong>87.2k</strong><span>followers</span></div>
-            <div><strong>381</strong><span>following</span></div>
-          </div>
-          <div class="ig-popover-bio">
-            Helping driven Latinas master food & discipline so they can wear what they want ✨<br>
-            DM "FIT" for 1:1 Coaching 💜
-          </div>
+        <div class="client-name">Arden Walmsley</div>
+        <div class="client-about">fitness coach</div>
+      </li>
+      <li class="client-card">
+        <div class="client-card-top">
+          <img class="client-avatar" width="56" height="56" decoding="async" src="assets/client-josh.jpg" alt="">
+          <span class="client-followers">58.8k <span>followers</span></span>
+          <span class="client-bubble">$100k/mo+</span>
         </div>
-      </div>
-
-    </div>
+        <div class="client-name">Josh Chang</div>
+        <div class="client-about"><span>founder @changconsulting.co</span><span>@infoteam.io @clonevid.ai</span></div>
+      </li>
+      <li class="client-card">
+        <div class="client-card-top">
+          <img class="client-avatar" width="56" height="56" decoding="async" src="assets/avatar-kelly.jpg" alt="">
+          <span class="client-followers">84.7k <span>followers</span></span>
+          <span class="client-bubble">$20k/mo+</span>
+        </div>
+        <div class="client-name">Kelly Cocaa</div>
+        <div class="client-about">fitness coach</div>
+      </li>
+    </ul>
   </section>
 
   <!-- CONTENT ENGINE -->
@@ -1781,69 +1674,6 @@
   } else {
     revealEls.forEach(function (el) { el.classList.add('visible'); });
   }
-
-  // Tap-to-open Instagram popovers on touch devices, with edge clamping
-  var avatarWraps = document.querySelectorAll('.client-avatar-wrap');
-
-  function parseStatTarget(str) {
-    var m = str.trim().match(/^([\d,]+\.?\d*)(k?)$/i);
-    if (!m) return null;
-    return {
-      value: parseFloat(m[1].replace(/,/g, '')),
-      isK: /k/i.test(m[2]),
-      decimals: m[1].indexOf('.') > -1 ? 1 : 0
-    };
-  }
-  function formatStat(value, isK, decimals) {
-    return isK ? value.toFixed(decimals) + 'k' : Math.round(value).toLocaleString();
-  }
-  function animatePopoverStats(wrap) {
-    if (prefersReducedMotion) return;
-    wrap.querySelectorAll('.ig-popover-stats strong').forEach(function (el) {
-      if (!el.dataset.target) el.dataset.target = el.textContent.trim();
-      var target = parseStatTarget(el.dataset.target);
-      if (!target) return;
-      var start = performance.now(), duration = COUNT_MS;
-      function tick(now) {
-        var p = Math.min(1, (now - start) / duration);
-        var eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = formatStat(target.value * eased, target.isK, target.decimals);
-        if (p < 1) requestAnimationFrame(tick);
-        else el.textContent = el.dataset.target;
-      }
-      requestAnimationFrame(tick);
-    });
-  }
-
-  function positionPopover(wrap) {
-    var pop = wrap.querySelector('.ig-popover');
-    pop.style.setProperty('--shift', '0px');
-    var rect = pop.getBoundingClientRect();
-    var margin = 12;
-    var shift = 0;
-    if (rect.left < margin) shift = margin - rect.left;
-    else if (rect.right > window.innerWidth - margin) shift = (window.innerWidth - margin) - rect.right;
-    if (shift) pop.style.setProperty('--shift', shift + 'px');
-    animatePopoverStats(wrap);
-  }
-  avatarWraps.forEach(function (wrap) {
-    wrap.addEventListener('mouseenter', function () { positionPopover(wrap); });
-    wrap.addEventListener('click', function (e) {
-      if (window.matchMedia('(hover: hover)').matches) return;
-      e.preventDefault();
-      var isOpen = wrap.classList.contains('open');
-      avatarWraps.forEach(function (w) { w.classList.remove('open'); });
-      if (!isOpen) {
-        wrap.classList.add('open');
-        positionPopover(wrap);
-      }
-    });
-  });
-  document.addEventListener('click', function (e) {
-    if (!e.target.closest('.client-avatar-wrap')) {
-      avatarWraps.forEach(function (w) { w.classList.remove('open'); });
-    }
-  });
 
   // ---------------------------------------------------------------------
   // Hero raw/designed reveal.
