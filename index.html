@@ -612,6 +612,19 @@
     border-radius: var(--radius-3);
     box-shadow: var(--shadow-1);
     text-align: left;
+    transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .client-card:hover {
+      position: relative;
+      z-index: 1;
+      transform: scale(1.04);
+      box-shadow: var(--shadow-3);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .client-card { transition: none; }
+    .client-card:hover { transform: none; }
   }
   .client-card-top {
     display: flex;
