@@ -448,16 +448,16 @@
   .tm-shot-tag { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--accent-dim); color: var(--maroon); margin-right: 6px; }
   .tm-shot-arrow { font-size: 22px; color: var(--maroon); font-weight: 600; line-height: 1; }
   .tm-ba { margin-top: 48px; }
-  .tm-ba-stack { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
+  .tm-ba-stack { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
   .tm-ba-label { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 10px; border-radius: var(--radius-pill); background: var(--accent-dim); color: var(--maroon); text-align: center; }
-  .tm-ba-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; width: 100%; align-items: center; }
+  .tm-ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; align-items: center; }
   .tm-ba-media { display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
   .tm-ba-text h3 { font-family: var(--font-serif); font-style: italic; font-weight: 600; color: var(--maroon); font-size: var(--text-xl); line-height: var(--leading-tight); margin: 0 0 12px; }
   .tm-ba-text p { margin: 0; color: var(--ink-dim); font-size: var(--text-md); line-height: 1.6; }
   .tm-ba-pair { display: flex; width: 100%; border-radius: var(--radius-2); overflow: hidden; border: 1px solid var(--glass-border); }
   .tm-ba-pair .tm-shot { flex: 1 1 0; max-width: none; min-width: 0; }
   .tm-ba-pair .tm-shot-img { border: 0; border-radius: 0; }
-  @media (max-width: 880px) { .tm-ba-grid { grid-template-columns: 1fr; gap: 24px; } .tm-ba-text { text-align: center; } }
+  @media (max-width: 880px) { .tm-ba-grid { grid-template-columns: 1fr; gap: 24px; } .tm-ba-stack { width: 100%; max-width: 440px; margin: 0 auto; } .tm-ba-text { text-align: center; } }
 
   @media (prefers-reduced-motion: reduce) { .tm-play::before { animation: none; } }
 
