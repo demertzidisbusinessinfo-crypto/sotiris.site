@@ -447,14 +447,16 @@
   .tm-shot figcaption { text-align: center; margin-top: 8px; font-size: var(--text-xs); color: var(--ink-dim); }
   .tm-shot-tag { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--accent-dim); color: var(--maroon); margin-right: 6px; }
   .tm-shot-arrow { font-size: 22px; color: var(--maroon); font-weight: 600; line-height: 1; }
-  .tm-ba { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 48px; }
+  .tm-ba { display: flex; flex-direction: column; align-items: center; gap: 32px; margin-top: 48px; }
   .tm-ba-label { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 10px; border-radius: var(--radius-pill); background: var(--accent-dim); color: var(--maroon); text-align: center; }
-  .tm-ba-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; width: 100%; align-items: start; justify-items: center; }
+  .tm-ba-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; width: 100%; align-items: center; }
+  .tm-ba-media { display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
+  .tm-ba-text { margin: 0; color: var(--ink-dim); font-size: var(--text-sm); line-height: 1.6; }
   .tm-ba-pair { display: flex; width: 100%; border-radius: var(--radius-2); overflow: hidden; border: 1px solid var(--glass-border); }
   .tm-ba-pair .tm-shot { flex: 1 1 0; max-width: none; min-width: 0; }
   .tm-ba-pair .tm-shot-img { border: 0; border-radius: 0; }
-  @media (max-width: 880px) { .tm-ba-grid { grid-template-columns: 1fr; } }
-  .tm-ba-note { max-width: 560px; margin: 10px auto 0; text-align: center; color: var(--ink-dim); font-size: var(--text-sm); line-height: 1.6; }
+  @media (max-width: 880px) { .tm-ba-grid { grid-template-columns: 1fr; gap: 14px; } .tm-ba-text { text-align: center; } }
+  .tm-ba-note { max-width: 560px; margin: 0 auto; text-align: center; color: var(--ink-dim); font-size: var(--text-sm); line-height: 1.6; }
 
   @media (prefers-reduced-motion: reduce) { .tm-play::before { animation: none; } }
 
@@ -1382,8 +1384,9 @@
 
     <!-- Before / after proof grid (drop the images into assets/) -->
     <div class="tm-ba">
-      <div class="tm-ba-label">Before</div>
       <div class="tm-ba-grid">
+        <div class="tm-ba-media">
+        <div class="tm-ba-label">Before</div>
         <div class="tm-ba-pair">
         <figure class="tm-shot" style="flex-grow: 0.6450">
           <div class="tm-shot-img tm-shot-missing">
@@ -1400,18 +1403,12 @@
           </div>
         </figure>
         </div>
-        <figure class="tm-shot">
-          <div class="tm-shot-img tm-shot-missing">
-            <img src="assets/dm-1.jpg" alt="Client message from Matthew" loading="lazy"
-                 onload="this.parentElement.classList.remove('tm-shot-missing')"
-                 onerror="this.remove()">
-          </div>
-          <figcaption><span class="tm-shot-tag">Client DM</span></figcaption>
-        </figure>
+        </div>
+        <p class="tm-ba-text">Before we started working together. Edit this text.</p>
       </div>
-      <div class="tm-shot-arrow">↓</div>
-      <div class="tm-ba-label">After</div>
       <div class="tm-ba-grid">
+        <div class="tm-ba-media">
+        <div class="tm-ba-label">After</div>
         <div class="tm-ba-pair">
         <figure class="tm-shot" style="flex-grow: 0.6404">
           <div class="tm-shot-img tm-shot-missing">
@@ -1428,14 +1425,8 @@
           </div>
         </figure>
         </div>
-        <figure class="tm-shot">
-          <div class="tm-shot-img tm-shot-missing">
-            <img src="assets/dm-2.jpg" alt="Client message from Matthew" loading="lazy"
-                 onload="this.parentElement.classList.remove('tm-shot-missing')"
-                 onerror="this.remove()">
-          </div>
-          <figcaption><span class="tm-shot-tag">Client DM</span></figcaption>
-        </figure>
+        </div>
+        <p class="tm-ba-text">After we started working together. Edit this text.</p>
       </div>
       <p class="tm-ba-note">Same creator, same platform — the difference is the edit. These went out after we started working together.</p>
     </div>
