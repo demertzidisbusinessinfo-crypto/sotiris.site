@@ -463,7 +463,6 @@
   .tm-dm-shots { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; width: 100%; max-width: 440px; margin: 0 auto; }
   .tm-dm-row { display: flex; align-items: center; gap: 10px; width: 100%; }
   .tm-dm-row .tm-shot { min-width: 0; }
-  .tm-comm .tm-shot-narrow { width: 60%; }
   .tm-ba-pair { display: flex; width: 100%; border-radius: var(--radius-2); overflow: hidden; border: 1px solid var(--glass-border); }
   .tm-ba-pair .tm-shot { flex: 1 1 0; max-width: none; min-width: 0; }
   .tm-ba-pair .tm-shot-img { border: 0; border-radius: 0; }
@@ -1447,7 +1446,7 @@
       <div class="tm-ba-grid">
         <div class="tm-ba-text">
           <h3>What do clients say about quality?</h3>
-          <p>These are the messages I get right after I deliver a new video. Reactions like these are my favourite part of the job.</p>
+          <p>These are the messages we get right after a new video is delivered. Reactions like these are our favourite part of the job.</p>
         </div>
         <div class="tm-dm-shots">
           <div class="tm-dm-row">
@@ -1480,13 +1479,22 @@
     <div class="tm-ba tm-comm">
       <div class="tm-ba-grid">
         <div class="tm-dm-shots">
-          <figure class="tm-shot tm-shot-narrow">
+          <div class="tm-dm-row">
+          <figure class="tm-shot" style="flex: 1.073 1 0">
             <div class="tm-shot-img tm-shot-missing">
-              <img src="assets/comm-1.jpg" width="622" height="672" alt="Client message: one of the best editors I've encountered for communication, storytelling and efficiency, and would love to work together again" loading="lazy"
+              <img src="assets/comm-1.jpg" width="562" height="524" alt="Client message: one of the best editors I've encountered for communication, storytelling and efficiency, and would love to work together again" loading="lazy"
                    onload="this.parentElement.classList.remove('tm-shot-missing')"
                    onerror="this.remove()">
             </div>
           </figure>
+          <figure class="tm-shot" style="flex: 1.387 1 0">
+            <div class="tm-shot-img tm-shot-missing">
+              <img src="assets/comm-3.jpg" width="566" height="408" alt="Client message: I loved it, the best first draft I've ever received from an editor, loving this partnership already" loading="lazy"
+                   onload="this.parentElement.classList.remove('tm-shot-missing')"
+                   onerror="this.remove()">
+            </div>
+          </figure>
+          </div>
           <figure class="tm-shot">
             <div class="tm-shot-img tm-shot-missing">
               <img src="assets/comm-2.jpg" width="1046" height="742" alt="Chat with a client who replies: your communication is goated" loading="lazy"
@@ -1496,8 +1504,8 @@
           </figure>
         </div>
         <div class="tm-ba-text">
-          <h3>What about communication?</h3>
-          <p>Fast replies, clear updates and no chasing. Clients tell me it's one of the main reasons they want to work together again.</p>
+          <h3>How's the feeling of working with us?</h3>
+          <p>Taking away the headache from a founder/coach is like giving him extra hours in a day. Communication is key on a successful partnership that guarantees results, and that's why we invested on it.</p>
         </div>
       </div>
     </div>
