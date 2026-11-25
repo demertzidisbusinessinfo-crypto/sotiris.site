@@ -463,10 +463,11 @@
   .tm-dm-shots { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; width: 100%; max-width: 440px; margin: 0 auto; }
   .tm-dm-row { display: flex; align-items: center; gap: 10px; width: 100%; }
   .tm-dm-row .tm-shot { min-width: 0; }
+  .tm-comm .tm-shot-narrow { width: 60%; }
   .tm-ba-pair { display: flex; width: 100%; border-radius: var(--radius-2); overflow: hidden; border: 1px solid var(--glass-border); }
   .tm-ba-pair .tm-shot { flex: 1 1 0; max-width: none; min-width: 0; }
   .tm-ba-pair .tm-shot-img { border: 0; border-radius: 0; }
-  @media (max-width: 880px) { .tm-ba-grid { grid-template-columns: 1fr; gap: 24px; } .tm-ba-stack { width: 100%; max-width: 440px; margin: 0 auto; } .tm-ba-text { text-align: center; } }
+  @media (max-width: 880px) { .tm-ba-grid { grid-template-columns: 1fr; gap: 24px; } .tm-ba-stack { width: 100%; max-width: 440px; margin: 0 auto; } .tm-ba-text { text-align: center; } .tm-comm .tm-ba-text { order: -1; } }
 
   @media (prefers-reduced-motion: reduce) { .tm-play::before { animation: none; } }
 
@@ -1472,6 +1473,31 @@
                    onerror="this.remove()">
             </div>
           </figure>
+        </div>
+      </div>
+    </div>
+    <!-- Communication: screenshots left, text right -->
+    <div class="tm-ba tm-comm">
+      <div class="tm-ba-grid">
+        <div class="tm-dm-shots">
+          <figure class="tm-shot tm-shot-narrow">
+            <div class="tm-shot-img tm-shot-missing">
+              <img src="assets/comm-1.jpg" width="622" height="672" alt="Client message: one of the best editors I've encountered for communication, storytelling and efficiency, and would love to work together again" loading="lazy"
+                   onload="this.parentElement.classList.remove('tm-shot-missing')"
+                   onerror="this.remove()">
+            </div>
+          </figure>
+          <figure class="tm-shot">
+            <div class="tm-shot-img tm-shot-missing">
+              <img src="assets/comm-2.jpg" width="1046" height="742" alt="Chat with a client who replies: your communication is goated" loading="lazy"
+                   onload="this.parentElement.classList.remove('tm-shot-missing')"
+                   onerror="this.remove()">
+            </div>
+          </figure>
+        </div>
+        <div class="tm-ba-text">
+          <h3>What about communication?</h3>
+          <p>Fast replies, clear updates and no chasing. Clients tell me it's one of the main reasons they want to work together again.</p>
         </div>
       </div>
     </div>
