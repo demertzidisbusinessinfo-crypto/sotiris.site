@@ -438,7 +438,13 @@
   .tm-stat-value { font-family: var(--font-display); font-weight: 600; font-size: var(--text-2xl); color: var(--maroon); font-variant-numeric: tabular-nums; line-height: 1; }
   .tm-stat-label { font-size: var(--text-2xs); color: var(--ink-dim); margin-top: 8px; letter-spacing: 0.02em; }
 
-  .tm-shots { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 36px; }
+  .tm-shots { display: flex; align-items: center; justify-content: center; gap: 16px; max-width: 880px; margin: 36px auto 0; }
+  .tm-shots .tm-shot { flex: 1 1 0; min-width: 0; }
+  @media (max-width: 640px) {
+    .tm-shots { flex-direction: column; gap: 14px; }
+    .tm-shots .tm-shot { flex: none; }
+    .tm-shots .tm-shot-arrow { transform: rotate(90deg); }
+  }
   .tm-shot { width: 100%; max-width: 560px; margin: 0; }
   .tm-shot-img { position: relative; border-radius: var(--radius-2); overflow: hidden; background: var(--bg-elevated); border: 1px solid var(--glass-border); min-height: 72px; display: flex; align-items: center; justify-content: center; }
   .tm-shot-img img { width: 100%; height: auto; display: block; }
@@ -449,9 +455,9 @@
   .tm-shot-arrow { font-size: 22px; color: var(--maroon); font-weight: 600; line-height: 1; }
   .tm-ba { margin-top: 48px; }
   .tm-ba-stack { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
-  .tm-ba-label { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 10px; border-radius: var(--radius-pill); background: var(--accent-dim); color: var(--maroon); text-align: center; }
+  .tm-ba-label { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 10px; border-radius: var(--radius-pill); background: var(--bg); color: var(--maroon); position: absolute; top: 10px; left: 10px; z-index: 1; box-shadow: var(--shadow-1, 0 1px 3px rgba(0,0,0,0.2)); }
   .tm-ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; align-items: center; }
-  .tm-ba-media { display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
+  .tm-ba-media { display: flex; flex-direction: column; min-width: 0; position: relative; }
   .tm-ba-text h3 { font-family: var(--font-serif); font-style: italic; font-weight: 600; color: var(--maroon); font-size: var(--text-xl); line-height: var(--leading-tight); margin: 0 0 12px; }
   .tm-ba-text p { margin: 0; color: var(--ink-dim); font-size: var(--text-md); line-height: 1.6; }
   .tm-ba-pair { display: flex; width: 100%; border-radius: var(--radius-2); overflow: hidden; border: 1px solid var(--glass-border); }
@@ -1364,7 +1370,7 @@
 
     <!-- Before / after follower screenshots (drop the images into assets/) -->
     <div class="tm-shots">
-      <figure class="tm-shot">
+      <figure class="tm-shot" style="flex-grow: 3.0395">
         <div class="tm-shot-img tm-shot-missing">
           <img src="assets/matthew-before.png" width="462" height="152" alt="Matthew's Instagram at 2,183 followers" loading="lazy"
                onload="this.parentElement.classList.remove('tm-shot-missing')"
@@ -1372,8 +1378,8 @@
         </div>
         <figcaption><span class="tm-shot-tag">Before</span> 2,183 followers</figcaption>
       </figure>
-      <div class="tm-shot-arrow">↓</div>
-      <figure class="tm-shot">
+      <div class="tm-shot-arrow">→</div>
+      <figure class="tm-shot" style="flex-grow: 3.6776">
         <div class="tm-shot-img tm-shot-missing">
           <img src="assets/matthew-after.jpg" width="1118" height="304" alt="Matthew's Instagram at 7,035 followers" loading="lazy"
                onload="this.parentElement.classList.remove('tm-shot-missing')"
