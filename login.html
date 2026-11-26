@@ -292,6 +292,11 @@
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
+    if (!supabaseClient) {
+      showError('Unable to load the login service. Please reload the page and try again.');
+      return;
+    }
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Logging in…';
 
