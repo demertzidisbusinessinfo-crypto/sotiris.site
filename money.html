@@ -198,6 +198,18 @@
   .feed-meta { font-size: 11.5px; color: var(--ink-faint); margin-top: 3px; }
   .feed-amt { font-family: var(--font-mono); font-size: 14px; white-space: nowrap; color: var(--out); }
   .feed-amt.in { color: var(--in); }
+  .feed-delete {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--out);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .feed-delete:hover { background: var(--surface-2); }
   .empty { color: var(--ink-faint); font-size: 13.5px; padding: 22px 2px; text-align: center; }
 
   /* ---------------- the two big buttons ---------------- */
@@ -773,12 +785,16 @@
             '</div>' +
             '<div class="feed-amt' + (isIn ? ' in' : '') + '">' + (isIn ? '+' : '−') +
               money(toDisplay(o.amount, o.currency)).replace('-', '') + '</div>' +
+            '<button type="button" class="feed-delete">Delete</button>' +
             '</div>';
         }).join('')
       : '<div class="empty">Nothing logged yet.</div>';
 
-    Array.prototype.forEach.call($('feed').querySelectorAll('.feed-row'), function (row) {
-      row.addEventListener('click', function () { removeEntry(row.dataset.id, row.dataset.repeat === '1'); });
+    Array.prototype.forEach.call($('feed').querySelectorAll('.feed-row'), function (row, index) {
+      var button = row.querySelector('.feed-delete');
+      button.setAttribute('aria-label', 'Delete ' + row.querySelector('.feed-note').textContent + ', ' +
+        row.querySelector('.feed-amt').textContent + ', ' + row.querySelector('.feed-meta').textContent);
+      button.addEventListener('click', function () { removeEntry(row.dataset.id, row.dataset.repeat === '1', index); });
     });
   }
 
@@ -897,7 +913,7 @@
     toast(draft.repeat ? 'Saved — repeats every month.' : 'Saved.');
   }
 
-  async function removeEntry(id, isRepeat) {
+  async function removeEntry(id, isRepeat, focusIndex) {
     var ok = window.confirm(isRepeat
       ? 'This is a monthly entry. Deleting it removes every month it covers. Delete it?'
       : 'Delete this entry?');
@@ -907,7 +923,17 @@
     if (res.error) { toast('Could not delete: ' + res.error.message); return; }
 
     entries = entries.filter(function (r) { return r.id !== id; });
+    if (typeof focusIndex === 'number') {
+      focusIndex = Array.prototype.filter.call($('feed').querySelectorAll('.feed-row'), function (row, index) {
+        return index < focusIndex && row.dataset.id !== id;
+      }).length;
+    }
     render();
+    if (typeof focusIndex === 'number') {
+      var buttons = $('feed').querySelectorAll('.feed-delete');
+      var target = buttons[Math.min(focusIndex, buttons.length - 1)] || document.querySelector('.go-out');
+      target.focus();
+    }
     toast('Deleted.');
   }
 
