@@ -207,20 +207,6 @@
 
     document.querySelector('.form-shell').classList.add('showing-pending');
   });
-
-  // Show/hide for the password fields. Two of these pages ask for the password
-  // twice and gave you no way to check what you typed.
-  Array.prototype.forEach.call(document.querySelectorAll('.pw-toggle'), function (btn) {
-    btn.addEventListener('click', function () {
-      var input = document.getElementById(btn.getAttribute('data-pw'));
-      if (!input) return;
-      var showing = input.type === 'text';
-      input.type = showing ? 'password' : 'text';
-      btn.setAttribute('aria-pressed', String(!showing));
-      btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
-      input.focus({ preventScroll: true });
-    });
-  });
 </script>
 
 </body>
