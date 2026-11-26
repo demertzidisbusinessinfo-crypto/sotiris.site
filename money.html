@@ -75,6 +75,16 @@
   }
   .login h1 { font-size: 26px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.02em; }
   .login p { color: var(--ink-dim); font-size: 14px; margin: 0 0 18px; line-height: 1.5; }
+  .login-field + .login-field { margin-top: 6px; }
+  .login-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
   .field {
     width: 100%;
     background: var(--surface);
@@ -438,8 +448,14 @@
   <form class="login" id="login-form">
     <h1>Money</h1>
     <p>Sign in with the same account you use for the dashboard.</p>
-    <input class="field" id="login-email" type="email" inputmode="email" autocomplete="username" spellcheck="false" placeholder="Email" aria-label="Email" required>
-    <input class="field" id="login-pass" type="password" autocomplete="current-password" spellcheck="false" placeholder="Password" aria-label="Password" required>
+    <div class="login-field">
+      <label for="login-email">Email</label>
+      <input class="field" id="login-email" type="email" inputmode="email" autocomplete="username" spellcheck="false" placeholder="you@example.com" required>
+    </div>
+    <div class="login-field">
+      <label for="login-pass">Password</label>
+      <input class="field" id="login-pass" type="password" autocomplete="current-password" spellcheck="false" placeholder="••••••••" required>
+    </div>
     <button class="btn-big" id="login-btn" type="submit">Sign in</button>
     <div class="msg" id="login-msg" role="alert" aria-live="polite"></div>
   </form>
